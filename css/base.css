@@ -17,7 +17,7 @@
     --shadow-light: rgba(0, 0, 0, 0.1);
     --shadow-medium: rgba(0, 0, 0, 0.15);
     --accent-color: #000000;
-    --success-color: #00c851;
+    --success-color: #000000;
     --error-color: #ff4444;
     --warning-color: #ffbb33;
 }
@@ -34,7 +34,7 @@
     --shadow-light: rgba(255, 255, 255, 0.1);
     --shadow-medium: rgba(255, 255, 255, 0.15);
     --accent-color: #ffffff;
-    --success-color: #00e676;
+    --success-color: #d9dddb;
     --error-color: #ff5252;
     --warning-color: #ffc107;
 }
