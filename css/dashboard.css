@@ -25,7 +25,7 @@
     content: '';
     width: 24px;
     height: 24px;
-    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
+    background-image: url('../attached_assets/beaverly_logoi.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -35,7 +35,7 @@
 }
 
 [data-theme="dark"] .app-title::before {
-    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
+    background-image: url('../attached_assets/beaverly_lodo.png');
 }
 
 /* Sidebar */
@@ -313,21 +313,21 @@
 
 /* Inactive state - hollow logo */
 .nav-item:not(.active) .chilla-icon {
-    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
+    background-image: url('../attached_assets/beaverly_logoi.png');
 }
 
 [data-theme="dark"] .nav-item:not(.active) .chilla-icon {
-    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
+    background-image: url('../attached_assets/beaverly_lodo.png');
 }
 
 /* Active state - full opacity */
 .nav-item.active .chilla-icon {
-    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
+    background-image: url('../attached_assets/beaverly_logoi.png');
     opacity: 1;
 }
 
 [data-theme="dark"] .nav-item.active .chilla-icon {
-    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
+    background-image: url('../attached_assets/beaverly_lodo.png');
 }
 
 /* Lose Tab Icon - Hollow by default, filled when active */
