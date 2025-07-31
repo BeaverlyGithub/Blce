@@ -1,489 +1,445 @@
-document.addEventListener('DOMContentLoaded', async function () {
-    let userProfile = null;
-    let isAuthenticated = false;
 
-    // Verify user authentication using secure cookie
-    try {
-        const res = await fetch('https://cook.beaverlyai.com/api/verify_token', {
-            method: 'POST',
-            credentials: 'include'
-        });
+const API_BASE = 'https://cook.beaverlyai.com';
 
-        if (!res.ok) {
-            localStorage.clear();
-            window.location.href = 'index.html';
-            return;
-        }
+class ChillaDashboard {
+    constructor() {
+        this.currentUser = null;
+        this.isAuthenticated = false;
+        this.currentTheme = 'light';
+        this.isConnected = false;
 
-        const data = await res.json();
-        if (data.status === 'valid') {
-            isAuthenticated = true;
-            userProfile = data.users || {};
-        } else {
-            localStorage.clear();
-            window.location.href = 'index.html';
-            return;
-        }
-    } catch (e) {
-        console.error('Authentication failed:', e);
-        localStorage.clear();
-        window.location.href = 'index.html';
-        return;
+        this.init();
     }
 
-    // Initialize dashboard with user-specific features
-    initializeDashboard(userProfile);
-    loadDashboardData();
-    setInterval(loadDashboardData, 30000);
+    async init() {
+        this.setupTheme();
+        this.setupEventListeners();
+        await this.checkAuthentication();
+    }
 
-    document.getElementById('logout-btn').addEventListener('click', async function() {
-        localStorage.clear();
+    async checkAuthentication() {
         try {
-            await fetch('https://cook.beaverlyai.com/api/logout', {
+            const response = await fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include'
             });
-        } catch (err) {
-            console.warn('Logout failed silently:', err);
-        }
-        window.location.href = 'index.html';
-    });
 
-    async function loadDashboardData() {
-        try {
-            const api_key = localStorage.getItem('chilla_api_key');
-            if (!api_key) {
-                updateDashboardUI(getFallbackData());
+            if (!response.ok) {
+                localStorage.clear();
+                window.location.href = 'index.html';
                 return;
             }
-            console.log('Stored API Key:', localStorage.getItem('chilla_api_key'));
-            
 
-            const response = await fetch(`https://cook.beaverlyai.com/stats`, {
+            const data = await response.json();
+            if (data.status === 'valid') {
+                this.isAuthenticated = true;
+                this.currentUser = data.users || {};
+                this.showMainApp();
+                this.loadDashboardData();
+                // Set up periodic data refresh
+                setInterval(() => this.loadDashboardData(), 30000);
+                return;
+            } else {
+                localStorage.clear();
+                window.location.href = 'index.html';
+                return;
+            }
+        } catch (error) {
+            console.error('Authentication failed:', error);
+            localStorage.clear();
+            window.location.href = 'index.html';
+            return;
+        }
+    }
+
+    setupEventListeners() {
+        // Main app listeners
+        document.getElementById('menu-btn').addEventListener('click', () => this.toggleSidebar());
+        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+        document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
+
+        // Sidebar listeners
+        document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
+        document.getElementById('upgrade-btn').addEventListener('click', () => this.showUpgrade());
+        document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
+        document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
+        document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
+        document.getElementById('contact-btn').addEventListener('click', () => this.showContact());
+        document.getElementById('faq-btn').addEventListener('click', () => this.showFAQ());
+
+        // Bottom nav listeners
+        document.getElementById('home-nav').addEventListener('click', () => this.showHome());
+        document.getElementById('menu-nav').addEventListener('click', () => this.toggleSidebar());
+
+        // Modal listeners
+        document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
+        document.getElementById('broker-oauth-btn').addEventListener('click', () => this.handleBrokerOAuth());
+        document.getElementById('modal-close-btn').addEventListener('click', () => this.closeBrokerModal());
+        document.getElementById('confirm-disconnect-btn').addEventListener('click', () => this.confirmDisconnect());
+        document.getElementById('cancel-disconnect-btn').addEventListener('click', () => this.closeDisconnectModal());
+
+        // Sidebar overlay listener
+        document.querySelector('.sidebar-overlay').addEventListener('click', () => this.closeSidebar());
+    }
+
+    setupTheme() {
+        this.currentTheme = localStorage.getItem('chilla-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', this.currentTheme);
+    }
+
+    showMainApp() {
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+
+        if (this.currentUser) {
+            document.getElementById('user-display-name').textContent = this.currentUser.full_name || 'User';
+            document.getElementById('user-display-email').textContent = this.currentUser.email;
+
+            const verificationStatus = document.getElementById('verification-status');
+            if (this.currentUser.email_verified) {
+                verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
+            } else {
+                verificationStatus.innerHTML = '<span class="status-dot unverified"></span><span>Unverified</span>';
+            }
+
+            // Store user email for other components
+            localStorage.setItem('chilla_user_email', this.currentUser.email);
+        }
+    }
+
+    async loadDashboardData() {
+        try {
+            await Promise.all([
+                this.loadBalance(),
+                this.loadPositions(),
+                this.checkConnectionStatus()
+            ]);
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            this.loadFallbackData();
+        }
+    }
+
+    async loadBalance() {
+        try {
+            const response = await fetch(`${API_BASE}/api/customer_balance`, {
+                method: 'GET',
                 credentials: 'include'
             });
 
-            if (!response.ok) throw new Error('Failed to load dashboard data');
-
-            const data = await response.json();
-            updateDashboardUI(data);
-            checkForNewProfits(data);
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('account-balance').textContent = this.formatCurrency(data.balance || 0);
+                document.getElementById('total-earnings').textContent = this.formatCurrency(data.earnings || 0);
+            } else {
+                throw new Error('Failed to load balance');
+            }
         } catch (error) {
-            console.error('Error loading dashboard data:', error);
-            updateDashboardUI(getFallbackData());
+            console.error('Error loading balance:', error);
+            // Show fallback data
+            document.getElementById('account-balance').textContent = '$0.00';
+            document.getElementById('total-earnings').textContent = '$0.00';
         }
     }
 
-    function initializeDashboard(userProfile) {
-        // Set up user interface based on plan
-        setupUserInterface(userProfile);
-        
-        // Initialize modals and panels
-        initializeModals();
-        
-        // Set up chart
-        const chartElement = document.getElementById('profitChart');
-        if (chartElement) {
-            const ctx = chartElement.getContext('2d');
-            window.profitChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Profit/Loss',
-                        data: [],
-                        borderColor: '#000000',
-                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            grid: { display: false }
-                        },
-                        y: {
-                            display: true,
-                            grid: { color: '#E5E7EB' },
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toFixed(2);
-                                }
-                            }
-                        }
-                    }
-                }
+    async loadPositions() {
+        try {
+            const response = await fetch(`${API_BASE}/api/active_positions`, {
+                method: 'GET',
+                credentials: 'include'
             });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.displayPositions(data.positions || []);
+            } else {
+                throw new Error('Failed to load positions');
+            }
+        } catch (error) {
+            console.error('Error loading positions:', error);
+            this.displayPositions([]);
         }
     }
 
-    function updateDashboardUI(data) {
-        document.getElementById('balance').textContent = formatCurrency(data.balance || 0);
-        document.getElementById('equity').textContent = formatCurrency(data.equity || 0);
-        document.getElementById('win-rate').textContent = formatPercentage(data.win_rate || 0);
-        document.getElementById('open-trades').textContent = data.open_trades?.length || 0;
-
-        if (data.profit_history?.length > 0) updateProfitChart(data.profit_history);
-        updateTradesTable(data.open_trades || []);
+    loadFallbackData() {
+        document.getElementById('account-balance').textContent = '$0.00';
+        document.getElementById('total-earnings').textContent = '$0.00';
+        this.displayPositions([]);
     }
 
-    function updateProfitChart(history) {
-        const labels = history.map(i => formatTime(i.timestamp));
-        const profits = history.map(i => i.profit);
+    displayPositions(positions) {
+        const positionsList = document.getElementById('positions-list');
 
-        window.profitChart.data.labels = labels;
-        window.profitChart.data.datasets[0].data = profits;
-        window.profitChart.update();
-    }
-
-    function updateTradesTable(trades) {
-        const tbody = document.getElementById('trades-table');
-        
-        if (trades.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-8 h-8 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            <span>No active trades</span>
-                        </div>
-                    </td>
-                </tr>
-            `;
+        if (!positions || positions.length === 0) {
+            positionsList.innerHTML = '<div class="position-item"><span>No active positions</span></div>';
             return;
         }
 
-        tbody.innerHTML = trades.map(trade => `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${trade.symbol}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span class="px-2 py-1 text-xs font-medium rounded-full ${trade.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                        ${trade.type}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${trade.volume}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(trade.entry_price)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(trade.current_price)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'}">
-                    ${formatCurrency(trade.pnl)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDuration(trade.duration)}</td>
-            </tr>
+        positionsList.innerHTML = positions.map(position => `
+            <div class="position-item">
+                <span class="position-symbol">${position.symbol}</span>
+                <span class="connection-status ${position.connected ? 'connected' : 'disconnected'}"></span>
+            </div>
         `).join('');
     }
 
-    function getFallbackData() {
-        const start = Date.now() - 6 * 86400000;
-        return {
-            balance: 10000,
-            equity: 10000 + Math.floor(Math.random() * 200 - 100),
-            win_rate: parseFloat((Math.random() * 30 + 50).toFixed(1)),
-            open_trades: [],
-            profit_history: Array.from({ length: 7 }, (_, i) => ({
-                timestamp: start + i * 86400000,
-                profit: 50 * (i + 1) + Math.random() * 100
-            }))
-        };
+    async checkConnectionStatus() {
+        try {
+            const response = await fetch(`${API_BASE}/api/connection_status`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.updateConnectionStatus(data.connected);
+            } else {
+                this.updateConnectionStatus(false);
+            }
+        } catch (error) {
+            console.error('Error checking connection status:', error);
+            this.updateConnectionStatus(false);
+        }
     }
 
-    function formatCurrency(amount) {
+    updateConnectionStatus(connected) {
+        this.isConnected = connected;
+        const connectBtn = document.getElementById('connect-chilla-btn');
+
+        if (connected) {
+            connectBtn.innerHTML = `
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/>
+                </svg>
+                <span class="status-dot connected"></span>
+                Disconnect Chilla
+            `;
+            connectBtn.classList.add('connected');
+        } else {
+            connectBtn.innerHTML = `
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/>
+                </svg>
+                <span class="status-dot disconnected"></span>
+                Connect Chilla
+            `;
+            connectBtn.classList.remove('connected');
+        }
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.remove('open');
+    }
+
+    toggleTheme() {
+        this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', this.currentTheme);
+        localStorage.setItem('chilla-theme', this.currentTheme);
+    }
+
+    async handleLogout() {
+        // Clear local storage first
+        localStorage.clear();
+        
+        try {
+            await fetch(`${API_BASE}/api/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.warn('Logout failed silently:', error);
+        }
+
+        window.location.href = 'index.html';
+    }
+
+    handleConnectChilla() {
+        if (this.isConnected) {
+            this.showDisconnectModal();
+        } else {
+            this.showBrokerModal();
+        }
+        this.closeSidebar();
+    }
+
+    showBrokerModal() {
+        document.getElementById('broker-modal').classList.remove('hidden');
+    }
+
+    closeBrokerModal() {
+        document.getElementById('broker-modal').classList.add('hidden');
+        document.getElementById('broker-dropdown').value = '';
+        document.getElementById('broker-oauth-btn').disabled = true;
+    }
+
+    showDisconnectModal() {
+        document.getElementById('disconnect-modal').classList.remove('hidden');
+    }
+
+    closeDisconnectModal() {
+        document.getElementById('disconnect-modal').classList.add('hidden');
+    }
+
+    handleBrokerSelection() {
+        const dropdown = document.getElementById('broker-dropdown');
+        const oauthBtn = document.getElementById('broker-oauth-btn');
+
+        if (dropdown.value) {
+            oauthBtn.disabled = false;
+        } else {
+            oauthBtn.disabled = true;
+        }
+    }
+
+    async handleBrokerOAuth() {
+        const selectedBroker = document.getElementById('broker-dropdown').value;
+
+        if (!selectedBroker) {
+            this.showNotification('Please select a broker', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/api/connect_oauth`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ broker: selectedBroker })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.oauth_url) {
+                    window.open(data.oauth_url, '_blank');
+                    this.closeBrokerModal();
+                    this.showNotification('OAuth window opened. Complete the process to connect.', 'success');
+                }
+            } else {
+                const errorData = await response.json();
+                this.showNotification(errorData.error || 'Failed to connect to broker', 'error');
+            }
+        } catch (error) {
+            console.error('Connection error:', error);
+            this.showNotification('Connection error', 'error');
+        }
+    }
+
+    async confirmDisconnect() {
+        try {
+            const response = await fetch(`${API_BASE}/api/disconnect_oauth`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                this.updateConnectionStatus(false);
+                this.closeDisconnectModal();
+                this.showNotification('Chilla disconnected successfully', 'success');
+            } else {
+                const errorData = await response.json();
+                this.showNotification(errorData.error || 'Failed to disconnect', 'error');
+            }
+        } catch (error) {
+            console.error('Disconnection error:', error);
+            this.showNotification('Disconnection error', 'error');
+        }
+    }
+
+    showUpgrade() {
+        window.location.href = 'upgrade.html';
+        this.closeSidebar();
+    }
+
+    changeEmail() {
+        window.location.href = 'change-email.html';
+        this.closeSidebar();
+    }
+
+    changePassword() {
+        window.location.href = 'change-password.html';
+        this.closeSidebar();
+    }
+
+    async verifyEmail() {
+        const email = this.currentUser?.email || localStorage.getItem('chilla_user_email');
+        if (!email) {
+            this.showNotification('No email found. Please log in again.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/api/send_verification_email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                this.showNotification('Verification email sent! Check your inbox.', 'success');
+            } else {
+                this.showNotification(result.error || 'Failed to send verification email', 'error');
+            }
+        } catch (error) {
+            console.error('Verification error:', error);
+            this.showNotification('Network error', 'error');
+        }
+        this.closeSidebar();
+    }
+
+    showContact() {
+        this.showNotification('Contact feature coming soon!', 'info');
+        this.closeSidebar();
+    }
+
+    showFAQ() {
+        this.showNotification('FAQ feature coming soon!', 'info');
+        this.closeSidebar();
+    }
+
+    showHome() {
+        // Already on home, just ensure proper state
+        document.getElementById('home-nav').classList.add('active');
+        document.getElementById('menu-nav').classList.remove('active');
+    }
+
+    formatCurrency(amount) {
         return new Intl.NumberFormat('en-US', {
-            style: 'currency', currency: 'USD'
+            style: 'currency',
+            currency: 'USD'
         }).format(amount);
     }
 
-    function formatPercentage(value) {
-        return value.toFixed(1) + '%';
-    }
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button class="notification-close">&times;</button>
+        `;
 
-    function formatTime(timestamp) {
-        return new Date(timestamp).toLocaleDateString();
-    }
+        document.body.appendChild(notification);
 
-    function formatDuration(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-    }
-
-
-    function updateapiConnectionStatus() {
-    const statusText = document.getElementById('api-connection-status-text');
-    const statusDot = document.getElementById('api-connection-status-dot');
-    const broker = localStorage.getItem('chilla_broker');
-
-    if (!statusText || !statusDot) return;
-
-    if (broker) {
-        statusText.textContent = 'Connected';
-        statusDot.className = 'w-2 h-2 bg-green-400 rounded-full';
-    } else {
-        statusText.textContent = 'Not Connected';
-        statusDot.className = 'w-2 h-2 bg-gray-400 rounded-full';
-    }
-}
-
-
-    function setupUserInterface(userProfile) {
-        const userPlan = (userProfile?.plan || "Chilla's Gift").toLowerCase();
-        const userEmail = userProfile?.email || localStorage.getItem('chilla_user_email') || '';
-        const isGmailUser = userProfile?.auth_provider === 'gmail';
-        const isPaidUser = ['level one', 'deep chill', 'peak chill'].includes(userPlan);
-        if (!isPaidUser) {
-    document.getElementById('connect-chilla-btn')?.classList.add('hidden');
-    document.getElementById('api-status-section')?.classList.add('hidden');
-}
-        console.log('User Plan:', userPlan);
-        console.log('Is Paid User:', isPaidUser);
- 
-
-
-        // Update profile panel
-        document.getElementById('user-email-display').value = userEmail;
-        document.getElementById('current-plan').textContent = userPlan;
-        
-        // Set plan badge color
-        const planBadge = document.getElementById('current-plan');
-        if (isPaidUser || !isPaidUser) {
-            planBadge.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded';
-        }
-
-        // Show/hide Connect Chilla button based on plan
-        const connectBtn = document.getElementById('connect-chilla-btn');
-        if (isPaidUser || !isPaidUser) {
-            connectBtn.classList.remove('hidden');
-        }
-
-
-        // Show/hide email verification for manual signups
-        const emailVerification = document.getElementById('email-verification');
-        const verificationDot = document.getElementById('verification-status-dot');
-        const verificationText = document.getElementById('verification-status-text');
-        
-        if (!isGmailUser && userEmail) {
-            emailVerification.classList.remove('hidden');
-            if (userProfile?.email_verified) {
-                verificationDot.className = 'w-2 h-2 bg-green-400 rounded-full';
-                verificationText.textContent = 'Email verified';
-            }
-        }
-       // Show api status section 
-       const apiStatusSection = document.getElementById('api-status-section');
-       if (isPaidUser) {
-           apiStatusSection.classList.remove('hidden');
-           updateapiConnectionStatus();
-        }
-    }
-
-    function initializeModals() {
-        // API Connection Modal
-        const apiModal = document.getElementById('api-modal');
-        const connectChillaBtn = document.getElementById('connect-chilla-btn');
-        const closeapiModal = document.getElementById('close-api-modal');
-        const cancelapiBtn = document.getElementById('cancel-api-btn');
-        const apiForm = document.getElementById('api-connection-form');
-
-        connectChillaBtn?.addEventListener('click', () => {
-            apiModal.classList.remove('hidden');
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.remove();
         });
 
-        [closeapiModal, cancelapiBtn].forEach(btn => {
-            btn?.addEventListener('click', () => {
-                apiModal.classList.add('hidden');
-            });
-        });
-
-        // Profile Panel
-        const profilePanel = document.getElementById('profile-panel');
-        const profileBtn = document.getElementById('profile-btn');
-        const closeProfilePanel = document.getElementById('close-profile-panel');
-
-        profileBtn?.addEventListener('click', () => {
-            profilePanel.classList.remove('hidden');
-        });
-
-        closeProfilePanel?.addEventListener('click', () => {
-            profilePanel.classList.add('hidden');
-        });
-
-
-        // api Form Submission
-        apiForm?.addEventListener('submit', handleapiConnection);
-
-        // Disconnect Chilla
-        const disconnectBtn = document.getElementById('disconnect-chilla-btn');
-        disconnectBtn?.addEventListener('click', handleDisconnectChilla);
-
-      const verifyEmailBtn = document.getElementById('verify-email-btn');
-
-verifyEmailBtn?.addEventListener('click', async () => {
-    const email = localStorage.getItem('chilla_user_email'); // you already store this when they log in
-    if (!email) {
-        alert("No email found. Please log in again.");
-        return;
-    }
-
-    try {
-        const response = await fetch('https://cook.beaverlyai.com/api/send_verification_email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            alert("Verification email sent! Check your inbox.");
-        } else {
-            alert(result.error || "Failed to send verification email.");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("An error occurred. Please try again.");
-    }
-});
-
-    }
-
-   async function handleapiConnection(e) {
-    e.preventDefault();
-    
-    const api_key = document.getElementById('api_key').value.trim();
-    const broker = document.getElementById('api-broker').value.trim();
-    const wallet_id = document.getElementById('wallet_id').value.trim();
-
-    if (!api_key || !broker) {
-        showapiError('Please fill in all fields');
-        return;
-    }
-
-    setapiLoadingState(true);
-    hideapiError();
-
-    try {
-        // 🌐 Connect API directly 
-        const connectResponse = await fetch('https://cook.beaverlyai.com/api/connect_api', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                api_key: api_key,
-                broker: broker,
-                wallet_id: wallet_id,
-            })
-        });
-        console.log('Stored API key:', localStorage.getItem('chilla_api_key'));
-
-        const connectResult = await connectResponse.json();
-
-        if (!connectResponse.ok) {
-            // Show backend error if any (e.g., free user, failed connection, etc.)
-            throw new Error(connectResult.error || 'Failed to connect broker account.');
-        }
-
-        // 📝 Store api info locally
-        localStorage.setItem('chilla_broker', broker);
-    
-        // ✅ Update UI
-        updateapiConnectionStatus();
-        document.getElementById('api-modal').classList.add('hidden');
-
-        // 🔄 Refresh dashboard
-        loadDashboardData();
-
-    } catch (error) {
-        console.error(error);
-        showapiError(error.message || 'Connection failed.');
-    } finally {
-        setapiLoadingState(false);
-    }
-}
-
-
-    async function handleDisconnectChilla() {
-    const confirmDisconnect = confirm('Are you sure you want to disconnect Chilla? This will stop automated execution.');
-
-    if (!confirmDisconnect) {
-        return;
-    }
-
-    try {
-        const response = await fetch('https://cook.beaverlyai.com/api/disconnect_api', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.detail || result.error || 'Failed to disconnect.');
-        }
-
-        // 🔄 Clear local api storage
-        localStorage.removeItem('chilla_broker');
-
-        // ✅ Update dashboard UI
-        updateapiConnectionStatus();
-        document.getElementById('profile-panel')?.classList.add('hidden');
-
-        alert('Chilla disconnected successfully.');
-
-    } catch (error) {
-        console.error('Disconnect error:', error);
-        alert(error.message || 'Failed to disconnect. Please try again.');
-    }
-}
-
-
-
-    function setapiLoadingState(loading) {
-        const btn = document.getElementById('connect-api-btn');
-        const text = document.getElementById('connect-api-text');
-        const spinner = document.getElementById('connect-api-spinner');
-
-        btn.disabled = loading;
-        text.textContent = loading ? 'Connecting...' : 'Connect';
-        spinner.classList.toggle('hidden', !loading);
-    }
-
-    function showapiError(message) {
-        const errorMessage = document.getElementById('api-error-message');
-        const errorText = document.getElementById('api-error-text');
-        
-        errorText.textContent = message;
-        errorMessage.classList.remove('hidden');
         setTimeout(() => {
-            errorMessage.classList.add('hidden');
+            if (notification.parentNode) {
+                notification.remove();
+            }
         }, 5000);
     }
+}
 
-    function hideapiError() {
-        document.getElementById('api-error-message').classList.add('hidden');
-    }
-
-
-    /**
-     * Initialize change email functionality
-     */
-    function initializeChangeEmailButton() {
-        const changeEmailBtn = document.getElementById('change-email-btn');
-        if (changeEmailBtn) {
-            changeEmailBtn.addEventListener('click', () => {
-                window.location.href = 'change-email.html';
-            });
-        }
-    }
-
-    // Add change email button initialization to the existing initialization
-    initializeChangeEmailButton();
+// Initialize dashboard when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new ChillaDashboard();
 });
