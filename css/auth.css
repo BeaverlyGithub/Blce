@@ -1,0 +1,76 @@
+/* Auth Screens */
+.auth-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Beaverly Logo for auth pages */
+.logo-text::before {
+    content: '';
+    width: 32px;
+    height: 32px;
+    background-image: url('../attached_assets/beaverly_logoi.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+[data-theme="dark"] .logo-text::before {
+    background-image: url('../attached_assets/beaverly_lodo.png');
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-links {
+    text-align: center;
+}
+
+.auth-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+    margin: 0.5rem 0;
+    transition: color 0.2s ease;
+}
+
+.auth-links a:hover {
+    color: var(--text-primary);
+}
+
+/* Responsive Design for Auth */
+@media (min-width: 768px) {
+    .auth-screen {
+        padding: 4rem;
+    }
+}
