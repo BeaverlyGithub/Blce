@@ -1,174 +1,88 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <title>Chilla™ Login - Beaverly®</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-229WRH1KTN');
-</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Chilla">
+    <link rel="apple-touch-icon" href="icon-192.png">
 </head>
-<body class="bg-gray-50 font-inter min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-sm shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-2">
-                    <img src="attached_assets/beaverly_logoi.png" alt="Beaverly" class="h-8 w-8">
-                    <a href="https://beaverlyai.com" class="text-xl font-semibold text-gray-900">Beaverly®</a>
-                </div>
-                <div class="flex items-center space-x-6">
-                    <a href="faq.html" class="text-gray-600 hover:text-gray-900 transition-colors">FAQ</a>
-                    <a href="contact.html" class="text-gray-600 hover:text-gray-900 transition-colors">Support</a>
-                </div>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="logo">Chilla</div>
+                <div class="loading-spinner"></div>
             </div>
         </div>
-    </nav>
 
-
-    <!-- Main Content -->
-    <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <div class="text-center">
-                <div class="flex justify-center mb-6">
-                    <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center bg-white">
-                       <img src="attached_assets/beaverly_lodo.png" alt="Beaverly Logo" class="w-full h-full object-cover">
+        <!-- Auth Flow -->
+        <div id="auth-container" class="screen hidden">
+            <!-- Login Screen -->
+            <div id="login-screen" class="auth-screen">
+                <div class="auth-header">
+                    <h1 class="logo-text">Chilla</h1>
+                    <p class="subtitle">by Beaverly</p>
                 </div>
+                <div class="auth-form">
+                    <input type="email" id="login-email" placeholder="Email" class="input-field">
+                    <input type="password" id="login-password" placeholder="Password" class="input-field">
+                    <button id="login-btn" class="primary-btn">Sign In</button>
+                    <button id="google-login-btn" class="secondary-btn">Continue with Google</button>
+                    <div class="auth-links">
+                        <a href="#" id="forgot-password-link">Forgot password?</a>
+                        <a href="#" id="show-signup">Don't have an account? Sign up</a>
+                    </div>
                 </div>
-                <h2 class="text-3xl font-Bold text-gray-900">Welcome to Chilla™</h2>
-                <p class="mt-2 text-gray-600">Chilla is quietly growing your money</p>
             </div>
 
-            <!-- Login/Register Form -->
-            <form id="auth-form" class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                <div id="error-message" class="hidden p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex">
-                        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="ml-3">
-                            <p class="text-sm text-red-800" id="error-text"></p>
-                        </div>
+            <!-- Signup Screen -->
+            <div id="signup-screen" class="auth-screen hidden">
+                <div class="auth-header">
+                    <h1 class="logo-text">Create Account</h1>
+                    <p class="subtitle">Join Chilla</p>
+                </div>
+                <div class="auth-form">
+                    <input type="email" id="signup-email" placeholder="Email" class="input-field">
+                    <input type="password" id="signup-password" placeholder="Password" class="input-field">
+                    <input type="password" id="confirm-password" placeholder="Confirm Password" class="input-field">
+                    <input type="text" id="first-name" placeholder="First Name" class="input-field">
+                    <input type="text" id="middle-name" placeholder="Middle Name (Optional)" class="input-field">
+                    <input type="text" id="last-name" placeholder="Last Name" class="input-field">
+                    <input type="date" id="date-of-birth" placeholder="Date of Birth" class="input-field">
+                    <button id="signup-btn" class="primary-btn">Create Account</button>
+                    <button id="google-signup-btn" class="secondary-btn">Continue with Google</button>
+                    <div class="auth-links">
+                        <a href="#" id="show-login">Already have an account? Sign in</a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Auth Toggle -->
-                <div class="flex bg-gray-100 p-1 rounded-lg">
-                    <button type="button" id="login-tab" class="flex-1 py-2 px-4 text-sm font-medium rounded-md bg-white text-gray-900 shadow-sm">
-                        Sign In
-                    </button>
-                    <button type="button" id="register-tab" class="flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900">
-                        Sign Up
-                    </button>
+            <!-- Forgot Password Screen -->
+            <div id="forgot-password-screen" class="auth-screen hidden">
+                <div class="auth-header">
+                    <h1 class="logo-text">Reset Password</h1>
+                    <p class="subtitle">Enter your email to reset</p>
                 </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input id="email" name="email" type="email" required 
-                               class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                               placeholder="Enter your email">
-                    </div>
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input id="password" name="password" type="password" required 
-                               class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                               placeholder="Enter your password">
-                    </div>
-                </div>
-
-                <!-- Gmail Login Button -->
-                <div class="mt-4">
-                    <button type="button" id="gmail-login-btn" 
-                            class="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors">
-                        <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        Continue with Gmail
-                    </button>
-                </div>
-
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">Or</span>
-                    </div>
-                </div>
-
-                <div>
-                    <button id="auth-btn" type="submit" 
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span id="auth-text">Sign In</span>
-                        <svg id="auth-spinner" class="hidden animate-spin ml-2 w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="text-center space-y-2">
-                    <div id="forgot-password-link" class="hidden">
-                        <a href="forgot-password.html" class="text-black-600 hover:text-black-500 text-sm font-medium">
-                            Forgot your password?
-                        </a>
-                    </div>
-                    <p class="text-sm text-gray-600">
-                        Need help? <a href="contact.html" class="text-black hover:text-gray-700 font-medium">Contact Support</a>
-                    </p>
-                </div>
-            </form>
-
-            <!-- Security Notice -->
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div class="flex">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                    </svg>
-                    <div class="ml-3">
-                        <p class="text-sm text-gray-700">
-                            <strong>Secure Access:</strong> Your credentials are encrypted and never stored. Connect your MT5 account after signing in to access trading features.
-                        </p>
+                <div class="auth-form">
+                    <input type="email" id="reset-email" placeholder="Email" class="input-field">
+                    <button id="reset-btn" class="primary-btn">Send Reset Link</button>
+                    <div class="auth-links">
+                        <a href="#" id="back-to-login">Back to Sign In</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-
-
-
-      <!-- Chatbot -->
-    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
-    <script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
-    
     <script src="js/auth.js"></script>
 </body>
 </html>
