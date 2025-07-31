@@ -45,6 +45,7 @@ class ChillaDashboard {
         // Main app listeners
         document.getElementById('menu-btn').addEventListener('click', () => this.toggleSidebar());
         document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+        document.getElementById('nav-connect-btn').addEventListener('click', () => this.handleConnectChilla());
         document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
 
         // Sidebar listeners
@@ -194,6 +195,7 @@ class ChillaDashboard {
     updateConnectionStatus(connected) {
         this.isConnected = connected;
         const connectBtn = document.getElementById('connect-chilla-btn');
+        const navConnectBtn = document.getElementById('nav-connect-btn');
 
         if (connected) {
             connectBtn.innerHTML = `
@@ -205,6 +207,10 @@ class ChillaDashboard {
             `;
             connectBtn.classList.add('disconnect-unique');
             connectBtn.classList.remove('connect-unique');
+            
+            // Update nav button
+            navConnectBtn.classList.add('connected');
+            navConnectBtn.classList.remove('disconnected');
         } else {
             connectBtn.innerHTML = `
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -215,6 +221,10 @@ class ChillaDashboard {
             `;
             connectBtn.classList.add('connect-unique');
             connectBtn.classList.remove('disconnect-unique');
+            
+            // Update nav button
+            navConnectBtn.classList.add('disconnected');
+            navConnectBtn.classList.remove('connected');
         }
     }
 
