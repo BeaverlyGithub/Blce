@@ -17,8 +17,8 @@
     --shadow-light: rgba(0, 0, 0, 0.1);
     --shadow-medium: rgba(0, 0, 0, 0.15);
     --accent-color: #000000;
-    --success-color: #000000;
-    --error-color: #ff0000;
+    --success-color: #00c851;
+    --error-color: #ff4444;
     --warning-color: #ffbb33;
 }
 
@@ -34,13 +34,15 @@
     --shadow-light: rgba(255, 255, 255, 0.1);
     --shadow-medium: rgba(255, 255, 255, 0.15);
     --accent-color: #ffffff;
-    --success-color: #00fbff;
+    --success-color: #00e676;
     --error-color: #ff5252;
     --warning-color: #ffc107;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+
 html, body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
@@ -96,24 +98,20 @@ html, body {
     gap: 0.5rem;
 }
 
-/* Chilla Logo Double Circles */
+/* Beaverly Logo */
 .logo::before {
     content: '';
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    width: 32px;
+    height: 32px;
+    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     margin-right: 0.5rem;
 }
 
-.logo::before {
-    background: 
-        radial-gradient(circle, currentColor 50%, transparent 50%),
-        radial-gradient(circle, currentColor 50%, transparent 50%);
-    background-size: 16px 16px, 16px 16px;
-    background-position: 0 0, 20px 0;
-    background-repeat: no-repeat;
-    width: 36px;
-    height: 16px;
+[data-theme="dark"] .logo::before {
+    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
 }
 
 .loading-spinner {
