@@ -18,6 +18,24 @@
     font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.01em;
+    position: relative;
+}
+
+.app-title::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+[data-theme="dark"] .app-title::before {
+    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
 }
 
 /* Sidebar */
@@ -131,6 +149,7 @@
     display: flex;
     align-items: center;
     font-size: 1rem;
+    font-weight: 500;
     position: relative;
 }
 
@@ -138,7 +157,9 @@
     width: 20px;
     height: 20px;
     margin-right: 12px;
-    fill: currentColor;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
 }
 
 .menu-item .status-dot {
@@ -159,8 +180,18 @@
     color: white;
 }
 
+[data-theme="dark"] .connect-unique {
+    background: linear-gradient(135deg, var(--success-color), #1a1a1a);
+    color: white;
+}
+
 .disconnect-unique {
     background: linear-gradient(135deg, var(--error-color), #cc0000);
+    color: white;
+}
+
+[data-theme="dark"] .disconnect-unique {
+    background: linear-gradient(135deg, var(--error-color), #2a0000);
     color: white;
 }
 
@@ -268,41 +299,53 @@
     color: var(--accent-color);
 }
 
-/* Chilla Double Circle Icon - Horizontal filled circles like logo */
+/* Beaverly Logo Icon */
 .chilla-icon {
-    width: 32px;
-    height: 16px;
-    position: relative;
+    width: 24px;
+    height: 24px;
     margin-bottom: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
 }
 
-.chilla-icon .outer-circle,
-.chilla-icon .inner-circle {
-    width: 12px;
-    height: 12px;
-    background: currentColor;
-    border-radius: 50%;
-    flex-shrink: 0;
+/* Inactive state - hollow logo */
+.nav-item:not(.active) .chilla-icon {
+    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
 }
 
-/* Ensure circles are side by side horizontally */
-.chilla-icon .outer-circle {
-    margin-right: 0;
+[data-theme="dark"] .nav-item:not(.active) .chilla-icon {
+    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
 }
 
-.chilla-icon .inner-circle {
-    margin-left: 0;
+/* Active state - full opacity */
+.nav-item.active .chilla-icon {
+    background-image: url('../attached_assets/beaverly_logoi_1753941808173.png');
+    opacity: 1;
 }
 
-/* Creator Icon */
+[data-theme="dark"] .nav-item.active .chilla-icon {
+    background-image: url('../attached_assets/beaverly_lodo_1753941808172.png');
+}
+
+/* Lose Tab Icon - Hollow by default, filled when active */
 .creator-icon {
     width: 24px;
     height: 24px;
     margin-bottom: 0.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+.nav-item.active .creator-icon {
+    fill: currentColor;
+    stroke: none;
+    opacity: 1;
 }
 
 /* Broker Selection Modal */
