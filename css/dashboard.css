@@ -155,7 +155,7 @@
 }
 
 .connect-unique {
-    background: linear-gradient(135deg, var(--success-color), #00a844);
+    background: linear-gradient(135deg, var(--success-color), #000000);
     color: white;
 }
 
