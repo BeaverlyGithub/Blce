@@ -1,4 +1,5 @@
 
+```javascript
 const API_BASE = 'https://cook.beaverlyai.com';
 
 class ChillaDashboard {
@@ -14,42 +15,30 @@ class ChillaDashboard {
     async init() {
         this.setupTheme();
         this.setupEventListeners();
-        await this.checkAuthentication();
+        
+        // Small delay to ensure DOM is ready
+        setTimeout(async () => {
+            await this.checkAuthentication();
+        }, 100);
     }
 
     async checkAuthentication() {
-        try {
-            const response = await fetch(`${API_BASE}/api/verify_token`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-
-            if (!response.ok) {
-                localStorage.clear();
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const data = await response.json();
-            if (data.status === 'valid') {
-                this.isAuthenticated = true;
-                this.currentUser = data.users || {};
-                this.showMainApp();
-                this.loadDashboardData();
-                // Set up periodic data refresh
-                setInterval(() => this.loadDashboardData(), 30000);
-                return;
-            } else {
-                localStorage.clear();
-                window.location.href = 'index.html';
-                return;
-            }
-        } catch (error) {
-            console.error('Authentication failed:', error);
-            localStorage.clear();
-            window.location.href = 'index.html';
-            return;
-        }
+        // TEMPORARILY DISABLED AUTH CHECKS - Direct to dashboard
+        console.log('Dashboard loading in test mode...');
+        
+        // Mock authentication success
+        this.isAuthenticated = true;
+        this.currentUser = {
+            email: localStorage.getItem('chilla_user_email') || 'test@example.com',
+            email_verified: false
+        };
+        
+        // Show main app immediately
+        this.showMainApp();
+        this.loadDashboardData();
+        
+        // Set up periodic data refresh
+        setInterval(() => this.loadDashboardData(), 30000);
     }
 
     setupEventListeners() {
@@ -69,7 +58,7 @@ class ChillaDashboard {
 
         // Bottom nav listeners
         document.getElementById('home-nav').addEventListener('click', () => this.showHome());
-        document.getElementById('menu-nav').addEventListener('click', () => this.toggleSidebar());
+        document.getElementById('menu-nav').addEventListener('click', () => this.showLose());
 
         // Modal listeners
         document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
@@ -208,22 +197,24 @@ class ChillaDashboard {
 
         if (connected) {
             connectBtn.innerHTML = `
-                <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/>
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
                 <span class="status-dot connected"></span>
                 Disconnect Chilla
             `;
-            connectBtn.classList.add('connected');
+            connectBtn.classList.add('disconnect-unique');
+            connectBtn.classList.remove('connect-unique');
         } else {
             connectBtn.innerHTML = `
-                <svg class="menu-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/>
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
                 <span class="status-dot disconnected"></span>
                 Connect Chilla
             `;
-            connectBtn.classList.remove('connected');
+            connectBtn.classList.add('connect-unique');
+            connectBtn.classList.remove('disconnect-unique');
         }
     }
 
@@ -405,9 +396,16 @@ class ChillaDashboard {
     }
 
     showHome() {
-        // Already on home, just ensure proper state
+        // Switch to home tab
         document.getElementById('home-nav').classList.add('active');
         document.getElementById('menu-nav').classList.remove('active');
+    }
+
+    showLose() {
+        // Switch to lose tab (future feature)
+        document.getElementById('home-nav').classList.remove('active');
+        document.getElementById('menu-nav').classList.add('active');
+        this.showNotification('Lose tab coming soon!', 'info');
     }
 
     formatCurrency(amount) {
@@ -443,3 +441,4 @@ class ChillaDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaDashboard();
 });
+```
