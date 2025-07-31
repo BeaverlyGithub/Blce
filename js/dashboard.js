@@ -1,5 +1,3 @@
-
-```javascript
 const API_BASE = 'https://cook.beaverlyai.com';
 
 class ChillaDashboard {
@@ -451,4 +449,4 @@ class ChillaDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaDashboard();
 });
-```
+
