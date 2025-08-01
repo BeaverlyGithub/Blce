@@ -462,13 +462,280 @@ class ChillaDashboard {
         // Switch to home tab
         document.getElementById('home-nav').classList.add('active');
         document.getElementById('menu-nav').classList.remove('active');
+        
+        // Reset app title and dashboard
+        document.querySelector('.app-title').textContent = 'Chilla';
+        this.loadDashboardData();
+        this.showMainDashboard();
+    }
+
+    showMainDashboard() {
+        const dashboard = document.getElementById('dashboard');
+        
+        dashboard.innerHTML = `
+            <div class="balance-card">
+                <h2>Account Balance</h2>
+                <div class="balance-amount" id="account-balance">$0.00</div>
+            </div>
+
+            <div class="earnings-card">
+                <h2>Earnings So Far</h2>
+                <div class="earnings-amount" id="total-earnings">$0.00</div>
+            </div>
+
+            <div class="positions-card">
+                <h2>Open Positions</h2>
+                <div class="positions-list" id="positions-list">
+                    <div class="position-item">
+                        <span>Loading...</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Reload dashboard data
+        this.loadDashboardData();
     }
 
     showLose() {
-        // Switch to lose tab (future feature)
+        // Switch to lose tab
         document.getElementById('home-nav').classList.remove('active');
         document.getElementById('menu-nav').classList.add('active');
-        this.showNotification('Lose tab coming soon!', 'info');
+        
+        // Show lose dashboard
+        this.displayLoseDashboard();
+    }
+
+    displayLoseDashboard() {
+        const dashboard = document.getElementById('dashboard');
+        const appTitle = document.querySelector('.app-title');
+        
+        // Update app title
+        appTitle.textContent = 'Lose';
+        
+        // Show consent screen first
+        dashboard.innerHTML = `
+            <div class="lose-consent-screen">
+                <div class="lose-header">
+                    <h1 class="lose-title">LOSE</h1>
+                    <p class="lose-tagline">"Launch, Optimize, Scale, Earn"</p>
+                    <p class="lose-description">
+                        Automate your profitable strategy and run it for free on M-II, the AI engine powering Chilla. 
+                        Zero effort required. Use your automated AI personally or sell it to the market on your own terms. 
+                        No setup costs, no infra management—just automate for free and use/sell it forever.
+                    </p>
+                </div>
+                
+                <div class="consent-section">
+                    <div class="consent-checkbox">
+                        <input type="checkbox" id="consent-checkbox">
+                        <label for="consent-checkbox">
+                            I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
+                        </label>
+                    </div>
+                    <button id="start-automating-btn" class="primary-btn" disabled>Start Automating</button>
+                </div>
+            </div>
+        `;
+
+        // Add event listeners
+        const consentCheckbox = document.getElementById('consent-checkbox');
+        const startBtn = document.getElementById('start-automating-btn');
+        const termsLink = document.getElementById('terms-link');
+
+        consentCheckbox.addEventListener('change', () => {
+            startBtn.disabled = !consentCheckbox.checked;
+        });
+
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'terms.html';
+        });
+
+        startBtn.addEventListener('click', () => {
+            if (consentCheckbox.checked) {
+                this.showLoseForm();
+            }
+        });
+    }
+
+    showLoseForm() {
+        const dashboard = document.getElementById('dashboard');
+        
+        dashboard.innerHTML = `
+            <div class="lose-form-screen">
+                <div class="lose-header">
+                    <h2>Automate Your Strategy</h2>
+                    <p>Upload your strategy and let M-II handle the rest</p>
+                </div>
+                
+                <form id="strategy-form" class="strategy-form">
+                    <div class="form-group">
+                        <label for="strategy-name">Strategy Name</label>
+                        <input type="text" id="strategy-name" name="strategyName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="strategy-description">Description</label>
+                        <textarea id="strategy-description" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="strategy-files">Upload Files (.ex5, .mq5, .zip, .pdf, .docx, .txt)</label>
+                        <input type="file" id="strategy-files" name="files" multiple accept=".ex5,.mq5,.zip,.pdf,.docx,.txt">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="team-note">Optional Note to Team</label>
+                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Any additional information for our team..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="primary-btn">Submit Strategy</button>
+                </form>
+                
+                <!-- Sidebar for Lose -->
+                <div class="lose-sidebar-trigger">
+                    <button id="lose-menu-btn" class="icon-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Add form submission handler
+        document.getElementById('strategy-form').addEventListener('submit', (e) => {
+            this.handleStrategySubmission(e);
+        });
+
+        // Add lose menu handler
+        document.getElementById('lose-menu-btn').addEventListener('click', () => {
+            this.showLoseSidebar();
+        });
+    }
+
+    showLoseSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarContent = sidebar.querySelector('.sidebar-content');
+        
+        // Update sidebar for Lose
+        sidebarContent.innerHTML = `
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <div class="user-name" id="user-display-name">${this.currentUser?.full_name || 'User'}</div>
+                    <div class="user-email" id="user-display-email">${this.currentUser?.email || 'user@example.com'}</div>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                <button class="menu-item" id="my-store-btn" disabled>
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005 16v1a1 1 0 001 1h1M16 16v1a1 1 0 001 1h1m0-2a1 1 0 01-1-1v-1h-1m0 0V9a1 1 0 011-1h1a1 1 0 011 1v1M9 19v1a1 1 0 001 1h1"/>
+                    </svg>
+                    My Store (Coming Soon)
+                </button>
+                <button class="menu-item" id="lose-terms-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Terms & IP
+                </button>
+                <button class="menu-item" id="lose-privacy-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Privacy Policy
+                </button>
+                <button class="menu-item" id="automate-strategy-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Automate Strategy
+                </button>
+            </div>
+        `;
+
+        // Add event listeners for lose sidebar
+        document.getElementById('lose-terms-btn').addEventListener('click', () => {
+            window.location.href = 'terms.html';
+        });
+
+        document.getElementById('lose-privacy-btn').addEventListener('click', () => {
+            window.location.href = 'privacy.html';
+        });
+
+        document.getElementById('automate-strategy-btn').addEventListener('click', () => {
+            this.showLoseForm();
+            this.closeSidebar();
+        });
+
+        sidebar.classList.add('open');
+    }
+
+    async handleStrategySubmission(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const files = document.getElementById('strategy-files').files;
+        
+        // Show loading state
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
+
+        try {
+            // Prepare email data
+            const templateParams = {
+                from_email: this.currentUser?.email || localStorage.getItem('chilla_user_email'),
+                to_email: 'creator@beaverlyai.com',
+                user_name: this.currentUser?.full_name || 'User',
+                strategy_name: formData.get('strategyName'),
+                description: formData.get('description'),
+                team_note: formData.get('teamNote') || 'No additional notes',
+                submission_date: new Date().toLocaleDateString()
+            };
+
+            // Send email using EmailJS
+            await emailjs.send('service_w3tknwp', 'template_h5v3nmi', templateParams);
+            
+            // Show success state
+            this.showStrategySuccess();
+            
+        } catch (error) {
+            console.error('Error submitting strategy:', error);
+            this.showNotification('Failed to submit strategy. Please try again.', 'error');
+            
+            // Reset button
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    showStrategySuccess() {
+        const dashboard = document.getElementById('dashboard');
+        
+        dashboard.innerHTML = `
+            <div class="success-screen">
+                <div class="success-content">
+                    <div class="success-icon">✅</div>
+                    <h2>Strategy Submitted Successfully!</h2>
+                    <p class="success-message">
+                        Thank you for trusting us to take your wealth game to the GOAT level. 
+                        If your logic is approved and deployed, we will contact you and unlock your store 
+                        to monetize it or use it for free on your Chilla Dashboard. 
+                        Due to surge in demand, approval might take 4 weeks but rest assured that if you 
+                        pass our sandbox, you're on to something great. If you do not, we will educate you 
+                        on areas for improvements on your logic.
+                    </p>
+                    <button id="back-to-form-btn" class="primary-btn">Submit Another Strategy</button>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('back-to-form-btn').addEventListener('click', () => {
+            this.showLoseForm();
+        });
     }
 
     formatCurrency(amount) {
