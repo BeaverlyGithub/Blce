@@ -894,7 +894,8 @@ class ChillaDashboard {
             };
 
             // Send email using EmailJS
-            await emailjs.send('service_w3tknwp', 'template_h5v3nmi', templateParams);
+            await emailjs.send('service_y3t9c3s', 'template_b5c3sac', templateParams);
+
 
             // Show success state
             this.showStrategySuccess();
