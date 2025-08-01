@@ -396,12 +396,12 @@ class ChillaDashboard {
     }
 
     showContact() {
-        this.showNotification('Contact feature coming soon!', 'info');
+        window.location.href = 'contact.html';
         this.closeSidebar();
     }
 
     showFAQ() {
-        this.showNotification('FAQ feature coming soon!', 'info');
+        window.location.href = 'faq.html';
         this.closeSidebar();
     }
 
