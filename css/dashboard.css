@@ -36,10 +36,10 @@
     color: var(--text-primary);
 }
 
-/* Floating Theme Toggle */
+/* Floating Theme Toggle - Fixed positioning */
 .floating-theme-toggle {
-    position: absolute;
-    bottom: 2rem;
+    position: fixed;
+    bottom: 6rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 300;
@@ -100,6 +100,13 @@
     opacity: 1;
     transform: rotate(0deg);
     color: #ffffff;
+}
+
+/* Ensure visibility on mobile */
+@media (max-width: 768px) {
+    .floating-theme-toggle {
+        bottom: 5.5rem;
+    }
 }
 
 /* Sidebar */
