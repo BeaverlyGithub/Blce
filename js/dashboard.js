@@ -14,29 +14,67 @@ class ChillaDashboard {
         this.setupTheme();
         this.setupEventListeners();
         
+        // Check for Deriv OAuth callback
+        this.handleDerivCallback();
+        
         // Small delay to ensure DOM is ready
         setTimeout(async () => {
             await this.checkAuthentication();
         }, 100);
     }
 
+    handleDerivCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const isPending = localStorage.getItem('deriv_oauth_pending') === 'true';
+        
+        if (code && isPending) {
+            // Deriv OAuth success
+            localStorage.setItem('deriv_connected', 'true');
+            localStorage.setItem('deriv_auth_code', code);
+            localStorage.removeItem('deriv_oauth_pending');
+            
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            this.showNotification('Successfully connected to Deriv!', 'success');
+            this.updateConnectionStatus(true);
+        }
+    }
+
     async checkAuthentication() {
-        // TEMPORARILY DISABLED AUTH CHECKS - Direct to dashboard
-        console.log('Dashboard loading in test mode...');
+        try {
+            const response = await fetch(`${API_BASE}/api/verify_token`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: null })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'valid') {
+                    this.isAuthenticated = true;
+                    this.currentUser = data.user || {
+                        email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
+                        email_verified: data.email_verified || false,
+                        full_name: data.full_name || 'User'
+                    };
+                    
+                    this.showMainApp();
+                    this.loadDashboardData();
+                    
+                    // Set up periodic data refresh
+                    setInterval(() => this.loadDashboardData(), 30000);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.warn('Auth check failed:', error);
+        }
         
-        // Mock authentication success
-        this.isAuthenticated = true;
-        this.currentUser = {
-            email: localStorage.getItem('chilla_user_email') || 'test@example.com',
-            email_verified: false
-        };
-        
-        // Show main app immediately
-        this.showMainApp();
-        this.loadDashboardData();
-        
-        // Set up periodic data refresh
-        setInterval(() => this.loadDashboardData(), 30000);
+        // Redirect to login if not authenticated
+        window.location.href = 'index.html';
     }
 
     setupEventListeners() {
@@ -110,7 +148,7 @@ class ChillaDashboard {
 
     async loadBalance() {
         try {
-            const response = await fetch(`${API_BASE}/api/customer_balance`, {
+            const response = await fetch(`${API_BASE}/api/stats`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -118,7 +156,7 @@ class ChillaDashboard {
             if (response.ok) {
                 const data = await response.json();
                 document.getElementById('account-balance').textContent = this.formatCurrency(data.balance || 0);
-                document.getElementById('total-earnings').textContent = this.formatCurrency(data.earnings || 0);
+                document.getElementById('total-earnings').textContent = this.formatCurrency(data.equity || 0);
             } else {
                 throw new Error('Failed to load balance');
             }
@@ -132,14 +170,14 @@ class ChillaDashboard {
 
     async loadPositions() {
         try {
-            const response = await fetch(`${API_BASE}/api/active_positions`, {
+            const response = await fetch(`${API_BASE}/api/stats`, {
                 method: 'GET',
                 credentials: 'include'
             });
 
             if (response.ok) {
                 const data = await response.json();
-                this.displayPositions(data.positions || []);
+                this.displayPositions(data.open_trades || []);
             } else {
                 throw new Error('Failed to load positions');
             }
@@ -172,22 +210,9 @@ class ChillaDashboard {
     }
 
     async checkConnectionStatus() {
-        try {
-            const response = await fetch(`${API_BASE}/api/connection_status`, {
-                method: 'GET',
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                this.updateConnectionStatus(data.connected);
-            } else {
-                this.updateConnectionStatus(false);
-            }
-        } catch (error) {
-            console.error('Error checking connection status:', error);
-            this.updateConnectionStatus(false);
-        }
+        // Check local storage for Deriv connection status
+        const derivConnected = localStorage.getItem('deriv_connected') === 'true';
+        this.updateConnectionStatus(derivConnected);
     }
 
     updateConnectionStatus(connected) {
@@ -304,50 +329,31 @@ class ChillaDashboard {
             return;
         }
 
-        try {
-            const response = await fetch(`${API_BASE}/api/connect_oauth`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ broker: selectedBroker })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.oauth_url) {
-                    window.open(data.oauth_url, '_blank');
-                    this.closeBrokerModal();
-                    this.showNotification('OAuth window opened. Complete the process to connect.', 'success');
-                }
-            } else {
-                const errorData = await response.json();
-                this.showNotification(errorData.error || 'Failed to connect to broker', 'error');
-            }
-        } catch (error) {
-            console.error('Connection error:', error);
-            this.showNotification('Connection error', 'error');
+        if (selectedBroker === 'deriv') {
+            // Deriv OAuth integration
+            const appId = '85950';
+            const redirectUri = window.location.origin + '/dashboard.html';
+            const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`;
+            
+            // Store that we're attempting Deriv connection
+            localStorage.setItem('deriv_oauth_pending', 'true');
+            
+            window.location.href = derivOAuthUrl;
+        } else {
+            this.showNotification('Other brokers coming soon!', 'info');
         }
+        
+        this.closeBrokerModal();
     }
 
     async confirmDisconnect() {
-        try {
-            const response = await fetch(`${API_BASE}/api/disconnect_oauth`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                this.updateConnectionStatus(false);
-                this.closeDisconnectModal();
-                this.showNotification('Chilla disconnected successfully', 'success');
-            } else {
-                const errorData = await response.json();
-                this.showNotification(errorData.error || 'Failed to disconnect', 'error');
-            }
-        } catch (error) {
-            console.error('Disconnection error:', error);
-            this.showNotification('Disconnection error', 'error');
-        }
+        // Clear Deriv connection
+        localStorage.removeItem('deriv_connected');
+        localStorage.removeItem('deriv_auth_code');
+        
+        this.updateConnectionStatus(false);
+        this.closeDisconnectModal();
+        this.showNotification('Chilla disconnected successfully', 'success');
     }
 
     showUpgrade() {
@@ -383,6 +389,11 @@ class ChillaDashboard {
             const result = await response.json();
             if (response.ok) {
                 this.showNotification('Verification email sent! Check your inbox.', 'success');
+                
+                // Refresh user data after a short delay to check for verification
+                setTimeout(async () => {
+                    await this.refreshUserData();
+                }, 2000);
             } else {
                 this.showNotification(result.error || 'Failed to send verification email', 'error');
             }
@@ -391,6 +402,38 @@ class ChillaDashboard {
             this.showNotification('Network error', 'error');
         }
         this.closeSidebar();
+    }
+
+    async refreshUserData() {
+        try {
+            const response = await fetch(`${API_BASE}/api/verify_token`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: null })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'valid') {
+                    this.currentUser = data.user || {
+                        email: data.email,
+                        email_verified: data.email_verified,
+                        full_name: data.full_name
+                    };
+                    
+                    // Update verification status display
+                    const verificationStatus = document.getElementById('verification-status');
+                    if (this.currentUser.email_verified) {
+                        verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
+                    } else {
+                        verificationStatus.innerHTML = '<span class="status-dot unverified"></span><span>Unverified</span>';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing user data:', error);
+        }
     }
 
     showContact() {
