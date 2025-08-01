@@ -1,272 +1,481 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <title>Contact Support - Chilla AI™ Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Contact Support - Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <style>
+        .contact-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+        .contact-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
 
-  gtag('config', 'G-229WRH1KTN');
-</script>
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .contact-form {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .form-textarea:focus {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .info-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            padding: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            color: var(--accent-color);
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-card li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .info-card li:last-child {
+            margin-bottom: 0;
+        }
+
+        .check-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--success-color);
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.1);
+        }
+
+        .form-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message-success {
+            background: #f0f9ff;
+            border: 1px solid #00c851;
+            color: #00c851;
+        }
+
+        .message-error {
+            background: #fef2f2;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+
+        [data-theme="dark"] .message-success {
+            background: #001a0a;
+            border-color: #00e676;
+            color: #00e676;
+        }
+
+        [data-theme="dark"] .message-error {
+            background: #1a0000;
+            border-color: #ff5252;
+            color: #ff5252;
+        }
+
+        .form-error {
+            border-color: var(--error-color) !important;
+        }
+
+        .field-error {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 font-outfit">
-   <!-- Navigation -->
-<nav class="bg-white shadow-sm border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <div class="flex items-center space-x-2">
-        <img src="attached_assets/beaverly_logoi.png" alt="Beaverly" class="h-8 w-8">
-        <a href="https://beaverlyai.com/dashboard.html" class="text-xl font-semibold text-gray-900">Beaverly®</a>
-      </div>
-
-      <!-- Desktop Links -->
-      <div class="hidden md:flex space-x-8">
-        <a href="index.html" class="text-gray-600 hover:text-gray-900 transition-colors">Dashboard</a>
-        <a href="faq.html" class="text-gray-600 hover:text-gray-900 transition-colors">FAQ</a>
-        <a href="contact.html" class="text-gray-900 font-medium">Support</a>
-      </div>
-
-      <!-- Mobile Toggle Button -->
-      <div class="md:hidden">
-        <button id="mobile-menu-toggle" class="p-2 focus:outline-none">
-          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+<body>
+    <div class="contact-container">
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7-7l-7 7 7 7"/>
+            </svg>
         </button>
-      </div>
+
+        <div class="contact-header">
+            <div class="logo-text">Contact Support</div>
+            <p class="subtitle">Get help with your technical issues, or general questions. We are here to assist you.</p>
+        </div>
+
+        <div class="contact-grid">
+            <div class="contact-form">
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary); font-weight: 500;">Send us a message at support@beaverlyai.com</h2>
+                
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" name="name" class="input-field" placeholder="Your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="input-field" placeholder="your.email@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject" class="form-label">Subject</label>
+                        <select id="subject" name="subject" class="form-select" required>
+                            <option value="">Select a subject</option>
+                            <option value="Technical Support">Technical Issue</option>
+                            <option value="Installation Help">Getting Broker Account To Use Chilla</option>
+                            <option value="EA Configuration">Connection Configuration</option>
+                            <option value="Billing Question">Billing Question</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" name="message" class="form-textarea" placeholder="Please describe your issue or question in detail..." required></textarea>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="primary-btn">Send Message</button>
+
+                    <div id="form-message" class="form-message"></div>
+                </form>
+            </div>
+
+            <div class="contact-info">
+                <div class="info-card">
+                    <h3>
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        Response Time
+                    </h3>
+                    <p>We typically respond to all inquiries within 24 hours during business days. For urgent technical issues, please include "URGENT" in your subject line.</p>
+                </div>
+
+                <div class="info-card">
+                    <h3>
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Before contacting support
+                    </h3>
+                    <ul>
+                        <li>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>Check our <a href="faq.html" style="color: var(--accent-color); text-decoration: underline;">FAQ section</a> for quick answers</span>
+                        </li>
+                        <li>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>Ensure your broker allows connection with Chilla or supported markets</span>
+                        </li>
+                        <li>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            <span>Try our AI assistant for instant help</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="info-card" style="border-color: var(--error-color); background: var(--bg-primary);">
+                    <h3>
+                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: var(--error-color);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                        Critical Issues
+                    </h3>
+                    <p>For critical trading issues that require immediate attention, please mark your message as "CRITICAL" in the subject line.</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="md:hidden max-h-0 overflow-hidden transition-all duration-300 ease-in-out px-4 space-y-2">
-    <a href="index.html" class="block text-gray-600 hover:text-gray-900 mobile-link">Dashboard</a>
-    <a href="faq.html" class="block text-gray-600 hover:text-gray-900 mobile-link">FAQ</a>
-    <a href="contact.html" class="block text-gray-900 font-medium mobile-link">Support</a>
-  </div>
-</nav>
-
-    <!-- Contact Section -->
-    <section class="py-20">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h1 class="text-3xl md:text-4xl font-light text-gray-900 mb-4">
-                    Contact Support
-                </h1>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Get help with your technical issues, or general questions. We are here to assist you.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-12">
-                <!-- Contact Form -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Send us a message at support@beaverlyai.com</h2>
-                    
-                    <form id="contact-form" class="space-y-6">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                                Full Name
-                            </label>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                name="name"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder="Your full name"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                                Email Address
-                            </label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                placeholder="your.email@example.com"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">
-                                Subject
-                            </label>
-                            <select 
-                                id="subject" 
-                                name="subject"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                required
-                            >
-                                <option value="">Select a subject</option>
-                                <option value="Technical Support">Technical Issue</option>
-                                <option value="Installation Help">Getting Broker Account To Use Chilla</option>
-                                <option value="EA Configuration">Connection Configuration</option>
-                                <option value="Billing Question">Billing Question</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
-                                Message
-                            </label>
-                            <textarea 
-                                id="message" 
-                                name="message"
-                                rows="6"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                                placeholder="Please describe your issue or question in detail..."
-                                required
-                            ></textarea>
-                        </div>
-
-                        <button type="submit" id="submit-btn" class="btn-primary w-full">
-                            Send Message
-                        </button>
-                    </form>
-
-                    <!-- Success/Error Messages -->
-                    <div id="form-message" class="hidden mt-6"></div>
-                </div>
-
-                <!-- Contact Info -->
-                <div class="space-y-8">
-                    <!-- Response Time -->
-                    <div class="bg-blue-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="font-semibold text-gray-900">Response Time</h3>
-                        </div>
-                        <p class="text-gray-600">
-                            We typically respond to all inquiries within 24 hours during business days. For urgent technical issues, please include "URGENT" in your subject line.
-                        </p>
-                    </div>
-
-                    <!-- Common Issues -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 class="font-semibold text-gray-900 mb-4">Before contacting support</h3>
-                        <ul class="space-y-3 text-gray-600">
-                            <li class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <span>Check our <a href="faq.html" class="text-blue-600 hover:underline">FAQ section</a> for quick answers</span>
-                            </li>
-                            <li class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <span>Ensure your broker allows connection with Chilla or supported markets</span>
-                            </li>
-                            <li class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <span>Try our AI assistant for instant help</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Emergency Contact -->
-                    <div class="bg-red-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="font-semibold text-gray-900">Critical Issues</h3>
-                        </div>
-                        <p class="text-gray-600 text-sm">
-                            For critical trading issues that require immediate attention, please mark your message as "CRITICAL" in the subject line.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-
- <footer class="bg-black text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center space-x-2 mb-4 md:mb-0">
-                    <img src="attached_assets/beaverly_lodo.png" alt="Beaverly" class="h-8 w-8">
-                    <span class="text-xl font-semibold">Beaverly®</span>
-                </div>
-                <div class="flex space-x-6">
-                    <a href="faq.html" class="text-gray-400 hover:text-white transition-colors">FAQ</a>
-                    <a href="contact.html" class="text-gray-400 hover:text-white transition-colors">Support</a>
-                    <a href="https://www.beaverlyai.com/privacy.html" class="text-gray-400 hover:text-white transition-colors">Privacy</a>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p class="text-gray-400">&copy; 2024-2025 Beaverly®. All rights reserved. Chilla™ is a trademark of Beaverly®.</p>
-
-    
-            </div>
-        </div>
-    </footer>
-
-    <!-- Chatbot -->
-    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
-<script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
-
-      
-    <script src="js/contact-form.js"></script>
 
     <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const toggleBtn = document.getElementById("mobile-menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const menuLinks = document.querySelectorAll(".mobile-link");
-    let isOpen = false;
+        // Setup theme from localStorage
+        const theme = localStorage.getItem('chilla-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
 
-    toggleBtn.addEventListener("click", function () {
-      isOpen = !isOpen;
-      if (isOpen) {
-        mobileMenu.classList.remove("max-h-0");
-        mobileMenu.classList.add("max-h-96");
-      } else {
-        mobileMenu.classList.remove("max-h-96");
-        mobileMenu.classList.add("max-h-0");
-      }
-    });
+        // EmailJS configuration
+        const EMAILJS_CONFIG = {
+            publicKey: '0w-mDmXc8j3hyp1hw',
+            serviceId: 'service_y3t9c3s',
+            templateId: 'template_b5c3sac'
+        };
 
-    menuLinks.forEach(link => {
-      link.addEventListener("click", () => {
-        mobileMenu.classList.remove("max-h-96");
-        mobileMenu.classList.add("max-h-0");
-        isOpen = false;
-      });
-    });
-  });
-</script>
+        // Initialize EmailJS
+        if (window.emailjs) {
+            emailjs.init(EMAILJS_CONFIG.publicKey);
+        }
 
-    
+        // Form validation and submission
+        document.getElementById('contact-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = document.getElementById('submit-btn');
+            const messageDiv = document.getElementById('form-message');
+            
+            // Get form data
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            };
+            
+            // Validate
+            if (!validateForm(data)) {
+                return;
+            }
+            
+            // Show loading
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            try {
+                if (window.emailjs) {
+                    await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+                        from_name: data.name,
+                        from_email: 'hello@beaverlyai.com',
+                        reply_to: data.email,
+                        subject: data.subject,
+                        message: data.message,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                // Show success message
+                showMessage('Your message has been sent successfully! We\'ll get back to you within 24 hours.', 'success');
+                form.reset();
+                
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showMessage('Failed to send message. Please try again or contact us directly at support@beaverlyai.com', 'error');
+            } finally {
+                submitBtn.textContent = 'Send Message';
+                submitBtn.disabled = false;
+            }
+        });
+
+        function validateForm(data) {
+            clearErrors();
+            let isValid = true;
+            
+            if (!data.name || data.name.trim().length < 2) {
+                showFieldError('name', 'Name must be at least 2 characters long');
+                isValid = false;
+            }
+            
+            if (!data.email || !isValidEmail(data.email)) {
+                showFieldError('email', 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            if (!data.subject) {
+                showFieldError('subject', 'Please select a subject');
+                isValid = false;
+            }
+            
+            if (!data.message || data.message.trim().length < 10) {
+                showFieldError('message', 'Message must be at least 10 characters long');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function showFieldError(fieldName, message) {
+            const field = document.getElementById(fieldName);
+            field.classList.add('form-error');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.form-error').forEach(field => {
+                field.classList.remove('form-error');
+            });
+            document.querySelectorAll('.field-error').forEach(error => {
+                error.remove();
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('form-message');
+            messageDiv.className = `form-message message-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 10000);
+            }
+        }
+
+        // Real-time validation
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('blur', function() {
+                clearErrors();
+                if (this.value.trim()) {
+                    const data = {};
+                    data[this.name] = this.value;
+                    validateForm(data);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
