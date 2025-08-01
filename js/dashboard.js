@@ -92,6 +92,8 @@ class ChillaDashboard {
         document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
         document.getElementById('contact-btn').addEventListener('click', () => this.showContact());
         document.getElementById('faq-btn').addEventListener('click', () => this.showFAQ());
+        document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
+        document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
 
         // Bottom nav listeners
         document.getElementById('home-nav').addEventListener('click', () => this.showHome());
@@ -443,6 +445,16 @@ class ChillaDashboard {
 
     showFAQ() {
         window.location.href = 'faq.html';
+        this.closeSidebar();
+    }
+
+    showPrivacy() {
+        window.location.href = 'privacy.html';
+        this.closeSidebar();
+    }
+
+    showTerms() {
+        window.location.href = 'terms.html';
         this.closeSidebar();
     }
 
