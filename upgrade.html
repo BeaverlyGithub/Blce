@@ -33,16 +33,30 @@
         <div class="upgrade-header">
             <div class="logo-text">Let's Do It Again</div>
             <p class="subtitle">Keep Chilla running smoothly with uninterrupted service.</p>
+            
+            <!-- Billing Toggle -->
+            <div class="billing-toggle">
+                <span class="billing-label monthly-label">Monthly</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="billing-toggle" class="toggle-input">
+                    <label for="billing-toggle" class="toggle-label">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <span class="billing-label annual-label">
+                    Annual <span class="savings-badge">Save 55%</span>
+                </span>
+            </div>
         </div>
 
         <!-- Pricing Plans -->
-        <div class="upgrade-container">
+        <div class="upgrade-container"></div>
             <!-- Level One Plan -->
             <div class="plan-card basic-plan">
                 <div class="plan-header">
                     <h3>Level One</h3>
-                    <div class="price">$99</div>
-                    <p class="billing">per year</p>
+                    <div class="price" data-monthly="15" data-annual="99">$15</div>
+                    <p class="billing">per month</p>
                     <p class="plan-description">A calm, confident way to begin your chill journey</p>
                 </div>
                 
@@ -84,8 +98,8 @@
                 
                 <div class="plan-header">
                     <h3>Deep Chill</h3>
-                    <div class="price">$499</div>
-                    <p class="billing">per year</p>
+                    <div class="price" data-monthly="75" data-annual="499">$75</div>
+                    <p class="billing">per month</p>
                     <p class="plan-description">Just enough power to chill like a boss</p>
                 </div>
                 
@@ -125,8 +139,8 @@
             <div class="plan-card basic-plan">
                 <div class="plan-header">
                     <h3>Peak Chill</h3>
-                    <div class="price">$999</div>
-                    <p class="billing">per year</p>
+                    <div class="price" data-monthly="150" data-annual="999">$150</div>
+                    <p class="billing">per month</p>
                     <p class="plan-description">Front-row money-making experience</p>
                 </div>
                 
@@ -369,12 +383,122 @@
             background: #f5f5f5;
             transform: translateY(-1px);
         }
+
+        /* Billing Toggle Styles */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .billing-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .billing-label.active {
+            color: var(--text-primary);
+        }
+
+        .savings-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .toggle-label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-input:checked + .toggle-label {
+            background: var(--accent-color);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-input:checked + .toggle-label .toggle-slider {
+            transform: translateX(30px);
+        }
     </style>
     
     <script>
         // Setup theme from localStorage
         const theme = localStorage.getItem('chilla-theme') || 'light';
         document.documentElement.setAttribute('data-theme', theme);
+
+        // Pricing toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('billing-toggle');
+            const monthlyLabel = document.querySelector('.monthly-label');
+            const annualLabel = document.querySelector('.annual-label');
+            const prices = document.querySelectorAll('.price');
+            const billingTexts = document.querySelectorAll('.billing');
+
+            function updatePricing() {
+                const isAnnual = toggle.checked;
+                
+                // Update labels
+                monthlyLabel.classList.toggle('active', !isAnnual);
+                annualLabel.classList.toggle('active', isAnnual);
+
+                // Update prices
+                prices.forEach(price => {
+                    const monthlyPrice = price.dataset.monthly;
+                    const annualPrice = price.dataset.annual;
+                    price.textContent = isAnnual ? `$${annualPrice}` : `$${monthlyPrice}`;
+                });
+
+                // Update billing text
+                billingTexts.forEach(billing => {
+                    billing.textContent = isAnnual ? 'per year' : 'per month';
+                });
+            }
+
+            toggle.addEventListener('change', updatePricing);
+            
+            // Initial state
+            monthlyLabel.classList.add('active');
+            updatePricing();
+        });
     </script>
 </body>
 </html>
