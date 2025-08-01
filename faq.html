@@ -1,318 +1,302 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Things People Ask Before They Chill</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>FAQ - Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
 
-  gtag('config', 'G-229WRH1KTN');
-</script>
+        .faq-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .faq-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        .faq-question {
+            width: 100%;
+            text-align: left;
+            padding: 1.5rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .faq-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+            transition: transform 0.3s ease;
+            stroke-width: 2;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+        }
+
+        .faq-answer-content {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.1);
+        }
+
+        .support-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .support-card h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .support-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 font-outfit">
-   <!-- Navigation -->
-<nav class="bg-white shadow-sm border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <div class="flex items-center space-x-2">
-        <img src="attached_assets/beaverly_logoi.png" alt="Beaverly" class="h-8 w-8">
-        <a href="https://beaverlyai.com/dashboard.html" class="text-xl font-semibold text-gray-900">Beaverly®</a>
-      </div>
-
-      <!-- Desktop Links -->
-      <div class="hidden md:flex space-x-8">
-        <a href="index.html" class="text-gray-600 hover:text-gray-900 transition-colors">Dashboard</a>
-        <a href="faq.html" class="text-gray-900 font-medium">FAQ</a>
-        <a href="contact.html" class="text-gray-600 hover:text-gray-900 transition-colors">Support</a>
-      </div>
-
-      <!-- Mobile Toggle Button -->
-      <div class="md:hidden">
-        <button id="mobile-menu-toggle" class="p-2 focus:outline-none">
-          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+<body>
+    <div class="faq-container">
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7-7l-7 7 7 7"/>
+            </svg>
         </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="md:hidden max-h-0 overflow-hidden transition-all duration-300 ease-in-out px-4 space-y-2">
-    <a href="index.html" class="block text-gray-600 hover:text-gray-900 mobile-link">Dashboard</a>
-    <a href="faq.html" class="block text-gray-900 font-medium mobile-link">FAQ</a>
-    <a href="contact.html" class="block text-gray-600 hover:text-gray-900 mobile-link">Support</a>
-  </div>
-</nav>
+        <div class="faq-header">
+            <div class="logo-text">Things People Ask Before They Chill</div>
+            <p class="subtitle">We got you. Chilla is not a bank, not an investment, not a bot, not a brokerage. It's your financial co-pilot. And yes, your money stays with you.</p>
+        </div>
 
-
-    <!-- FAQ Section -->
-    <section class="py-20">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h1 class="text-3xl md:text-4xl font-light text-gray-900 mb-4">
-                    Things People Ask Before They Chill
-                </h1>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    We got you. Chilla is not a bank, not an investment, not a bot, not a brokerage. It’s your financial co-pilot. And yes, your money stays with you.
-                </p>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>What is Chilla AI?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Chilla™ is your wealth co-pilot. It's your personal wallstreet analyst, your top hedgefund trader, your financial powerhouse that never sleeps — Just quietly making you money.
+                    </div>
+                </div>
             </div>
 
-            <div class="space-y-6">
-                <!-- FAQ Item 1 -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">What is Chilla AI?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Chilla™ is your wealth co-pilot. It's your personal wallstreet analyst, your top hedgefund trader, 
-                            your financial powerhouse that never sleeps — Just quietly making you money.
-                        </p>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>How do I get access after payment?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Login, Connect and Chill. Chilla will pamper you from that moment onwards.
                     </div>
                 </div>
+            </div>
 
-                <!-- FAQ Item 2 -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">How do I get access after payment?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Login, Connect and Chill. Chilla will pamper you from that moment onwards.
-                        </p>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Where can I use Chilla?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        You can chill with Chilla on any broker based on Chilla's logic and brokers' supported markets. Our goal? Wherever your money moves, Chilla moves with you. Effortlessly.
                     </div>
                 </div>
+            </div>
 
-                     <!-- FAQ Item 2x -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Where can I use Chilla?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            You can chill with Chilla on any broker based on Chilla's logic and brokers' supported markets. 
-                            Our goal? Wherever your money moves, Chilla moves with you. Effortlessly.
-                        </p>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>What if I don't have an MT5/broker account?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        If you are new to this, register with a regulated broker in your jurisdiction e.g Deriv, IC Markets. Chilla can connect to any regulated broker in the world, but our API connection is based on Chilla's logic and brokers' supported markets.
                     </div>
                 </div>
+            </div>
 
-                <!-- FAQ Item 3 -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">What if I don't have an MT5/broker account?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                   <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            If you are new to this, register with a regulated broker in your jurisdiction e.g Deriv, IC Markets. 
-                            Chilla can connect to any regulated broker in the world, but our API connection is based on Chilla's logic and brokers' supported markets.
-                        </p>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Can I withdraw funds anytime?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes, absolutely. Chilla doesn't hold anything. Your money stays in your broker account and you have full control at all times. You can chill without feeling locked in.
                     </div>
                 </div>
+            </div>
 
-                <!-- FAQ Item 4 -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Can I withdraw funds anytime?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Yes, absolutely. Chilla doesn’t hold anything. Your money stays in your broker account and you have full 
-                            control at all times. You can chill without feeling locked in.
-                        </p>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Do I need to know trading or do anything?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Not even a little. You just chill. Chilla was built to handle the complexity so you don't have to.
                     </div>
                 </div>
+            </div>
 
-                <!-- FAQ Item 5 -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Do I need to know trading or do anything?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Not even a little. You just chill. Chilla was built to handle the complexity so you don’t have to.
-                        </p>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Is my money safe?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes. Your funds remain in your regulated broker account. Beaverly never has custody of your money—we only provide your wealth co-pilot.
                     </div>
                 </div>
+            </div>
 
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>What returns can I expect?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Returns depend on market conditions because every market is different. Chilla™ focuses on consistent, intelligent execution and thinks long term.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Is Chilla a bot or investment platform?</span>
+                    <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Chilla is your wealth co-pilot that helps you live a chilled life while doing the heavy lifting happily—not an investment platform. We never hold your money. You maintain full control of your capital through your own broker account.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="support-card">
+            <h3>Still need help?</h3>
+            <p>Can't find what you're looking for? Our support team is here to help you get the most out of Chilla.</p>
+            <button class="primary-btn" onclick="window.location.href='contact.html'">Contact Support</button>
+        </div>
+    </div>
+
+    <script>
+        // Setup theme from localStorage
+        const theme = localStorage.getItem('chilla-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // FAQ accordion functionality
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.closest('.faq-item');
+                const isActive = faqItem.classList.contains('active');
                 
-                 <!-- FAQ Item 5x -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Is my money safe?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Yes. Your funds remain in your regulated broker account. Beaverly never has custody of your money—we only provide your wealth co-pilot.
-                        </p>
-                    </div>
-                </div>
-
-
-                <!-- FAQ Item 5xxx -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">What returns can I expect?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Returns depend on market conditions because every market is different. Chilla™ focuses on consistent, intelligent execution and thinks long term.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- FAQ Item 6 -->
-                <div class="faq-item bg-white rounded-xl shadow-sm border border-gray-200">
-                    <button class="faq-question w-full text-left p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-xl">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Is Chilla a bot or investment platform?</h3>
-                            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
-                        <div class="px-6 pb-6">
-                        <p class="text-gray-600 leading-relaxed">
-                            Chilla is your wealth co-pilot that helps you live a chilled life while doing the heavy lifting happily—not an 
-                            investment platform. We never hold your money. You maintain full control of your capital through your own broker account.</p>
-          </div>
-        </div>
-    </div>
-
-            <!-- Still Need Help -->
-            <div class="mt-12 text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                <h3 class="text-xl font-semibold text-gray-900 mb-4">Still need help?</h3>
-                <p class="text-gray-600 mb-6">
-                    Can't find what you're looking for? Our support team is here to help you get the most out of Chilla.
-                </p>
-                <a href="contact.html" class="btn-primary">
-                    Contact Support
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-black text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center space-x-2 mb-4 md:mb-0">
-                    <img src="attached_assets/beaverly_lodo.png" alt="Beaverly" class="h-8 w-8">
-                    <span class="text-xl font-semibold">Beaverly®</span>
-                </div>
-                <div class="flex space-x-6">
-                    <a href="faq.html" class="text-gray-400 hover:text-white transition-colors">FAQ</a>
-                    <a href="contact.html" class="text-gray-400 hover:text-white transition-colors">Support</a>
-                    <a href="https://beaverlyai.com/privacy.html" class="text-gray-400 hover:text-white transition-colors">Privacy</a>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p class="text-gray-400">&copy; 2024-2025 Beaverly®. All rights reserved. Chilla is a trademark of Beaverly®.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Chatbot -->
-    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
-<script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
-
-   
-<script>
-document.addEventListener('DOMContentLoaded', function () {
- const faqItems = document.querySelectorAll('.faq-item');
-
-      faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        const answer = item.querySelector('.faq-answer');
-        const icon = item.querySelector('.faq-icon');
-
-        question.addEventListener('click', function () {
-          const isOpen = answer.classList.contains('max-h-96');
-
-      // Close all others
-      faqItems.forEach(otherItem => {
-        const otherAnswer = otherItem.querySelector('.faq-answer');
-        const otherIcon = otherItem.querySelector('.faq-icon');
-        otherAnswer.classList.remove('max-h-96');
-        otherAnswer.classList.add('max-h-0');
-        otherIcon.classList.remove('rotate-180');
-      });
-
-      // Toggle current item
-      if (!isOpen) {
-        answer.classList.remove('max-h-0');
-        answer.classList.add('max-h-96');
-        icon.classList.add('rotate-180');
-      } else {
-        answer.classList.remove('max-h-96');
-        answer.classList.add('max-h-0');
-        icon.classList.remove('rotate-180');
-      }
-    });
-  });
-});
-</script>
-
-
-
-    
+                // Close all FAQ items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Open clicked item if it wasn't active
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
