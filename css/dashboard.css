@@ -542,3 +542,168 @@
     flex-direction: column;
     min-height: 100vh;
 }
+
+/* Lose Dashboard Styles */
+.lose-consent-screen,
+.lose-form-screen,
+.success-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.lose-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.lose-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.lose-tagline {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.lose-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 500px;
+}
+
+.consent-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.consent-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.consent-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-color);
+}
+
+.consent-checkbox label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.consent-checkbox a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.consent-checkbox a:hover {
+    text-decoration: underline;
+}
+
+.strategy-form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.form-group input[type="file"] {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.lose-sidebar-trigger {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+}
+
+.success-screen {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.success-content {
+    max-width: 500px;
+}
+
+.success-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.success-content h2 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.success-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .lose-title {
+        font-size: 2.5rem;
+    }
+
+    .lose-tagline {
+        font-size: 1.1rem;
+    }
+
+    .lose-description {
+        font-size: 0.9rem;
+    }
+}
