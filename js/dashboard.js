@@ -13,10 +13,10 @@ class ChillaDashboard {
     async init() {
         this.setupTheme();
         this.setupEventListeners();
-        
+
         // Check for Deriv OAuth callback
         this.handleDerivCallback();
-        
+
         // Small delay to ensure DOM is ready
         setTimeout(async () => {
             await this.checkAuthentication();
@@ -27,16 +27,16 @@ class ChillaDashboard {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const isPending = localStorage.getItem('deriv_oauth_pending') === 'true';
-        
+
         if (code && isPending) {
             // Deriv OAuth success
             localStorage.setItem('deriv_connected', 'true');
             localStorage.setItem('deriv_auth_code', code);
             localStorage.removeItem('deriv_oauth_pending');
-            
+
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
-            
+
             this.showNotification('Successfully connected to Deriv!', 'success');
             this.updateConnectionStatus(true);
         }
@@ -60,19 +60,19 @@ class ChillaDashboard {
                         email_verified: data.email_verified || false,
                         full_name: data.full_name || 'User'
                     };
-                    
+
                     this.showMainApp();
                     this.loadDashboardData();
-                    
+
                     // Set up periodic data refresh
-                    setInterval(() => this.loadDashboardData(), 30000);
+                    this.setupPeriodicRefresh();
                     return;
                 }
             }
         } catch (error) {
             console.warn('Auth check failed:', error);
         }
-        
+
         // Redirect to login if not authenticated
         window.location.href = 'index.html';
     }
@@ -149,6 +149,16 @@ class ChillaDashboard {
     }
 
     async loadBalance() {
+        // Check actual connection status first
+        await this.checkConnectionStatus();
+
+        // Only fetch balance if user is connected to a broker
+        if (!this.isConnected) {
+            document.getElementById('account-balance').textContent = '$0.00';
+            document.getElementById('total-earnings').textContent = '$0.00';
+            return;
+        }
+
         try {
             const response = await fetch(`${API_BASE}/api/stats`, {
                 method: 'GET',
@@ -171,6 +181,15 @@ class ChillaDashboard {
     }
 
     async loadPositions() {
+        // Check actual connection status first
+        await this.checkConnectionStatus();
+
+        // Only fetch positions if user is connected to a broker
+        if (!this.isConnected) {
+            this.displayPositions([]);
+            return;
+        }
+
         try {
             const response = await fetch(`${API_BASE}/api/stats`, {
                 method: 'GET',
@@ -232,10 +251,13 @@ class ChillaDashboard {
             `;
             connectBtn.classList.add('disconnect-unique');
             connectBtn.classList.remove('connect-unique');
-            
+
             // Update nav button
             navConnectBtn.classList.add('connected');
             navConnectBtn.classList.remove('disconnected');
+
+            // Start periodic refresh when connected
+            this.setupPeriodicRefresh();
         } else {
             connectBtn.innerHTML = `
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -246,10 +268,10 @@ class ChillaDashboard {
             `;
             connectBtn.classList.add('connect-unique');
             connectBtn.classList.remove('disconnect-unique');
-            
+
             // Update nav button
             navConnectBtn.classList.add('disconnected');
-            navConnectBtn.classList.remove('connected');
+            navConnectBtn.classList.remove('connected')
         }
     }
 
@@ -272,7 +294,7 @@ class ChillaDashboard {
     async handleLogout() {
         // Clear local storage first
         localStorage.clear();
-        
+
         try {
             await fetch(`${API_BASE}/api/logout`, {
                 method: 'POST',
@@ -336,15 +358,15 @@ class ChillaDashboard {
             const appId = '85950';
             const redirectUri = window.location.origin + '/dashboard.html';
             const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`;
-            
+
             // Store that we're attempting Deriv connection
             localStorage.setItem('deriv_oauth_pending', 'true');
-            
+
             window.location.href = derivOAuthUrl;
         } else {
             this.showNotification('Other brokers coming soon!', 'info');
         }
-        
+
         this.closeBrokerModal();
     }
 
@@ -352,7 +374,7 @@ class ChillaDashboard {
         // Clear Deriv connection
         localStorage.removeItem('deriv_connected');
         localStorage.removeItem('deriv_auth_code');
-        
+
         this.updateConnectionStatus(false);
         this.closeDisconnectModal();
         this.showNotification('Chilla disconnected successfully', 'success');
@@ -391,7 +413,7 @@ class ChillaDashboard {
             const result = await response.json();
             if (response.ok) {
                 this.showNotification('Verification email sent! Check your inbox.', 'success');
-                
+
                 // Refresh user data after a short delay to check for verification
                 setTimeout(async () => {
                     await this.refreshUserData();
@@ -423,7 +445,7 @@ class ChillaDashboard {
                         email_verified: data.email_verified,
                         full_name: data.full_name
                     };
-                    
+
                     // Update verification status display
                     const verificationStatus = document.getElementById('verification-status');
                     if (this.currentUser.email_verified) {
@@ -462,10 +484,10 @@ class ChillaDashboard {
         // Switch to home tab
         document.getElementById('home-nav').classList.add('active');
         document.getElementById('menu-nav').classList.remove('active');
-        
+
         // Show the main app bar
         document.querySelector('.app-bar').style.display = 'flex';
-        
+
         // Reset app title and dashboard
         document.querySelector('.app-title').textContent = 'Chilla';
         this.loadDashboardData();
@@ -474,7 +496,7 @@ class ChillaDashboard {
 
     showMainDashboard() {
         const dashboard = document.getElementById('dashboard');
-        
+
         dashboard.innerHTML = `
             <div class="balance-card">
                 <h2>Account Balance</h2>
@@ -495,7 +517,7 @@ class ChillaDashboard {
                 </div>
             </div>
         `;
-        
+
         // Reload dashboard data
         this.loadDashboardData();
     }
@@ -504,7 +526,7 @@ class ChillaDashboard {
         // Switch to lose tab
         document.getElementById('home-nav').classList.remove('active');
         document.getElementById('menu-nav').classList.add('active');
-        
+
         // Show lose dashboard
         this.displayLoseDashboard();
     }
@@ -512,13 +534,13 @@ class ChillaDashboard {
     displayLoseDashboard() {
         const dashboard = document.getElementById('dashboard');
         const appTitle = document.querySelector('.app-title');
-        
+
         // Update app title
         appTitle.textContent = 'Lose';
-        
+
         // Hide the main app bar
         document.querySelector('.app-bar').style.display = 'none';
-        
+
         // Show consent screen first
         dashboard.innerHTML = `
             <div class="lose-app-bar">
@@ -545,7 +567,7 @@ class ChillaDashboard {
                         All markets are accepted.
                     </p>
                 </div>
-                
+
                 <div class="consent-section">
                     <div class="consent-checkbox">
                         <input type="checkbox" id="consent-checkbox">
@@ -591,7 +613,7 @@ class ChillaDashboard {
 
     showLoseForm() {
         const dashboard = document.getElementById('dashboard');
-        
+
         dashboard.innerHTML = `
             <div class="lose-app-bar">
                 <button id="lose-back-btn" class="icon-btn">
@@ -611,29 +633,29 @@ class ChillaDashboard {
                     <h2>Get Your Strategy Automated</h2>
                     <p>Upload detailed logic to make automation easier. All markets are accepted.</p>
                 </div>
-                
+
                 <form id="strategy-form" class="strategy-form">
                     <div class="form-group">
                         <label for="strategy-name">Strategy Name</label>
                         <input type="text" id="strategy-name" name="strategyName" required placeholder="Enter your strategy name">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="strategy-description">Detailed Description</label>
                         <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make automation easier..."></textarea>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="strategy-files">Upload Readable Files (.mq5, .zip, .pdf, .docx, .txt)</label>
                         <input type="file" id="strategy-files" name="files" multiple accept=".mq5,.zip,.pdf,.docx,.txt">
                         <div class="file-hint">Note: Files must be detailed to avoid costly development mistakes. We cannot read .ex5 files.</div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="team-note">Any additional info to improve your AI development</label>
                         <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your automation..."></textarea>
                     </div>
-                    
+
                     <button type="submit" class="primary-btn">Get Automated</button>
                 </form>
             </div>
@@ -656,7 +678,7 @@ class ChillaDashboard {
     showLoseSidebar() {
         const sidebar = document.getElementById('sidebar');
         const sidebarContent = sidebar.querySelector('.sidebar-content');
-        
+
         // Update sidebar for Lose
         sidebarContent.innerHTML = `
             <div class="sidebar-header">
@@ -712,10 +734,10 @@ class ChillaDashboard {
 
     async handleStrategySubmission(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(e.target);
         const files = document.getElementById('strategy-files').files;
-        
+
         // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
@@ -736,14 +758,14 @@ class ChillaDashboard {
 
             // Send email using EmailJS
             await emailjs.send('service_w3tknwp', 'template_h5v3nmi', templateParams);
-            
+
             // Show success state
             this.showStrategySuccess();
-            
+
         } catch (error) {
             console.error('Error submitting strategy:', error);
             this.showNotification('Failed to submit strategy. Please try again.', 'error');
-            
+
             // Reset button
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
@@ -752,7 +774,7 @@ class ChillaDashboard {
 
     showStrategySuccess() {
         const dashboard = document.getElementById('dashboard');
-        
+
         dashboard.innerHTML = `
             <div class="success-screen">
                 <div class="success-content">
@@ -803,10 +825,24 @@ class ChillaDashboard {
             }
         }, 5000);
     }
+
+    setupPeriodicRefresh() {
+        // Clear existing interval if any
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+
+        // Set up refresh that checks connection status before making API calls
+        this.refreshInterval = setInterval(() => {
+            // Only load data if we have a connected broker
+            if (this.isConnected) {
+                this.loadDashboardData();
+            }
+        }, 30000);
+    }
 }
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaDashboard();
 });
-
