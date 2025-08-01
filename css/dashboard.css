@@ -81,6 +81,22 @@
     box-shadow: 0 6px 16px var(--shadow-medium);
 }
 
+.theme-icon {
+    width: 24px;
+    height: 24px;
+    stroke: var(--text-primary);
+    stroke-width: 2;
+}
+
+/* Show sun icon in light mode, moon icon in dark mode */
+[data-theme="light"] .moon-icon {
+    display: none;
+}
+
+[data-theme="dark"] .sun-icon {
+    display: none;
+}
+
 /* Ensure visibility and better spacing on mobile */
 @media (max-width: 768px) {
     .floating-theme-toggle {
