@@ -678,6 +678,79 @@
     margin-top: 0.25rem;
 }
 
+.file-preview {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.file-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    color: var(--error-color);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.file-remove:hover {
+    background: rgba(var(--error-color), 0.1);
+}
+
+.file-remove svg {
+    width: 16px;
+    height: 16px;
+}
+
 .lose-app-bar {
     position: fixed;
     top: 0;
@@ -757,14 +830,20 @@
     .lose-form-screen,
     .success-screen {
         padding: 4rem 2rem;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .lose-header {
         margin-bottom: 4rem;
+        text-align: center;
     }
 
     .strategy-form {
         max-width: 700px;
+        margin: 0 auto;
     }
 
     .form-group {
@@ -774,11 +853,24 @@
     .consent-section {
         gap: 2.5rem;
         max-width: 600px;
+        margin: 0 auto;
     }
 
     .primary-btn {
         padding: 1.25rem 2.5rem;
         font-size: 1.1rem;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .lose-app-bar {
+        display: none; /* Hide app bar on desktop for cleaner look */
+    }
+
+    .lose-consent-screen,
+    .lose-form-screen,
+    .success-screen {
+        padding-top: 2rem; /* Adjust since app bar is hidden */
     }
 }
 
@@ -786,16 +878,44 @@
     .lose-consent-screen,
     .lose-form-screen,
     .success-screen {
-        padding: 5rem 2rem;
-        max-width: 900px;
+        padding: 3rem 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
     }
 
     .strategy-form {
         max-width: 800px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .strategy-form .form-group:nth-child(1),
+    .strategy-form .form-group:nth-child(2) {
+        grid-column: 1;
+    }
+
+    .strategy-form .form-group:nth-child(3),
+    .strategy-form .form-group:nth-child(4) {
+        grid-column: 2;
+    }
+
+    .strategy-form button[type="submit"] {
+        grid-column: 1 / -1;
+        justify-self: center;
     }
 
     .lose-description {
-        max-width: 700px;
+        max-width: 800px;
+        font-size: 1.1rem;
+    }
+
+    .lose-title {
+        font-size: 5rem;
+    }
+
+    .lose-tagline {
+        font-size: 2rem;
     }
 }
 
