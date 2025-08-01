@@ -169,12 +169,17 @@ class ChillaDashboard {
                 const data = await response.json();
                 document.getElementById('account-balance').textContent = this.formatCurrency(data.balance || 0);
                 document.getElementById('total-earnings').textContent = this.formatCurrency(data.equity || 0);
+            } else if (response.status === 404) {
+                // Fallback for 404 - don't retry
+                document.getElementById('account-balance').textContent = '$0.00';
+                document.getElementById('total-earnings').textContent = '$0.00';
+                return;
             } else {
                 throw new Error('Failed to load balance');
             }
         } catch (error) {
             console.error('Error loading balance:', error);
-            // Show fallback data
+            // Show fallback data and don't retry
             document.getElementById('account-balance').textContent = '$0.00';
             document.getElementById('total-earnings').textContent = '$0.00';
         }
@@ -199,6 +204,10 @@ class ChillaDashboard {
             if (response.ok) {
                 const data = await response.json();
                 this.displayPositions(data.open_trades || []);
+            } else if (response.status === 404) {
+                // Fallback for 404 - don't retry
+                this.displayPositions([]);
+                return;
             } else {
                 throw new Error('Failed to load positions');
             }
@@ -490,10 +499,10 @@ class ChillaDashboard {
 
         // Reset app title and dashboard
         document.querySelector('.app-title').textContent = 'Chilla';
-        
+
         // Restore original sidebar content
         this.restoreOriginalSidebar();
-        
+
         this.loadDashboardData();
         this.showMainDashboard();
     }
@@ -547,7 +556,7 @@ class ChillaDashboard {
 
         // Check if user has already consented to terms
         const hasConsented = localStorage.getItem('lose_terms_consented') === 'true';
-        
+
         if (hasConsented) {
             this.showLoseForm();
             return;
@@ -792,7 +801,7 @@ class ChillaDashboard {
 
         // Re-setup event listeners for original sidebar
         this.setupOriginalSidebarListeners();
-        
+
         // Update connection status
         this.updateConnectionStatus(this.isConnected);
     }
@@ -882,20 +891,34 @@ class ChillaDashboard {
         submitBtn.disabled = true;
 
         try {
+            // Initialize EmailJS
+            emailjs.init('0w-mDmXc8j3hyp1hw');
+
+            // Process files and convert to base64
+            let fileAttachments = '';
+            if (files.length > 0) {
+                fileAttachments = '\n\nATTACHED FILES:\n';
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const base64 = await this.fileToBase64(file);
+                    fileAttachments += `\nFile: ${file.name} (${file.type}, ${file.size} bytes)\n`;
+                    fileAttachments += `Data: ${base64}\n\n`;
+                }
+            }
+
             // Prepare email data
             const templateParams = {
                 from_email: this.currentUser?.email || localStorage.getItem('chilla_user_email'),
                 to_email: 'creator@beaverlyai.com',
                 user_name: this.currentUser?.full_name || 'User',
                 strategy_name: formData.get('strategyName'),
-                description: formData.get('description'),
+                description: formData.get('description') + fileAttachments,
                 team_note: formData.get('teamNote') || 'No additional notes',
                 submission_date: new Date().toLocaleDateString()
             };
 
             // Send email using EmailJS
             await emailjs.send('service_y3t9c3s', 'template_b5c3sac', templateParams);
-
 
             // Show success state
             this.showStrategySuccess();
@@ -908,6 +931,15 @@ class ChillaDashboard {
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         }
+    }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
     }
 
     showStrategySuccess() {
@@ -970,13 +1002,15 @@ class ChillaDashboard {
             clearInterval(this.refreshInterval);
         }
 
-        // Set up refresh that checks connection status before making API calls
-        this.refreshInterval = setInterval(() => {
-            // Only load data if we have a connected broker
-            if (this.isConnected) {
-                this.loadDashboardData();
-            }
-        }, 30000);
+        // Only set up refresh for connected users
+        if (this.isConnected) {
+            this.refreshInterval = setInterval(() => {
+                // Double-check connection status before making API calls
+                if (this.isConnected) {
+                    this.loadDashboardData();
+                }
+            }, 30000);
+        }
     }
 }
 
