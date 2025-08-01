@@ -3,533 +3,501 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upgrade - Chilla</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Upgrade - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+<!-- Chatbot -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-229WRH1KTN');
+    </script>
+</head>
+<body>
+    <div class="auth-screen">
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7-7l-7 7 7 7"/>
+            </svg>
+        </button>
+
+        <!-- Header Section -->
+        <div class="upgrade-header">
+            <div class="logo-text">Let's Do It Again</div>
+            <p class="subtitle">Keep Chilla running smoothly with uninterrupted service.</p>
+            
+            <!-- Billing Toggle -->
+            <div class="billing-toggle">
+                <span class="billing-label monthly-label">Monthly</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="billing-toggle" class="toggle-input">
+                    <label for="billing-toggle" class="toggle-label">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <span class="billing-label annual-label">
+                    Annual <span class="savings-badge">Save 55%</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="upgrade-container"></div>
+            <!-- Level One Plan -->
+            <div class="plan-card basic-plan">
+                <div class="plan-header">
+                    <h3>Level One</h3>
+                    <div class="price" data-monthly="15" data-annual="99">$15</div>
+                    <p class="billing">per month</p>
+                    <p class="plan-description">A calm, confident way to begin your chill journey</p>
+                </div>
+                
+                <ul class="plan-features">
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Smarter earnings with real-time decisions
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Steady, automated growth
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Covers essential markets mix: e.g forex, indices, crypto
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Priority access to 1 refined strategy
+                    </li>
+                </ul>
+                
+                <a href="https://paystack.shop/pay/gj89tz5341" class="plan-button primary-btn">
+                    Start Chilling Now
+                </a>
+            </div>
+
+            <!-- Deep Chill Plan -->
+            <div class="plan-card premium-plan">
+                <div class="popular-badge">Gain 400% more value</div>
+                
+                <div class="plan-header">
+                    <h3>Deep Chill</h3>
+                    <div class="price" data-monthly="75" data-annual="499">$75</div>
+                    <p class="billing">per month</p>
+                    <p class="plan-description">Just enough power to chill like a boss</p>
+                </div>
+                
+                <ul class="plan-features">
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Faster decisions = faster earnings
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Chilla adapts in realtime for better results
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Manages more markets to grow more silently
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Feels premium, built for everyday winners
+                    </li>
+                </ul>
+                
+                <a href="https://paystack.shop/pay/iq567nig5e" class="plan-button premium-button">
+                    Go Deeper Now
+                </a>
+            </div>
+
+            <!-- Peak Chill Plan -->
+            <div class="plan-card basic-plan">
+                <div class="plan-header">
+                    <h3>Peak Chill</h3>
+                    <div class="price" data-monthly="150" data-annual="999">$150</div>
+                    <p class="billing">per month</p>
+                    <p class="plan-description">Front-row money-making experience</p>
+                </div>
+                
+                <ul class="plan-features">
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Maximum speed, zero delay
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Highest market access = highest growth potential
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Access all advanced Chilla strategies in real time
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        The ultimate chill — nothing held back
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Early access to new features and market drops
+                    </li>
+                </ul>
+                
+                <a href="https://paystack.shop/pay/gj89tz5341" class="plan-button primary-btn">
+                    Unlock Peak Chill Now
+                </a>
+            </div>
+        </div>
+    </div>
+    
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
+        .back-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
             color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.1);
+        }
+
+        .upgrade-header {
+            text-align: center;
+            margin-top: 5rem;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .upgrade-header {
+                margin-top: 6rem;
+                margin-bottom: 2rem;
+            }
+            
+            .back-btn {
+                top: 0.5rem;
+                left: 0.5rem;
+                width: 36px;
+                height: 36px;
+            }
         }
 
         .upgrade-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            width: 100%;
         }
 
-        .header {
+        @media (min-width: 768px) {
+            .upgrade-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .upgrade-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .plan-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
             text-align: center;
-            margin-bottom: 3rem;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            position: relative;
+            transition: all 0.3s ease;
         }
 
-        .header h1 {
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 700;
+        .plan-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow-medium);
+        }
+
+        .premium-plan {
+            background: #000000;
+            color: white;
+            border-color: #333;
+        }
+
+        [data-theme="dark"] .premium-plan {
+            background: #000000;
+            border-color: white;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: white;
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 0 12px 0 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--accent-color), #667eea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
         }
 
-        .header p {
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
+        .premium-plan .plan-header h3 {
+            color: white;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .premium-plan .price {
+            color: white;
+        }
+
+        .billing {
             color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
+            margin-bottom: 1rem;
         }
 
+        .premium-plan .billing {
+            color: #ccc;
+        }
+
+        .plan-description {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-bottom: 2rem;
+        }
+
+        .premium-plan .plan-description {
+            color: #aaa;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .premium-plan .plan-features li {
+            color: white;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            color: var(--success-color);
+            stroke-width: 2;
+        }
+
+        .premium-plan .check-icon {
+            color: #4ade80;
+        }
+
+        .plan-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .premium-button {
+            background: white;
+            color: black;
+        }
+
+        .premium-button:hover {
+            background: #f5f5f5;
+            transform: translateY(-1px);
+        }
+
+        /* Billing Toggle Styles */
         .billing-toggle {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 3rem;
-            background: var(--bg-secondary);
-            border-radius: 50px;
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
+            margin: 2rem 0;
         }
 
-        .billing-option {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .billing-option.active {
-            background: var(--accent-color);
-            color: white;
-            box-shadow: 0 2px 8px rgba(var(--accent-color-rgb), 0.3);
-        }
-
-        .annual-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #10b981;
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            width: 100%;
-            max-width: 1000px;
-            margin-bottom: 3rem;
-        }
-
-        .pricing-card {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            position: relative;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        .pricing-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px var(--shadow-medium);
-            border-color: var(--accent-color);
-        }
-
-        .pricing-card:active {
-            transform: translateY(-2px);
-            transition: transform 0.1s ease;
-        }
-
-        .pricing-card.popular {
-            border-color: var(--accent-color);
-            position: relative;
-        }
-
-        .pricing-card.popular::before {
-            content: 'Most Popular';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .pricing-card.popular .card-content {
-            padding-top: 1rem;
-        }
-
-        .plan-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .plan-description {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-
-        .price {
-            font-size: 3rem;
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .price-period {
-            color: var(--text-secondary);
+        .billing-label {
             font-size: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .features {
-            text-align: left;
-            margin-bottom: 2rem;
-        }
-
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            color: var(--text-secondary);
-        }
-
-        .feature-icon {
-            width: 20px;
-            height: 20px;
-            background: var(--success-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .feature-icon svg {
-            width: 12px;
-            height: 12px;
-            stroke: white;
-            stroke-width: 3;
-        }
-
-        .upgrade-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upgrade-btn:hover {
-            background: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(var(--accent-color-rgb), 0.4);
-        }
-
-        .upgrade-btn:active {
-            transform: translateY(0);
-        }
-
-        .upgrade-btn.secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-        }
-
-        .upgrade-btn.secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--accent-color);
-        }
-
-        .back-link {
-            color: var(--accent-color);
-            text-decoration: none;
             font-weight: 500;
-            margin-top: 2rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .back-link:hover {
-            gap: 0.75rem;
-        }
-
-        .guarantee {
-            text-align: center;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 2rem;
-            padding: 1rem;
+            transition: color 0.2s ease;
+        }
+
+        .billing-label.active {
+            color: var(--text-primary);
+        }
+
+        .savings-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .toggle-label {
+            display: block;
+            width: 100%;
+            height: 100%;
             background: var(--bg-tertiary);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            position: relative;
+            transition: background 0.2s ease;
         }
 
-        /* Mobile optimizations */
-        @media (max-width: 767px) {
-            .upgrade-container {
-                padding: 1rem;
-            }
-
-            .pricing-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .pricing-card {
-                padding: 1.5rem;
-            }
-
-            .billing-toggle {
-                flex-direction: column;
-                gap: 0.5rem;
-                padding: 0.25rem;
-            }
-
-            .billing-option {
-                width: 100%;
-                text-align: center;
-            }
+        .toggle-input:checked + .toggle-label {
+            background: var(--accent-color);
         }
 
-        /* Tablet optimizations */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .pricing-grid {
-                grid-template-columns: repeat(2, 1fr);
-                max-width: 800px;
-            }
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Desktop optimizations */
-        @media (min-width: 1024px) {
-            .upgrade-container {
-                padding: 3rem 2rem;
-            }
-
-            .pricing-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .pricing-card {
-                padding: 2.5rem;
-            }
-        }
-
-        /* Touch device tap highlighting */
-        @media (hover: none) {
-            .pricing-card:active {
-                background: var(--bg-tertiary);
-                border-color: var(--accent-color);
-            }
-
-            .upgrade-btn:active {
-                background: #5a67d8;
-            }
+        .toggle-input:checked + .toggle-label .toggle-slider {
+            transform: translateX(30px);
         }
     </style>
-</head>
-<body>
-    <div class="upgrade-container">
-        <div class="header">
-            <h1>Choose Your Plan</h1>
-            <p>Unlock the full potential of Chilla with our premium features designed to maximize your trading success.</p>
-        </div>
-
-        <div class="billing-toggle">
-            <button class="billing-option active" id="monthly-option">Monthly</button>
-            <button class="billing-option" id="annual-option">
-                Annual
-                <span class="annual-badge">Save 20%</span>
-            </button>
-        </div>
-
-        <div class="pricing-grid">
-            <!-- Free Plan -->
-            <div class="pricing-card">
-                <div class="card-content">
-                    <h3 class="plan-name">Free</h3>
-                    <p class="plan-description">Perfect for getting started with automated trading</p>
-                    <div class="price" id="free-price">$0</div>
-                    <div class="price-period">forever</div>
-                    <div class="features">
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Basic dashboard access</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Connect one broker</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Community support</span>
-                        </div>
-                    </div>
-                    <button class="upgrade-btn secondary">Current Plan</button>
-                </div>
-            </div>
-
-            <!-- Pro Plan -->
-            <div class="pricing-card popular">
-                <div class="card-content">
-                    <h3 class="plan-name">Pro</h3>
-                    <p class="plan-description">Advanced features for serious traders</p>
-                    <div class="price" id="pro-price">$29</div>
-                    <div class="price-period" id="pro-period">per month</div>
-                    <div class="features">
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Everything in Free</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Advanced analytics</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Multiple broker connections</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Priority support</span>
-                        </div>
-                    </div>
-                    <button class="upgrade-btn">Upgrade to Pro</button>
-                </div>
-            </div>
-
-            <!-- Enterprise Plan -->
-            <div class="pricing-card">
-                <div class="card-content">
-                    <h3 class="plan-name">Enterprise</h3>
-                    <p class="plan-description">Custom solutions for institutional traders</p>
-                    <div class="price" id="enterprise-price">$99</div>
-                    <div class="price-period" id="enterprise-period">per month</div>
-                    <div class="features">
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Everything in Pro</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Custom AI strategies</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>Dedicated account manager</span>
-                        </div>
-                        <div class="feature">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="20,6 9,17 4,12"/>
-                                </svg>
-                            </div>
-                            <span>White-label options</span>
-                        </div>
-                    </div>
-                    <button class="upgrade-btn">Contact Sales</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="guarantee">
-            🛡️ 30-day money-back guarantee • Cancel anytime • No hidden fees
-        </div>
-
-        <a href="dashboard.html" class="back-link">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            Back to Dashboard
-        </a>
-    </div>
-
+    
     <script>
-        const monthlyOption = document.getElementById('monthly-option');
-        const annualOption = document.getElementById('annual-option');
-        const proPrice = document.getElementById('pro-price');
-        const proPeriod = document.getElementById('pro-period');
-        const enterprisePrice = document.getElementById('enterprise-price');
-        const enterprisePeriod = document.getElementById('enterprise-period');
+        // Setup theme from localStorage
+        const theme = localStorage.getItem('chilla-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
 
-        const pricing = {
-            monthly: {
-                pro: { price: '$29', period: 'per month' },
-                enterprise: { price: '$99', period: 'per month' }
-            },
-            annual: {
-                pro: { price: '$279', period: 'per year' },
-                enterprise: { price: '$949', period: 'per year' }
+        // Pricing toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('billing-toggle');
+            const monthlyLabel = document.querySelector('.monthly-label');
+            const annualLabel = document.querySelector('.annual-label');
+            const prices = document.querySelectorAll('.price');
+            const billingTexts = document.querySelectorAll('.billing');
+
+            function updatePricing() {
+                const isAnnual = toggle.checked;
+                
+                // Update labels
+                monthlyLabel.classList.toggle('active', !isAnnual);
+                annualLabel.classList.toggle('active', isAnnual);
+
+                // Update prices
+                prices.forEach(price => {
+                    const monthlyPrice = price.dataset.monthly;
+                    const annualPrice = price.dataset.annual;
+                    price.textContent = isAnnual ? `$${annualPrice}` : `$${monthlyPrice}`;
+                });
+
+                // Update billing text
+                billingTexts.forEach(billing => {
+                    billing.textContent = isAnnual ? 'per year' : 'per month';
+                });
             }
-        };
 
-        function updatePricing(billingType) {
-            const plan = pricing[billingType];
-            proPrice.textContent = plan.pro.price;
-            proPeriod.textContent = plan.pro.period;
-            enterprisePrice.textContent = plan.enterprise.price;
-            enterprisePeriod.textContent = plan.enterprise.period;
-        }
-
-        monthlyOption.addEventListener('click', () => {
-            monthlyOption.classList.add('active');
-            annualOption.classList.remove('active');
-            updatePricing('monthly');
-        });
-
-        annualOption.addEventListener('click', () => {
-            annualOption.classList.add('active');
-            monthlyOption.classList.remove('active');
-            updatePricing('annual');
-        });
-
-        // Add tap feedback for mobile
-        document.querySelectorAll('.pricing-card').forEach(card => {
-            card.addEventListener('touchstart', () => {
-                card.style.transform = 'translateY(-2px)';
-            });
+            toggle.addEventListener('change', updatePricing);
             
-            card.addEventListener('touchend', () => {
-                card.style.transform = '';
-            });
+            // Initial state
+            monthlyLabel.classList.add('active');
+            updatePricing();
         });
     </script>
 </body>
