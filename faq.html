@@ -84,8 +84,8 @@
 
         .back-btn {
             position: fixed;
-            top: 2rem;
-            left: 2rem;
+            top: 1rem;
+            left: 1rem;
             width: 40px;
             height: 40px;
             border: none;
@@ -104,6 +104,27 @@
         .back-btn:hover {
             background: var(--bg-tertiary);
             transform: scale(1.1);
+        }
+
+        .faq-header {
+            text-align: center;
+            margin-top: 5rem;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .faq-header {
+                margin-top: 6rem;
+                margin-bottom: 2rem;
+            }
+            
+            .back-btn {
+                top: 0.5rem;
+                left: 0.5rem;
+                width: 36px;
+                height: 36px;
+            }
         }
 
         .support-card {
@@ -126,6 +147,19 @@
             margin-bottom: 1.5rem;
         }
     </style>
+<!-- Chatbot -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-229WRH1KTN');
+    </script>
 </head>
 <body>
     <div class="faq-container">
