@@ -21,22 +21,7 @@
     position: relative;
 }
 
-.app-title::before {
-    content: '';
-    width: 24px;
-    height: 24px;
-    background-image: url('../attached_assets/beaverly_logoi.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    display: inline-block;
-    margin-right: 0.5rem;
-    vertical-align: middle;
-}
 
-[data-theme="dark"] .app-title::before {
-    background-image: url('../attached_assets/beaverly_lodo.png');
-}
 
 /* Nav Connect Button */
 #nav-connect-btn {
@@ -44,11 +29,11 @@
 }
 
 #nav-connect-btn.connected {
-    color: var(--success-color);
+    color: var(--text-primary);
 }
 
 #nav-connect-btn.disconnected {
-    color: var(--error-color);
+    color: var(--text-primary);
 }
 
 /* Floating Theme Toggle */
@@ -156,6 +141,7 @@
     padding: 2rem 0;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    overflow-y: auto;
 }
 
 .sidebar.open .sidebar-content {
@@ -255,23 +241,27 @@
 }
 
 .connect-unique {
-    background: linear-gradient(135deg, var(--success-color), #000000);
+    background: #000000;
     color: white;
+    border: 1px solid transparent;
 }
 
 [data-theme="dark"] .connect-unique {
-    background: linear-gradient(135deg, var(--success-color), #1a1a1a);
+    background: #000000;
     color: white;
+    border: 1px solid white;
 }
 
 .disconnect-unique {
-    background: linear-gradient(135deg, var(--error-color), #cc0000);
+    background: #000000;
     color: white;
+    border: 1px solid transparent;
 }
 
 [data-theme="dark"] .disconnect-unique {
-    background: linear-gradient(135deg, var(--error-color), #2a0000);
+    background: #000000;
     color: white;
+    border: 1px solid white;
 }
 
 /* Main Content */
