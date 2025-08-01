@@ -33,7 +33,7 @@
         <div class="upgrade-header">
             <div class="logo-text">Let's Do It Again</div>
             <p class="subtitle">Keep Chilla running smoothly with uninterrupted service.</p>
-            
+
             <!-- Billing Toggle -->
             <div class="billing-toggle">
                 <span class="billing-label monthly-label">Monthly</span>
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Pricing Plans -->
-        <div class="upgrade-container"></div>
+        <div class="upgrade-container">
             <!-- Level One Plan -->
             <div class="plan-card basic-plan">
                 <div class="plan-header">
@@ -59,7 +59,7 @@
                     <p class="billing">per month</p>
                     <p class="plan-description">A calm, confident way to begin your chill journey</p>
                 </div>
-                
+
                 <ul class="plan-features">
                     <li>
                         <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -86,7 +86,7 @@
                         Priority access to 1 refined strategy
                     </li>
                 </ul>
-                
+
                 <a href="https://paystack.shop/pay/gj89tz5341" class="plan-button primary-btn">
                     Start Chilling Now
                 </a>
@@ -95,14 +95,14 @@
             <!-- Deep Chill Plan -->
             <div class="plan-card premium-plan">
                 <div class="popular-badge">Gain 400% more value</div>
-                
+
                 <div class="plan-header">
                     <h3>Deep Chill</h3>
                     <div class="price" data-monthly="75" data-annual="499">$75</div>
                     <p class="billing">per month</p>
                     <p class="plan-description">Just enough power to chill like a boss</p>
                 </div>
-                
+
                 <ul class="plan-features">
                     <li>
                         <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -129,7 +129,7 @@
                         Feels premium, built for everyday winners
                     </li>
                 </ul>
-                
+
                 <a href="https://paystack.shop/pay/iq567nig5e" class="plan-button premium-button">
                     Go Deeper Now
                 </a>
@@ -143,7 +143,7 @@
                     <p class="billing">per month</p>
                     <p class="plan-description">Front-row money-making experience</p>
                 </div>
-                
+
                 <ul class="plan-features">
                     <li>
                         <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -176,14 +176,14 @@
                         Early access to new features and market drops
                     </li>
                 </ul>
-                
+
                 <a href="https://paystack.shop/pay/gj89tz5341" class="plan-button primary-btn">
                     Unlock Peak Chill Now
                 </a>
             </div>
         </div>
     </div>
-    
+
     <style>
         .back-btn {
             position: fixed;
@@ -221,7 +221,7 @@
                 margin-top: 6rem;
                 margin-bottom: 2rem;
             }
-            
+
             .back-btn {
                 top: 0.5rem;
                 left: 0.5rem;
@@ -236,34 +236,52 @@
             gap: 2rem;
             max-width: 1200px;
             width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
 
         @media (min-width: 768px) {
             .upgrade-container {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 2.5rem;
+                padding: 0 2rem;
             }
         }
 
         @media (min-width: 1024px) {
             .upgrade-container {
                 grid-template-columns: repeat(3, 1fr);
+                gap: 3rem;
+                padding: 0;
             }
         }
 
         .plan-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
             text-align: center;
-            box-shadow: 0 2px 8px var(--shadow-light);
+            box-shadow: 0 4px 16px var(--shadow-light);
             position: relative;
             transition: all 0.3s ease;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .plan-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px var(--shadow-medium);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px var(--shadow-medium);
+            border-color: var(--accent-color);
+        }
+
+        @media (max-width: 767px) {
+            .plan-card {
+                padding: 2rem 1.5rem;
+                min-height: auto;
+            }
         }
 
         .premium-plan {
@@ -459,7 +477,7 @@
             transform: translateX(30px);
         }
     </style>
-    
+
     <script>
         // Setup theme from localStorage
         const theme = localStorage.getItem('chilla-theme') || 'light';
@@ -475,7 +493,7 @@
 
             function updatePricing() {
                 const isAnnual = toggle.checked;
-                
+
                 // Update labels
                 monthlyLabel.classList.toggle('active', !isAnnual);
                 annualLabel.classList.toggle('active', isAnnual);
@@ -494,7 +512,7 @@
             }
 
             toggle.addEventListener('change', updatePricing);
-            
+
             // Initial state
             monthlyLabel.classList.add('active');
             updatePricing();
