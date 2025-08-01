@@ -463,6 +463,9 @@ class ChillaDashboard {
         document.getElementById('home-nav').classList.add('active');
         document.getElementById('menu-nav').classList.remove('active');
         
+        // Show the main app bar
+        document.querySelector('.app-bar').style.display = 'flex';
+        
         // Reset app title and dashboard
         document.querySelector('.app-title').textContent = 'Chilla';
         this.loadDashboardData();
@@ -513,16 +516,33 @@ class ChillaDashboard {
         // Update app title
         appTitle.textContent = 'Lose';
         
+        // Hide the main app bar
+        document.querySelector('.app-bar').style.display = 'none';
+        
         // Show consent screen first
         dashboard.innerHTML = `
+            <div class="lose-app-bar">
+                <button id="lose-back-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="lose-app-title">Lose</h1>
+                <button id="lose-menu-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                    </svg>
+                </button>
+            </div>
             <div class="lose-consent-screen">
                 <div class="lose-header">
                     <h1 class="lose-title">LOSE</h1>
                     <p class="lose-tagline">"Launch, Optimize, Scale, Earn"</p>
                     <p class="lose-description">
-                        Automate your profitable strategy and run it for free on M-II, the AI engine powering Chilla. 
+                        Get your strategy automated for free on M-II, the AI engine powering Chilla. 
                         Zero effort required. Use your automated AI personally or sell it to the market on your own terms. 
-                        No setup costs, no infra management—just automate for free and use/sell it forever.
+                        No setup costs, no infra management—just get automated for free and use/sell it forever. 
+                        All markets are accepted.
                     </p>
                 </div>
                 
@@ -533,7 +553,7 @@ class ChillaDashboard {
                             I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
                         </label>
                     </div>
-                    <button id="start-automating-btn" class="primary-btn" disabled>Start Automating</button>
+                    <button id="start-automating-btn" class="primary-btn" disabled>Get Automated</button>
                 </div>
             </div>
         `;
@@ -542,6 +562,8 @@ class ChillaDashboard {
         const consentCheckbox = document.getElementById('consent-checkbox');
         const startBtn = document.getElementById('start-automating-btn');
         const termsLink = document.getElementById('terms-link');
+        const backBtn = document.getElementById('lose-back-btn');
+        const menuBtn = document.getElementById('lose-menu-btn');
 
         consentCheckbox.addEventListener('change', () => {
             startBtn.disabled = !consentCheckbox.checked;
@@ -549,7 +571,7 @@ class ChillaDashboard {
 
         termsLink.addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.href = 'terms.html';
+            window.location.href = 'lose-terms.html';
         });
 
         startBtn.addEventListener('click', () => {
@@ -557,59 +579,75 @@ class ChillaDashboard {
                 this.showLoseForm();
             }
         });
+
+        backBtn.addEventListener('click', () => {
+            this.showHome();
+        });
+
+        menuBtn.addEventListener('click', () => {
+            this.showLoseSidebar();
+        });
     }
 
     showLoseForm() {
         const dashboard = document.getElementById('dashboard');
         
         dashboard.innerHTML = `
+            <div class="lose-app-bar">
+                <button id="lose-back-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="lose-app-title">Lose</h1>
+                <button id="lose-menu-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                    </svg>
+                </button>
+            </div>
             <div class="lose-form-screen">
                 <div class="lose-header">
-                    <h2>Automate Your Strategy</h2>
-                    <p>Upload your strategy and let M-II handle the rest</p>
+                    <h2>Get Your Strategy Automated</h2>
+                    <p>Upload detailed logic to make automation easier. All markets are accepted.</p>
                 </div>
                 
                 <form id="strategy-form" class="strategy-form">
                     <div class="form-group">
                         <label for="strategy-name">Strategy Name</label>
-                        <input type="text" id="strategy-name" name="strategyName" required>
+                        <input type="text" id="strategy-name" name="strategyName" required placeholder="Enter your strategy name">
                     </div>
                     
                     <div class="form-group">
-                        <label for="strategy-description">Description</label>
-                        <textarea id="strategy-description" name="description" rows="4" required></textarea>
+                        <label for="strategy-description">Detailed Description</label>
+                        <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make automation easier..."></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label for="strategy-files">Upload Files (.ex5, .mq5, .zip, .pdf, .docx, .txt)</label>
-                        <input type="file" id="strategy-files" name="files" multiple accept=".ex5,.mq5,.zip,.pdf,.docx,.txt">
+                        <label for="strategy-files">Upload Readable Files (.mq5, .zip, .pdf, .docx, .txt)</label>
+                        <input type="file" id="strategy-files" name="files" multiple accept=".mq5,.zip,.pdf,.docx,.txt">
+                        <div class="file-hint">Note: Files must be detailed to avoid costly development mistakes. We cannot read .ex5 files.</div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="team-note">Optional Note to Team</label>
-                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Any additional information for our team..."></textarea>
+                        <label for="team-note">Any additional info to improve your AI development</label>
+                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your automation..."></textarea>
                     </div>
                     
-                    <button type="submit" class="primary-btn">Submit Strategy</button>
+                    <button type="submit" class="primary-btn">Get Automated</button>
                 </form>
-                
-                <!-- Sidebar for Lose -->
-                <div class="lose-sidebar-trigger">
-                    <button id="lose-menu-btn" class="icon-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
         `;
 
-        // Add form submission handler
+        // Add event listeners
         document.getElementById('strategy-form').addEventListener('submit', (e) => {
             this.handleStrategySubmission(e);
         });
 
-        // Add lose menu handler
+        document.getElementById('lose-back-btn').addEventListener('click', () => {
+            this.displayLoseDashboard();
+        });
+
         document.getElementById('lose-menu-btn').addEventListener('click', () => {
             this.showLoseSidebar();
         });
@@ -657,11 +695,11 @@ class ChillaDashboard {
 
         // Add event listeners for lose sidebar
         document.getElementById('lose-terms-btn').addEventListener('click', () => {
-            window.location.href = 'terms.html';
+            window.location.href = 'lose-terms.html';
         });
 
         document.getElementById('lose-privacy-btn').addEventListener('click', () => {
-            window.location.href = 'privacy.html';
+            window.location.href = 'lose-privacy.html';
         });
 
         document.getElementById('automate-strategy-btn').addEventListener('click', () => {
