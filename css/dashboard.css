@@ -829,8 +829,8 @@
     .lose-consent-screen,
     .lose-form-screen,
     .success-screen {
-        padding: 4rem 2rem;
-        min-height: 100vh;
+        padding: 6rem 2rem 4rem;
+        min-height: calc(100vh - 60px);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -864,13 +864,7 @@
     }
 
     .lose-app-bar {
-        display: none; /* Hide app bar on desktop for cleaner look */
-    }
-
-    .lose-consent-screen,
-    .lose-form-screen,
-    .success-screen {
-        padding-top: 2rem; /* Adjust since app bar is hidden */
+        display: flex; /* Show app bar on desktop */
     }
 }
 
