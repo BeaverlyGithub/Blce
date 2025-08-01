@@ -551,17 +551,19 @@
     flex-direction: column;
     align-items: center;
     padding: 2rem 1rem;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
+    min-height: calc(100vh - 11rem);
+    justify-content: center;
 }
 
 .lose-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
 .lose-title {
-    font-size: 3rem;
+    font-size: clamp(2.5rem, 8vw, 4rem);
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
@@ -569,49 +571,55 @@
 }
 
 .lose-tagline {
-    font-size: 1.25rem;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
     font-weight: 600;
     color: var(--accent-color);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .lose-description {
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
     line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 500px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .consent-section {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
     align-items: center;
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
 }
 
 .consent-checkbox {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-align: center;
+    align-items: flex-start;
+    gap: 0.75rem;
+    text-align: left;
+    width: 100%;
 }
 
 .consent-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     accent-color: var(--accent-color);
+    flex-shrink: 0;
+    margin-top: 2px;
 }
 
 .consent-checkbox label {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--text-secondary);
+    line-height: 1.5;
 }
 
 .consent-checkbox a {
     color: var(--accent-color);
     text-decoration: none;
+    font-weight: 500;
 }
 
 .consent-checkbox a:hover {
@@ -620,52 +628,75 @@
 
 .strategy-form {
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .form-group label {
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-primary);
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .form-group input,
 .form-group textarea {
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
     background: var(--bg-secondary);
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 0.9rem;
-    transition: border-color 0.2s ease;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
 }
 
 .form-group input[type="file"] {
-    padding: 0.5rem;
+    padding: 0.75rem;
     cursor: pointer;
+    border-style: dashed;
 }
 
-.lose-sidebar-trigger {
+.file-hint {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+.lose-app-bar {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+}
+
+.lose-app-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
 }
 
 .success-screen {
@@ -674,36 +705,130 @@
 }
 
 .success-content {
-    max-width: 500px;
+    max-width: 600px;
 }
 
 .success-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
 }
 
 .success-content h2 {
     color: var(--text-primary);
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
 }
 
 .success-message {
     color: var(--text-secondary);
     line-height: 1.6;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
 }
 
-@media (max-width: 768px) {
-    .lose-title {
-        font-size: 2.5rem;
+.primary-btn {
+    background: var(--accent-color);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 200px;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--accent-color-rgb), 0.3);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Desktop responsiveness */
+@media (min-width: 768px) {
+    .lose-consent-screen,
+    .lose-form-screen,
+    .success-screen {
+        padding: 4rem 2rem;
     }
 
-    .lose-tagline {
+    .lose-header {
+        margin-bottom: 4rem;
+    }
+
+    .strategy-form {
+        max-width: 700px;
+    }
+
+    .form-group {
+        gap: 1rem;
+    }
+
+    .consent-section {
+        gap: 2.5rem;
+        max-width: 600px;
+    }
+
+    .primary-btn {
+        padding: 1.25rem 2.5rem;
         font-size: 1.1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .lose-consent-screen,
+    .lose-form-screen,
+    .success-screen {
+        padding: 5rem 2rem;
+        max-width: 900px;
+    }
+
+    .strategy-form {
+        max-width: 800px;
     }
 
     .lose-description {
-        font-size: 0.9rem;
+        max-width: 700px;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+    .lose-consent-screen,
+    .lose-form-screen,
+    .success-screen {
+        padding: 1.5rem 1rem;
+        min-height: calc(100vh - 9rem);
+    }
+
+    .lose-header {
+        margin-bottom: 2rem;
+    }
+
+    .consent-section {
+        gap: 1.5rem;
+    }
+
+    .strategy-form {
+        gap: 1.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 0.875rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    .primary-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
     }
 }
