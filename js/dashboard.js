@@ -490,6 +490,10 @@ class ChillaDashboard {
 
         // Reset app title and dashboard
         document.querySelector('.app-title').textContent = 'Chilla';
+        
+        // Restore original sidebar content
+        this.restoreOriginalSidebar();
+        
         this.loadDashboardData();
         this.showMainDashboard();
     }
@@ -540,6 +544,14 @@ class ChillaDashboard {
 
         // Hide the main app bar
         document.querySelector('.app-bar').style.display = 'none';
+
+        // Check if user has already consented to terms
+        const hasConsented = localStorage.getItem('lose_terms_consented') === 'true';
+        
+        if (hasConsented) {
+            this.showLoseForm();
+            return;
+        }
 
         // Show consent screen first
         dashboard.innerHTML = `
@@ -598,6 +610,8 @@ class ChillaDashboard {
 
         startBtn.addEventListener('click', () => {
             if (consentCheckbox.checked) {
+                // Save consent status
+                localStorage.setItem('lose_terms_consented', 'true');
                 this.showLoseForm();
             }
         });
@@ -673,6 +687,129 @@ class ChillaDashboard {
         document.getElementById('lose-menu-btn').addEventListener('click', () => {
             this.showLoseSidebar();
         });
+    }
+
+    restoreOriginalSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarContent = sidebar.querySelector('.sidebar-content');
+
+        // Restore original sidebar content
+        sidebarContent.innerHTML = `
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <div class="user-name" id="user-display-name">${this.currentUser?.full_name || 'User'}</div>
+                    <div class="user-email" id="user-display-email">${this.currentUser?.email || 'user@example.com'}</div>
+                    <div class="verification-status" id="verification-status">
+                        <span class="status-dot ${this.currentUser?.email_verified ? 'verified' : 'unverified'}"></span>
+                        <span>${this.currentUser?.email_verified ? 'Verified' : 'Unverified'}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                <button class="menu-item connect-unique" id="connect-chilla-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+                    </svg>
+                    <span class="status-dot disconnected"></span>
+                    Connect Chilla
+                </button>
+                <button class="menu-item" id="upgrade-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m6 2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12ZM8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5"/>
+                    </svg>
+                    Upgrade
+                </button>
+                <button class="menu-item" id="change-email-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline stroke-linecap="round" stroke-linejoin="round" points="22,6 12,13 2,6"/>
+                    </svg>
+                    Change Email
+                </button>
+                <button class="menu-item" id="change-password-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <circle cx="12" cy="16" r="1"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Change Password
+                </button>
+                <button class="menu-item" id="verify-email-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline stroke-linecap="round" stroke-linejoin="round" points="20,6 9,17 4,12"/>
+                    </svg>
+                    Verify Email
+                </button>
+                <button class="menu-item" id="contact-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    Contact
+                </button>
+                <button id="faq-btn" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                        <path d="M12 17h.01"/>
+                    </svg>
+                    FAQ
+                </button>
+                <button id="privacy-btn" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Privacy Policy
+                </button>
+                <button id="terms-btn" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Terms of Service
+                </button>
+                <button class="menu-item logout" id="logout-btn">
+                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline stroke-linecap="round" stroke-linejoin="round" points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+
+            <!-- Floating Theme Toggle -->
+            <div class="floating-theme-toggle">
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        // Re-setup event listeners for original sidebar
+        this.setupOriginalSidebarListeners();
+        
+        // Update connection status
+        this.updateConnectionStatus(this.isConnected);
+    }
+
+    setupOriginalSidebarListeners() {
+        // Re-setup all the original sidebar event listeners
+        document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
+        document.getElementById('upgrade-btn').addEventListener('click', () => this.showUpgrade());
+        document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
+        document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
+        document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
+        document.getElementById('contact-btn').addEventListener('click', () => this.showContact());
+        document.getElementById('faq-btn').addEventListener('click', () => this.showFAQ());
+        document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
+        document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
+        document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
+        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
     }
 
     showLoseSidebar() {
