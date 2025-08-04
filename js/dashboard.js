@@ -715,10 +715,21 @@ class ChillaDashboard {
                     </div>
 
                     <div class="form-group">
-                        <label for="strategy-files">Upload Readable Files (.mq5, .zip, .pdf, .docx, .txt)</label>
-                        <input type="file" id="strategy-files" name="files" multiple accept=".mq5,.zip,.pdf,.docx,.txt">
-                        <div class="file-hint">Note: Files must be detailed to avoid costly development mistakes. We cannot read .ex5 files.</div>
-                        <div id="file-preview" class="file-preview"></div>
+                        <label for="trading-journal-link">Trading Journal/Plan Link (Google Drive, Dropbox, etc.)</label>
+                        <input type="url" id="trading-journal-link" name="tradingJournalLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
+                        <div class="link-hint">Share a link to your trading journal or strategy plan</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="trade-history-link">Trade History/Performance Link</label>
+                        <input type="url" id="trade-history-link" name="tradeHistoryLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
+                        <div class="link-hint">Share a link to your real-world performance data</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional-resources-link">Additional Resources Link (Optional)</label>
+                        <input type="url" id="additional-resources-link" name="additionalResourcesLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
+                        <div class="link-hint">Any additional strategy files or documentation</div>
                     </div>
 
                     <div class="form-group">
@@ -734,10 +745,6 @@ class ChillaDashboard {
         // Add event listeners
         document.getElementById('strategy-form').addEventListener('submit', (e) => {
             this.handleStrategySubmission(e);
-        });
-
-        document.getElementById('strategy-files').addEventListener('change', (e) => {
-            this.handleFileSelection(e);
         });
 
         document.getElementById('paca-back-btn').addEventListener('click', () => {
@@ -922,97 +929,12 @@ class ChillaDashboard {
         sidebar.classList.add('open');
     }
 
-    handleFileSelection(e) {
-        const files = Array.from(e.target.files);
-        const preview = document.getElementById('file-preview');
-
-        // Clear existing preview for new selection
-        preview.innerHTML = '';
-
-        files.forEach((file, index) => {
-            const fileItem = document.createElement('div');
-            fileItem.className = 'file-item';
-            fileItem.innerHTML = `
-                <div class="file-info">
-                    <span class="file-name">${file.name}</span>
-                    <span class="file-size">(${this.formatFileSize(file.size)})</span>
-                </div>
-                <div class="file-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 0%"></div>
-                    </div>
-                    <button class="remove-file" data-index="${index}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-            `;
-            preview.appendChild(fileItem);
-        });
-
-        // Add remove file functionality using event delegation
-        preview.addEventListener('click', (event) => {
-            if (event.target.closest('.remove-file')) {
-                const indexToRemove = parseInt(event.target.closest('.remove-file').dataset.index);
-                this.removeFile(indexToRemove);
-            }
-        });
-    }
-
-    removeFile(index) {
-        const fileInput = document.getElementById('strategy-files');
-        const dt = new DataTransfer();
-        const files = Array.from(fileInput.files);
-
-        files.forEach((file, i) => {
-            if (i !== index) {
-                dt.items.add(file);
-            }
-        });
-
-        fileInput.files = dt.files;
-        this.updateFilePreview();
-    }
-
-    updateFilePreview() {
-        const files = Array.from(document.getElementById('strategy-files').files);
-        const preview = document.getElementById('file-preview');
-        preview.innerHTML = ''; // Clear existing preview
-
-        files.forEach((file, index) => {
-            const fileItem = document.createElement('div');
-            fileItem.className = 'file-item';
-            fileItem.innerHTML = `
-                <div class="file-info">
-                    <span class="file-name">${file.name}</span>
-                    <span class="file-size">(${this.formatFileSize(file.size)})</span>
-                </div>
-                <button class="remove-file" data-index="${index}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            `;
-            preview.appendChild(fileItem);
-        });
-    }
-
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
+    
 
     async handleStrategySubmission(e) {
         e.preventDefault();
 
         const formData = new FormData(e.target);
-        const files = Array.from(document.getElementById('strategy-files').files);
 
         // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -1056,18 +978,27 @@ class ChillaDashboard {
                 throw new Error('EmailJS library not found. Please ensure it is included.');
             }
 
-            // Instead of embedding files in email, just send file names and details
-            let filesList = '';
-            if (files.length > 0) {
-                filesList = '\n\nATTACHED FILES:\n';
-                files.forEach(file => {
-                    filesList += `• ${file.name} (${file.type}, ${this.formatFileSize(file.size)})\n`;
-                });
-                filesList += '\n[Files will be uploaded separately to secure storage]';
+            // Collect shared links
+            const tradingJournalLink = formData.get('tradingJournalLink') || '';
+            const tradeHistoryLink = formData.get('tradeHistoryLink') || '';
+            const additionalResourcesLink = formData.get('additionalResourcesLink') || '';
+
+            let linksList = '';
+            if (tradingJournalLink || tradeHistoryLink || additionalResourcesLink) {
+                linksList = '\n\nSHARED LINKS:\n';
+                if (tradingJournalLink) {
+                    linksList += `• Trading Journal/Plan: ${tradingJournalLink}\n`;
+                }
+                if (tradeHistoryLink) {
+                    linksList += `• Trade History/Performance: ${tradeHistoryLink}\n`;
+                }
+                if (additionalResourcesLink) {
+                    linksList += `• Additional Resources: ${additionalResourcesLink}\n`;
+                }
             }
 
             // Prepare email data with size limits
-            const description = formData.get('description') + filesList;
+            const description = formData.get('description') + linksList;
             const maxDescriptionLength = 2000; // Limit description to avoid size issues
 
             const templateParams = {
@@ -1080,7 +1011,9 @@ class ChillaDashboard {
                     description,
                 team_note: formData.get('teamNote') || 'No additional notes',
                 submission_date: new Date().toLocaleDateString(),
-                file_count: files.length
+                trading_journal_link: tradingJournalLink,
+                trade_history_link: tradeHistoryLink,
+                additional_resources_link: additionalResourcesLink
             };
 
             // Send email notification with retry logic
@@ -1095,12 +1028,9 @@ class ChillaDashboard {
             let errorMessage = 'Failed to submit strategy. ';
             if (error.message.includes('timeout') || error.message.includes('fetch')) {
                 errorMessage += 'Network timeout - please check your connection and try again.';
-            } else if (error.message.includes('size') || error.message.includes('413')) {
-                errorMessage += 'Submission too large - please reduce file sizes or description length.';
             } else if (error.message.includes('EmailJS not loaded') || error.message.includes('EmailJS library not found')) {
                  errorMessage = 'EmailJS library not loaded. Please ensure it is included in your project.';
-            }
-             else {
+            } else {
                 errorMessage += 'Please try again or contact support if the issue persists.';
             }
 
