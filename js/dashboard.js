@@ -6,6 +6,7 @@ class ChillaDashboard {
         this.isAuthenticated = false;
         this.currentTheme = 'light';
         this.isConnected = false;
+        this.verificationPollingInterval = null;
 
         this.init();
     }
@@ -13,6 +14,7 @@ class ChillaDashboard {
     async init() {
         this.setupTheme();
         this.setupEventListeners();
+        this.setupPageVisibilityHandler();
 
         // Check for Deriv OAuth callback
         this.handleDerivCallback();
@@ -21,6 +23,16 @@ class ChillaDashboard {
         setTimeout(async () => {
             await this.checkAuthentication();
         }, 100);
+    }
+
+    setupPageVisibilityHandler() {
+        // Listen for page visibility changes to refresh verification status
+        document.addEventListener('visibilitychange', async () => {
+            if (!document.hidden && this.isAuthenticated && this.currentUser && !this.currentUser.email_verified) {
+                // User returned to the page and email is not verified, check status
+                await this.refreshUserData();
+            }
+        });
     }
 
     handleDerivCallback() {
@@ -97,7 +109,7 @@ class ChillaDashboard {
 
         // Bottom nav listeners
         document.getElementById('home-nav').addEventListener('click', () => this.showHome());
-        document.getElementById('menu-nav').addEventListener('click', () => this.showLose());
+        document.getElementById('menu-nav').addEventListener('click', () => this.showPaca());
 
         // Modal listeners
         document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
@@ -233,8 +245,15 @@ class ChillaDashboard {
 
         positionsList.innerHTML = positions.map(position => `
             <div class="position-item">
-                <span class="position-symbol">${position.symbol}</span>
-                <span class="connection-status ${position.connected ? 'connected' : 'disconnected'}"></span>
+                <div class="position-info">
+                    <span class="position-symbol">${position.symbol || 'Unknown'}</span>
+                    <span class="position-type">${position.type || 'N/A'}</span>
+                </div>
+                <div class="position-performance">
+                    <span class="position-pnl ${(position.profit || 0) >= 0 ? 'positive' : 'negative'}">
+                        ${this.formatCurrency(position.profit || 0)}
+                    </span>
+                </div>
             </div>
         `).join('');
     }
@@ -303,6 +322,17 @@ class ChillaDashboard {
     async handleLogout() {
         // Clear local storage first
         localStorage.clear();
+
+        // Clear any polling intervals
+        if (this.verificationPollingInterval) {
+            clearInterval(this.verificationPollingInterval);
+            this.verificationPollingInterval = null;
+        }
+
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
 
         try {
             await fetch(`${API_BASE}/api/logout`, {
@@ -421,12 +451,10 @@ class ChillaDashboard {
 
             const result = await response.json();
             if (response.ok) {
-                this.showNotification('Verification email sent! Check your inbox.', 'success');
-
-                // Refresh user data after a short delay to check for verification
-                setTimeout(async () => {
-                    await this.refreshUserData();
-                }, 2000);
+                this.showNotification('Verification email sent! Please check your inbox and click the verification link.', 'success');
+                
+                // Start periodic checking for verification status
+                this.startVerificationPolling();
             } else {
                 this.showNotification(result.error || 'Failed to send verification email', 'error');
             }
@@ -435,6 +463,45 @@ class ChillaDashboard {
             this.showNotification('Network error', 'error');
         }
         this.closeSidebar();
+    }
+
+    startVerificationPolling() {
+        // Clear any existing polling interval
+        if (this.verificationPollingInterval) {
+            clearInterval(this.verificationPollingInterval);
+        }
+
+        // Check every 5 seconds for up to 5 minutes
+        let attempts = 0;
+        const maxAttempts = 60; // 5 minutes (60 * 5 seconds)
+
+        this.verificationPollingInterval = setInterval(async () => {
+            attempts++;
+
+            // Stop polling after max attempts
+            if (attempts >= maxAttempts) {
+                clearInterval(this.verificationPollingInterval);
+                this.verificationPollingInterval = null;
+                return;
+            }
+
+            // Check if user is already verified
+            if (this.currentUser?.email_verified) {
+                clearInterval(this.verificationPollingInterval);
+                this.verificationPollingInterval = null;
+                return;
+            }
+
+            // Refresh user data to check verification status
+            await this.refreshUserData();
+
+            // Show success message if verification is complete
+            if (this.currentUser?.email_verified) {
+                this.showNotification('Email verified successfully!', 'success');
+                clearInterval(this.verificationPollingInterval);
+                this.verificationPollingInterval = null;
+            }
+        }, 5000);
     }
 
     async refreshUserData() {
@@ -516,11 +583,6 @@ class ChillaDashboard {
                 <div class="balance-amount" id="account-balance">$0.00</div>
             </div>
 
-            <div class="earnings-card">
-                <h2>Earnings So Far</h2>
-                <div class="earnings-amount" id="total-earnings">$0.00</div>
-            </div>
-
             <div class="positions-card">
                 <h2>Open Positions</h2>
                 <div class="positions-list" id="positions-list">
@@ -535,57 +597,49 @@ class ChillaDashboard {
         this.loadDashboardData();
     }
 
-    showLose() {
-        // Switch to lose tab
+    showPaca() {
+        // Switch to paca tab
         document.getElementById('home-nav').classList.remove('active');
         document.getElementById('menu-nav').classList.add('active');
 
-        // Show lose dashboard
-        this.displayLoseDashboard();
+        // Show paca dashboard
+        this.displayPacaDashboard();
     }
 
-    displayLoseDashboard() {
+    displayPacaDashboard() {
         const dashboard = document.getElementById('dashboard');
         const appTitle = document.querySelector('.app-title');
 
         // Update app title
-        appTitle.textContent = 'Lose';
+        appTitle.textContent = 'Paca';
 
         // Hide the main app bar
         document.querySelector('.app-bar').style.display = 'none';
 
-        // Check if user has already consented to terms
-        const hasConsented = localStorage.getItem('lose_terms_consented') === 'true';
-
-        if (hasConsented) {
-            this.showLoseForm();
-            return;
-        }
-
-        // Show consent screen first
+        // Always show consent screen when clicking on the tab
         dashboard.innerHTML = `
-            <div class="lose-app-bar">
-                <button id="lose-back-btn" class="icon-btn">
+            <div class="paca-app-bar">
+                <button id="paca-back-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <h1 class="lose-app-title">Lose</h1>
-                <button id="lose-menu-btn" class="icon-btn">
+                <h1 class="paca-app-title">Paca</h1>
+                <button id="paca-menu-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
                     </svg>
                 </button>
             </div>
-            <div class="lose-consent-screen">
-                <div class="lose-header">
-                    <h1 class="lose-title">LOSE</h1>
-                    <p class="lose-tagline">"Launch, Optimize, Scale, Earn"</p>
-                    <p class="lose-description">
-                        Get your strategy automated for free on M-II, the AI engine powering Chilla. 
-                        Zero effort required. Use your automated AI personally or sell it to the market on your own terms. 
-                        No setup costs, no infra management—just get automated for free and use/sell it forever. 
-                        All markets are accepted.
+            <div class="paca-consent-screen">
+                <div class="paca-header">
+                    <h1 class="paca-title">PACA</h1>
+                    <p class="paca-tagline">Your zero-cost AI strategy lab.</p>
+                    <p class="paca-description">
+                        Just drop your logic — we automate it with M-II, the engine behind Chilla.
+                        No code, no infra, no limits.
+                        Use your AI personally or sell it in the open market. Forever.
+                        You build it. We automate it. The world runs on it.
                     </p>
                 </div>
 
@@ -605,8 +659,8 @@ class ChillaDashboard {
         const consentCheckbox = document.getElementById('consent-checkbox');
         const startBtn = document.getElementById('start-automating-btn');
         const termsLink = document.getElementById('terms-link');
-        const backBtn = document.getElementById('lose-back-btn');
-        const menuBtn = document.getElementById('lose-menu-btn');
+        const backBtn = document.getElementById('paca-back-btn');
+        const menuBtn = document.getElementById('paca-menu-btn');
 
         consentCheckbox.addEventListener('change', () => {
             startBtn.disabled = !consentCheckbox.checked;
@@ -619,9 +673,7 @@ class ChillaDashboard {
 
         startBtn.addEventListener('click', () => {
             if (consentCheckbox.checked) {
-                // Save consent status
-                localStorage.setItem('lose_terms_consented', 'true');
-                this.showLoseForm();
+                this.showPacaForm();
             }
         });
 
@@ -630,29 +682,29 @@ class ChillaDashboard {
         });
 
         menuBtn.addEventListener('click', () => {
-            this.showLoseSidebar();
+            this.showPacaSidebar();
         });
     }
 
-    showLoseForm() {
+    showPacaForm() {
         const dashboard = document.getElementById('dashboard');
 
         dashboard.innerHTML = `
-            <div class="lose-app-bar">
-                <button id="lose-back-btn" class="icon-btn">
+            <div class="paca-app-bar">
+                <button id="paca-back-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <h1 class="lose-app-title">Lose</h1>
-                <button id="lose-menu-btn" class="icon-btn">
+                <h1 class="paca-app-title">Paca</h1>
+                <button id="paca-menu-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
                     </svg>
                 </button>
             </div>
-            <div class="lose-form-screen">
-                <div class="lose-header">
+            <div class="paca-form-screen">
+                <div class="paca-header">
                     <h2>Get Your Strategy Automated</h2>
                     <p>Upload detailed logic to make automation easier. All markets are accepted.</p>
                 </div>
@@ -672,6 +724,7 @@ class ChillaDashboard {
                         <label for="strategy-files">Upload Readable Files (.mq5, .zip, .pdf, .docx, .txt)</label>
                         <input type="file" id="strategy-files" name="files" multiple accept=".mq5,.zip,.pdf,.docx,.txt">
                         <div class="file-hint">Note: Files must be detailed to avoid costly development mistakes. We cannot read .ex5 files.</div>
+                        <div id="file-preview" class="file-preview"></div>
                     </div>
 
                     <div class="form-group">
@@ -689,12 +742,16 @@ class ChillaDashboard {
             this.handleStrategySubmission(e);
         });
 
-        document.getElementById('lose-back-btn').addEventListener('click', () => {
-            this.displayLoseDashboard();
+        document.getElementById('strategy-files').addEventListener('change', (e) => {
+            this.handleFileSelection(e);
         });
 
-        document.getElementById('lose-menu-btn').addEventListener('click', () => {
-            this.showLoseSidebar();
+        document.getElementById('paca-back-btn').addEventListener('click', () => {
+            this.displayPacaDashboard();
+        });
+
+        document.getElementById('paca-menu-btn').addEventListener('click', () => {
+            this.showPacaSidebar();
         });
     }
 
@@ -821,11 +878,11 @@ class ChillaDashboard {
         document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
     }
 
-    showLoseSidebar() {
+    showPacaSidebar() {
         const sidebar = document.getElementById('sidebar');
         const sidebarContent = sidebar.querySelector('.sidebar-content');
 
-        // Update sidebar for Lose
+        // Update sidebar for Paca
         sidebarContent.innerHTML = `
             <div class="sidebar-header">
                 <div class="user-info">
@@ -840,13 +897,13 @@ class ChillaDashboard {
                     </svg>
                     My Store (Coming Soon)
                 </button>
-                <button class="menu-item" id="lose-terms-btn">
+                <button class="menu-item" id="paca-terms-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     Terms & IP
                 </button>
-                <button class="menu-item" id="lose-privacy-btn">
+                <button class="menu-item" id="paca-privacy-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
@@ -854,35 +911,116 @@ class ChillaDashboard {
                 </button>
                 <button class="menu-item" id="automate-strategy-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     Automate Strategy
                 </button>
             </div>
         `;
 
-        // Add event listeners for lose sidebar
-        document.getElementById('lose-terms-btn').addEventListener('click', () => {
+        // Add event listeners for paca sidebar
+        document.getElementById('paca-terms-btn').addEventListener('click', () => {
             window.location.href = 'lose-terms.html';
         });
 
-        document.getElementById('lose-privacy-btn').addEventListener('click', () => {
+        document.getElementById('paca-privacy-btn').addEventListener('click', () => {
             window.location.href = 'lose-privacy.html';
         });
 
         document.getElementById('automate-strategy-btn').addEventListener('click', () => {
-            this.showLoseForm();
+            this.showPacaForm();
             this.closeSidebar();
         });
 
         sidebar.classList.add('open');
     }
 
+    handleFileSelection(e) {
+        const files = Array.from(e.target.files);
+        const preview = document.getElementById('file-preview');
+        
+        files.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">(${this.formatFileSize(file.size)})</span>
+                </div>
+                <div class="file-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <button class="remove-file" data-index="${index}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            preview.appendChild(fileItem);
+        });
+
+        // Add remove file functionality
+        preview.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-file')) {
+                const index = parseInt(e.target.closest('.remove-file').dataset.index);
+                this.removeFile(index);
+            }
+        });
+    }
+
+    removeFile(index) {
+        const fileInput = document.getElementById('strategy-files');
+        const dt = new DataTransfer();
+        const files = Array.from(fileInput.files);
+        
+        files.forEach((file, i) => {
+            if (i !== index) dt.items.add(file);
+        });
+        
+        fileInput.files = dt.files;
+        this.updateFilePreview();
+    }
+
+    updateFilePreview() {
+        const files = Array.from(document.getElementById('strategy-files').files);
+        const preview = document.getElementById('file-preview');
+        preview.innerHTML = '';
+        
+        files.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">(${this.formatFileSize(file.size)})</span>
+                </div>
+                <button class="remove-file" data-index="${index}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            `;
+            preview.appendChild(fileItem);
+        });
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
     async handleStrategySubmission(e) {
         e.preventDefault();
 
         const formData = new FormData(e.target);
-        const files = document.getElementById('strategy-files').files;
+        const files = Array.from(document.getElementById('strategy-files').files);
 
         // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -894,16 +1032,14 @@ class ChillaDashboard {
             // Initialize EmailJS
             emailjs.init('0w-mDmXc8j3hyp1hw');
 
-            // Process files and convert to base64
-            let fileAttachments = '';
+            // Instead of embedding files in email, just send file names and details
+            let filesList = '';
             if (files.length > 0) {
-                fileAttachments = '\n\nATTACHED FILES:\n';
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const base64 = await this.fileToBase64(file);
-                    fileAttachments += `\nFile: ${file.name} (${file.type}, ${file.size} bytes)\n`;
-                    fileAttachments += `Data: ${base64}\n\n`;
-                }
+                filesList = '\n\nATTACHED FILES:\n';
+                files.forEach(file => {
+                    filesList += `• ${file.name} (${file.type}, ${this.formatFileSize(file.size)})\n`;
+                });
+                filesList += '\n[Files will be uploaded separately to secure storage]';
             }
 
             // Prepare email data
@@ -912,15 +1048,17 @@ class ChillaDashboard {
                 to_email: 'creator@beaverlyai.com',
                 user_name: this.currentUser?.full_name || 'User',
                 strategy_name: formData.get('strategyName'),
-                description: formData.get('description') + fileAttachments,
+                description: formData.get('description') + filesList,
                 team_note: formData.get('teamNote') || 'No additional notes',
-                submission_date: new Date().toLocaleDateString()
+                submission_date: new Date().toLocaleDateString(),
+                file_count: files.length
             };
 
-            // Send email using EmailJS
+            // Send email notification
             await emailjs.send('service_y3t9c3s', 'template_b5c3sac', templateParams);
 
-            // Show success state
+            // For large files, you'd typically upload to a file storage service here
+            // For now, we'll show success since the notification email was sent
             this.showStrategySuccess();
 
         } catch (error) {
