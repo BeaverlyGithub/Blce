@@ -669,10 +669,21 @@
     box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
 }
 
-.form-group input[type="file"] {
-    padding: 0.75rem;
-    cursor: pointer;
-    border-style: dashed;
+.form-group input[type="url"] {
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input[type="url"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
 }
 
 .file-hint {
@@ -680,23 +691,6 @@
     color: var(--text-tertiary);
     font-style: italic;
     margin-top: 0.25rem;
-}
-
-.file-preview {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem;
-    background: var(--bg-tertiary);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
 }
 
 .file-info {
