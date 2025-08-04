@@ -98,7 +98,6 @@ class ChillaDashboard {
 
         // Sidebar listeners
         document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
-        document.getElementById('upgrade-btn').addEventListener('click', () => this.showUpgrade());
         document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
         document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
         document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
@@ -419,11 +418,6 @@ class ChillaDashboard {
         this.showNotification('Chilla disconnected successfully', 'success');
     }
 
-    showUpgrade() {
-        window.location.href = 'upgrade.html';
-        this.closeSidebar();
-    }
-
     changeEmail() {
         window.location.href = 'change-email.html';
         this.closeSidebar();
@@ -452,7 +446,7 @@ class ChillaDashboard {
             const result = await response.json();
             if (response.ok) {
                 this.showNotification('Verification email sent! Please check your inbox and click the verification link.', 'success');
-                
+
                 // Start periodic checking for verification status
                 this.startVerificationPolling();
             } else {
@@ -779,12 +773,6 @@ class ChillaDashboard {
                     <span class="status-dot disconnected"></span>
                     Connect Chilla
                 </button>
-                <button class="menu-item" id="upgrade-btn">
-                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m6 2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12ZM8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5"/>
-                    </svg>
-                    Upgrade
-                </button>
                 <button class="menu-item" id="change-email-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -866,7 +854,6 @@ class ChillaDashboard {
     setupOriginalSidebarListeners() {
         // Re-setup all the original sidebar event listeners
         document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
-        document.getElementById('upgrade-btn').addEventListener('click', () => this.showUpgrade());
         document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
         document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
         document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
@@ -893,7 +880,7 @@ class ChillaDashboard {
             <div class="sidebar-menu">
                 <button class="menu-item" id="my-store-btn" disabled>
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005 16v1a1 1 0 001 1h1M16 16v1a1 1 0 001 1h1m0-2a1 1 0 01-1-1v-1h-1m0 0V9a1 1 0 011-1h1a1 1 0 011 1v1M9 19v1a1 1 0 001 1h1"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005 16v1a1 1 0 001 1h1M16 16v1a1 1 0 011 1h1m0-2a1 1 0 01-1-1v-1h-1m0 0V9a1 1 0 011-1h1a1 1 0 011 1v1M9 19v1a1 1 0 001 1h1"/>
                     </svg>
                     My Store (Coming Soon)
                 </button>
@@ -938,7 +925,10 @@ class ChillaDashboard {
     handleFileSelection(e) {
         const files = Array.from(e.target.files);
         const preview = document.getElementById('file-preview');
-        
+
+        // Clear existing preview for new selection
+        preview.innerHTML = '';
+
         files.forEach((file, index) => {
             const fileItem = document.createElement('div');
             fileItem.className = 'file-item';
@@ -962,11 +952,11 @@ class ChillaDashboard {
             preview.appendChild(fileItem);
         });
 
-        // Add remove file functionality
-        preview.addEventListener('click', (e) => {
-            if (e.target.closest('.remove-file')) {
-                const index = parseInt(e.target.closest('.remove-file').dataset.index);
-                this.removeFile(index);
+        // Add remove file functionality using event delegation
+        preview.addEventListener('click', (event) => {
+            if (event.target.closest('.remove-file')) {
+                const indexToRemove = parseInt(event.target.closest('.remove-file').dataset.index);
+                this.removeFile(indexToRemove);
             }
         });
     }
@@ -975,11 +965,13 @@ class ChillaDashboard {
         const fileInput = document.getElementById('strategy-files');
         const dt = new DataTransfer();
         const files = Array.from(fileInput.files);
-        
+
         files.forEach((file, i) => {
-            if (i !== index) dt.items.add(file);
+            if (i !== index) {
+                dt.items.add(file);
+            }
         });
-        
+
         fileInput.files = dt.files;
         this.updateFilePreview();
     }
@@ -987,8 +979,8 @@ class ChillaDashboard {
     updateFilePreview() {
         const files = Array.from(document.getElementById('strategy-files').files);
         const preview = document.getElementById('file-preview');
-        preview.innerHTML = '';
-        
+        preview.innerHTML = ''; // Clear existing preview
+
         files.forEach((file, index) => {
             const fileItem = document.createElement('div');
             fileItem.className = 'file-item';
@@ -1037,8 +1029,12 @@ class ChillaDashboard {
                         setTimeout(() => reject(new Error('Request timeout')), 15000); // 15 second timeout
                     });
 
+                    // Check if emailjs is loaded
+                    if (typeof emailjs === 'undefined') {
+                        throw new Error('EmailJS not loaded');
+                    }
                     const emailPromise = emailjs.send('service_y3t9c3s', 'template_b5c3sac', params);
-                    
+
                     await Promise.race([emailPromise, timeoutPromise]);
                     return; // Success
                 } catch (error) {
@@ -1053,11 +1049,12 @@ class ChillaDashboard {
         };
 
         try {
-            // Initialize EmailJS with proper configuration
-            if (typeof emailjs === 'undefined') {
-                throw new Error('EmailJS not loaded');
+            // Initialize EmailJS with proper configuration if not already done
+            if (typeof emailjs !== 'undefined' && !emailjs._config.publicKey) {
+                emailjs.init('0w-mDmXc8j3hyp1hw');
+            } else if (typeof emailjs === 'undefined') {
+                throw new Error('EmailJS library not found. Please ensure it is included.');
             }
-            emailjs.init('0w-mDmXc8j3hyp1hw');
 
             // Instead of embedding files in email, just send file names and details
             let filesList = '';
@@ -1072,14 +1069,14 @@ class ChillaDashboard {
             // Prepare email data with size limits
             const description = formData.get('description') + filesList;
             const maxDescriptionLength = 2000; // Limit description to avoid size issues
-            
+
             const templateParams = {
                 from_email: this.currentUser?.email || localStorage.getItem('chilla_user_email'),
                 to_email: 'creator@beaverlyai.com',
                 user_name: this.currentUser?.full_name || 'User',
                 strategy_name: formData.get('strategyName'),
-                description: description.length > maxDescriptionLength ? 
-                    description.substring(0, maxDescriptionLength) + '...\n[TRUNCATED - Full details in follow-up]' : 
+                description: description.length > maxDescriptionLength ?
+                    description.substring(0, maxDescriptionLength) + '...\n[TRUNCATED - Full details in follow-up]' :
                     description,
                 team_note: formData.get('teamNote') || 'No additional notes',
                 submission_date: new Date().toLocaleDateString(),
@@ -1093,17 +1090,20 @@ class ChillaDashboard {
 
         } catch (error) {
             console.error('Error submitting strategy:', error);
-            
+
             // Show specific error messages
             let errorMessage = 'Failed to submit strategy. ';
             if (error.message.includes('timeout') || error.message.includes('fetch')) {
                 errorMessage += 'Network timeout - please check your connection and try again.';
             } else if (error.message.includes('size') || error.message.includes('413')) {
                 errorMessage += 'Submission too large - please reduce file sizes or description length.';
-            } else {
+            } else if (error.message.includes('EmailJS not loaded') || error.message.includes('EmailJS library not found')) {
+                 errorMessage = 'EmailJS library not loaded. Please ensure it is included in your project.';
+            }
+             else {
                 errorMessage += 'Please try again or contact support if the issue persists.';
             }
-            
+
             this.showNotification(errorMessage, 'error');
 
             // Reset button
@@ -1130,11 +1130,11 @@ class ChillaDashboard {
                     <div class="success-icon">✅</div>
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
-                        Thank you for trusting us to take your wealth game to the GOAT level. 
-                        If your logic is approved and deployed, we will contact you and unlock your store 
-                        to monetize it or use it for free on your Chilla Dashboard. 
-                        Due to surge in demand, approval might take 4 weeks but rest assured that if you 
-                        pass our sandbox, you're on to something great. If you do not, we will educate you 
+                        Thank you for trusting us to take your wealth game to the GOAT level.
+                        If your logic is approved and deployed, we will contact you and unlock your store
+                        to monetize it or use it for free on your Chilla Dashboard.
+                        Due to surge in demand, approval might take 4 weeks but rest assured that if you
+                        pass our sandbox, you're on to something great. If you do not, we will educate you
                         on areas for improvements on your logic.
                     </p>
                     <button id="back-to-form-btn" class="primary-btn">Submit Another Strategy</button>
