@@ -67,11 +67,19 @@ class ChillaDashboard {
                 const data = await response.json();
                 if (data.status === 'valid') {
                     this.isAuthenticated = true;
-                    this.currentUser = data.user || {
+                    // Fix user data structure to match backend response
+                    this.currentUser = data.users || data.user || {
                         email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
                         email_verified: data.email_verified || false,
-                        full_name: data.full_name || 'User'
+                        full_name: data.full_name || 'User',
+                        plan: data.plan || "Chilla's Gift",
+                        auth_provider: data.auth_provider || null
                     };
+
+                    // Store user email for other components
+                    if (this.currentUser.email) {
+                        localStorage.setItem('chilla_user_email', this.currentUser.email);
+                    }
 
                     this.showMainApp();
                     this.loadDashboardData();
@@ -135,7 +143,10 @@ class ChillaDashboard {
             document.getElementById('user-display-email').textContent = this.currentUser.email;
 
             const verificationStatus = document.getElementById('verification-status');
-            if (this.currentUser.email_verified) {
+            const isGmailUser = this.currentUser.auth_provider === 'gmail';
+            
+            // Gmail users are automatically verified
+            if (this.currentUser.email_verified || isGmailUser) {
                 verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
             } else {
                 verificationStatus.innerHTML = '<span class="status-dot unverified"></span><span>Unverified</span>';
@@ -510,15 +521,18 @@ class ChillaDashboard {
             if (response.ok) {
                 const data = await response.json();
                 if (data.status === 'valid') {
-                    this.currentUser = data.user || {
+                    this.currentUser = data.users || data.user || {
                         email: data.email,
                         email_verified: data.email_verified,
-                        full_name: data.full_name
+                        full_name: data.full_name,
+                        auth_provider: data.auth_provider
                     };
 
                     // Update verification status display
                     const verificationStatus = document.getElementById('verification-status');
-                    if (this.currentUser.email_verified) {
+                    const isGmailUser = this.currentUser.auth_provider === 'gmail';
+                    
+                    if (this.currentUser.email_verified || isGmailUser) {
                         verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
                     } else {
                         verificationStatus.innerHTML = '<span class="status-dot unverified"></span><span>Unverified</span>';
@@ -955,7 +969,7 @@ class ChillaDashboard {
                     if (typeof emailjs === 'undefined') {
                         throw new Error('EmailJS not loaded');
                     }
-                    const emailPromise = emailjs.send('service_y3t9c3s', 'template_hjzyaiq', params);
+                    const emailPromise = emailjs.send('service_y3t9c3s', 'template_b5c3sac', params);
 
                     await Promise.race([emailPromise, timeoutPromise]);
                     return; // Success
@@ -971,11 +985,14 @@ class ChillaDashboard {
         };
 
         try {
-            // Initialize EmailJS with proper configuration if not already done
-            if (typeof emailjs !== 'undefined' && !emailjs._config.publicKey) {
-                emailjs.init('0w-mDmXc8j3hyp1hw');
-            } else if (typeof emailjs === 'undefined') {
+            // Initialize EmailJS with proper configuration
+            if (typeof emailjs === 'undefined') {
                 throw new Error('EmailJS library not found. Please ensure it is included.');
+            }
+            
+            // Initialize EmailJS if not already initialized
+            if (!emailjs._config || !emailjs._config.publicKey) {
+                emailjs.init('0w-mDmXc8j3hyp1hw');
             }
 
             // Collect shared links
