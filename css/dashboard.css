@@ -528,6 +528,10 @@
         max-width: 1200px;
     }
 
+    .balance-card {
+        grid-column: 1 / -1;
+    }
+
     .positions-card {
         grid-column: 1 / -1;
     }
