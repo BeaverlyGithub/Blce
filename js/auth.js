@@ -225,9 +225,9 @@ class ChillaAuth {
 
     async handleGoogleAuth() {
         const clientId = "514107671303-canjqpiuhlk97eigl1o9cv24i1bjpe54.apps.googleusercontent.com";
-        const redirectUri = "https://cook.beaverlyai.com/auth/callback";
-        const scope = "https://www.googleapis.com/auth/userinfo.email";
-        const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=online&prompt=select_account`;
+        const redirectUri = window.location.origin + "/oauth-callback.html";
+        const scope = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid";
+        const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=online&prompt=select_account`;
 
         window.location.href = oauthUrl;
     }
