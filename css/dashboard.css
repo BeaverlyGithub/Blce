@@ -544,8 +544,8 @@
 }
 
 /* Lose Dashboard Styles */
-.lose-consent-screen,
-.lose-form-screen,
+.paca-consent-screen,
+.paca-form-screen,
 .success-screen {
     display: flex;
     flex-direction: column;
@@ -557,12 +557,12 @@
     justify-content: center;
 }
 
-.lose-header {
+.paca-header {
     text-align: center;
     margin-bottom: 3rem;
 }
 
-.lose-title {
+.paca-title {
     font-size: clamp(2.5rem, 8vw, 4rem);
     font-weight: 700;
     color: var(--text-primary);
@@ -570,14 +570,14 @@
     letter-spacing: 2px;
 }
 
-.lose-tagline {
+.paca-tagline {
     font-size: clamp(1.1rem, 4vw, 1.5rem);
     font-weight: 600;
     color: var(--accent-color);
     margin-bottom: 1.5rem;
 }
 
-.lose-description {
+.paca-description {
     font-size: clamp(0.9rem, 2.5vw, 1.1rem);
     line-height: 1.6;
     color: var(--text-secondary);
@@ -751,7 +751,7 @@
     height: 16px;
 }
 
-.lose-app-bar {
+.paca-app-bar {
     position: fixed;
     top: 0;
     left: 0;
@@ -766,7 +766,7 @@
     height: 60px;
 }
 
-.lose-app-title {
+.paca-app-title {
     font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.01em;
@@ -826,8 +826,8 @@
 
 /* Desktop responsiveness */
 @media (min-width: 768px) {
-    .lose-consent-screen,
-    .lose-form-screen,
+    .paca-consent-screen,
+    .paca-form-screen,
     .success-screen {
         padding: 6rem 2rem 4rem;
         min-height: calc(100vh - 60px);
@@ -836,7 +836,7 @@
         justify-content: center;
     }
 
-    .lose-header {
+    .paca-header {
         margin-bottom: 4rem;
         text-align: center;
     }
@@ -863,14 +863,14 @@
         margin: 0 auto;
     }
 
-    .lose-app-bar {
+    .paca-app-bar {
         display: flex; /* Show app bar on desktop */
     }
 }
 
 @media (min-width: 1024px) {
-    .lose-consent-screen,
-    .lose-form-screen,
+    .paca-consent-screen,
+    .paca-form-screen,
     .success-screen {
         padding: 3rem 2rem;
         max-width: 1000px;
@@ -899,30 +899,30 @@
         justify-self: center;
     }
 
-    .lose-description {
+    .paca-description {
         max-width: 800px;
         font-size: 1.1rem;
     }
 
-    .lose-title {
+    .paca-title {
         font-size: 5rem;
     }
 
-    .lose-tagline {
+    .paca-tagline {
         font-size: 2rem;
     }
 }
 
 /* Mobile optimizations */
 @media (max-width: 767px) {
-    .lose-consent-screen,
-    .lose-form-screen,
+    .paca-consent-screen,
+    .paca-form-screen,
     .success-screen {
         padding: 1.5rem 1rem;
         min-height: calc(100vh - 9rem);
     }
 
-    .lose-header {
+    .paca-header {
         margin-bottom: 2rem;
     }
 
