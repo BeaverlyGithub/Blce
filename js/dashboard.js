@@ -1028,8 +1028,35 @@ class ChillaDashboard {
         submitBtn.textContent = 'Submitting...';
         submitBtn.disabled = true;
 
+        // Retry function with timeout
+        const sendWithRetry = async (params, maxRetries = 3) => {
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    // Set a shorter timeout for each attempt
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('Request timeout')), 15000); // 15 second timeout
+                    });
+
+                    const emailPromise = emailjs.send('service_y3t9c3s', 'template_b5c3sac', params);
+                    
+                    await Promise.race([emailPromise, timeoutPromise]);
+                    return; // Success
+                } catch (error) {
+                    console.warn(`Attempt ${attempt} failed:`, error);
+                    if (attempt === maxRetries) {
+                        throw error;
+                    }
+                    // Wait before retry
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        };
+
         try {
-            // Initialize EmailJS
+            // Initialize EmailJS with proper configuration
+            if (typeof emailjs === 'undefined') {
+                throw new Error('EmailJS not loaded');
+            }
             emailjs.init('0w-mDmXc8j3hyp1hw');
 
             // Instead of embedding files in email, just send file names and details
@@ -1042,28 +1069,42 @@ class ChillaDashboard {
                 filesList += '\n[Files will be uploaded separately to secure storage]';
             }
 
-            // Prepare email data
+            // Prepare email data with size limits
+            const description = formData.get('description') + filesList;
+            const maxDescriptionLength = 2000; // Limit description to avoid size issues
+            
             const templateParams = {
                 from_email: this.currentUser?.email || localStorage.getItem('chilla_user_email'),
                 to_email: 'creator@beaverlyai.com',
                 user_name: this.currentUser?.full_name || 'User',
                 strategy_name: formData.get('strategyName'),
-                description: formData.get('description') + filesList,
+                description: description.length > maxDescriptionLength ? 
+                    description.substring(0, maxDescriptionLength) + '...\n[TRUNCATED - Full details in follow-up]' : 
+                    description,
                 team_note: formData.get('teamNote') || 'No additional notes',
                 submission_date: new Date().toLocaleDateString(),
                 file_count: files.length
             };
 
-            // Send email notification
-            await emailjs.send('service_y3t9c3s', 'template_b5c3sac', templateParams);
+            // Send email notification with retry logic
+            await sendWithRetry(templateParams);
 
-            // For large files, you'd typically upload to a file storage service here
-            // For now, we'll show success since the notification email was sent
             this.showStrategySuccess();
 
         } catch (error) {
             console.error('Error submitting strategy:', error);
-            this.showNotification('Failed to submit strategy. Please try again.', 'error');
+            
+            // Show specific error messages
+            let errorMessage = 'Failed to submit strategy. ';
+            if (error.message.includes('timeout') || error.message.includes('fetch')) {
+                errorMessage += 'Network timeout - please check your connection and try again.';
+            } else if (error.message.includes('size') || error.message.includes('413')) {
+                errorMessage += 'Submission too large - please reduce file sizes or description length.';
+            } else {
+                errorMessage += 'Please try again or contact support if the issue persists.';
+            }
+            
+            this.showNotification(errorMessage, 'error');
 
             // Reset button
             submitBtn.textContent = originalText;
@@ -1102,7 +1143,7 @@ class ChillaDashboard {
         `;
 
         document.getElementById('back-to-form-btn').addEventListener('click', () => {
-            this.showLoseForm();
+            this.showPacaForm();
         });
     }
 
