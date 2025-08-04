@@ -114,9 +114,13 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.status === 'success') {
-                        // Store user email for later use
+                        // Store user email and info for later use
                         if (data.email) {
                             localStorage.setItem('chilla_user_email', data.email);
+                        }
+                        if (data.user_data) {
+                            // Store additional user info if provided
+                            localStorage.setItem('chilla_user_data', JSON.stringify(data.user_data));
                         }
                         // Authentication successful, redirect to dashboard
                         window.location.href = 'dashboard.html';
