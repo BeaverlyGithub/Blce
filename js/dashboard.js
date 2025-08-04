@@ -955,7 +955,7 @@ class ChillaDashboard {
                     if (typeof emailjs === 'undefined') {
                         throw new Error('EmailJS not loaded');
                     }
-                    const emailPromise = emailjs.send('service_y3t9c3s', 'template_b5c3sac', params);
+                    const emailPromise = emailjs.send('service_y3t9c3s', 'template_hjzyaiq', params);
 
                     await Promise.race([emailPromise, timeoutPromise]);
                     return; // Success
