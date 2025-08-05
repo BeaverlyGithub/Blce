@@ -144,7 +144,7 @@ class ChillaDashboard {
 
             const verificationStatus = document.getElementById('verification-status');
             const isGmailUser = this.currentUser.auth_provider === 'gmail';
-            
+
             // Gmail users are automatically verified
             if (this.currentUser.email_verified || isGmailUser) {
                 verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
@@ -531,7 +531,7 @@ class ChillaDashboard {
                     // Update verification status display
                     const verificationStatus = document.getElementById('verification-status');
                     const isGmailUser = this.currentUser.auth_provider === 'gmail';
-                    
+
                     if (this.currentUser.email_verified || isGmailUser) {
                         verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
                     } else {
@@ -667,7 +667,7 @@ class ChillaDashboard {
         const consentCheckbox = document.getElementById('consent-checkbox');
         const startBtn = document.getElementById('start-automating-btn');
         const termsLink = document.getElementById('terms-link');
-        const backBtn = document.getElementById('paca-back-btn');
+        // Removed back button listener
         const menuBtn = document.getElementById('paca-menu-btn');
 
         consentCheckbox.addEventListener('change', () => {
@@ -685,10 +685,7 @@ class ChillaDashboard {
             }
         });
 
-        backBtn.addEventListener('click', () => {
-            this.showHome();
-        });
-
+        // Removed back button listener
         menuBtn.addEventListener('click', () => {
             this.showPacaSidebar();
         });
@@ -943,7 +940,7 @@ class ChillaDashboard {
         sidebar.classList.add('open');
     }
 
-    
+
 
     async handleStrategySubmission(e) {
         e.preventDefault();
@@ -989,7 +986,7 @@ class ChillaDashboard {
             if (typeof emailjs === 'undefined') {
                 throw new Error('EmailJS library not found. Please ensure it is included.');
             }
-            
+
             // Initialize EmailJS if not already initialized
             if (!emailjs._config || !emailjs._config.publicKey) {
                 emailjs.init('0w-mDmXc8j3hyp1hw');
