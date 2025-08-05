@@ -36,29 +36,28 @@
     color: var(--text-primary);
 }
 
-/* Dark Mode Container - Fixed at bottom, above bottom nav */
-.nav-darkmode-container {
-    position: fixed;
-    bottom: 5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 150;
+/* Sidebar Dark Mode Container - Fixed at bottom of sidebar */
+.sidebar-darkmode-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 151;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 8px 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    min-height: 56px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 16px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
-[data-theme="dark"] .nav-darkmode-container {
+[data-theme="dark"] .sidebar-darkmode-container {
     background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Theme toggle moved to fixed container outside sidebar */
@@ -105,11 +104,10 @@
     display: none;
 }
 
-/* Mobile optimizations */
+/* Mobile optimizations for sidebar dark mode */
 @media (max-width: 768px) {
-    .nav-darkmode-container {
-        bottom: 4.5rem;
-        padding: 6px 10px;
+    .sidebar-darkmode-container {
+        padding: 10px 12px;
     }
 
     .theme-toggle-btn {
@@ -162,12 +160,14 @@
     height: 100%;
     background: var(--bg-primary);
     border-right: 1px solid var(--border-color);
-    padding: 2rem 0 8rem 0;
+    padding: 2rem 0 0 0;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar.open .sidebar-content {
@@ -223,7 +223,9 @@
 }
 
 .sidebar-menu {
-    padding: 0 1rem;
+    padding: 0 1rem 5rem 1rem;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .menu-item {
