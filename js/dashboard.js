@@ -569,12 +569,11 @@ class ChillaDashboard {
         document.getElementById('home-nav').classList.add('active');
         document.getElementById('menu-nav').classList.remove('active');
 
-        // Show the main app bar and dark mode container
+        // Show the main app bar
         document.querySelector('.app-bar').style.display = 'flex';
-        document.querySelector('.nav-darkmode-container').style.display = 'flex';
 
         // Reset app title and dashboard
-        document.querySelector('.app-title').textContent = 'Chilla';
+        document.querySelector('.app-bar-title').textContent = 'Chilla'; // Corrected to app-bar-title
 
         // Restore original sidebar content
         this.restoreOriginalSidebar();
@@ -617,40 +616,20 @@ class ChillaDashboard {
 
     displayPacaDashboard() {
         const dashboard = document.getElementById('dashboard');
-        const appTitle = document.querySelector('.app-title');
+        const appBarTitle = document.querySelector('.app-bar-title'); // Corrected to app-bar-title
 
         // Update app title
-        appTitle.textContent = 'Paca';
+        appBarTitle.textContent = 'Paca'; // Corrected to app-bar-title
 
-        // Hide the main app bar and dark mode container
+        // Hide the main app bar
         document.querySelector('.app-bar').style.display = 'none';
-        document.querySelector('.nav-darkmode-container').style.display = 'none';
 
         // Always show consent screen when clicking on the tab
         dashboard.innerHTML = `
             <div class="paca-app-bar">
-                <div></div>
-                <h1 class="paca-app-title">
-                    <div class="paca-beaverly-logo"></div>
-                    Paca
-                </h1>
-                <button id="paca-menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="nav-darkmode-container">
-                <div class="floating-theme-toggle">
-                    <button id="paca-theme-toggle" class="theme-toggle-btn">
-                        <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="12" cy="12" r="5"/>
-                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                        </svg>
-                        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                        </svg>
-                    </button>
+                <div class="paca-title-container">
+                    <div class="paca-logo"></div>
+                    <h1 class="paca-app-title">Paca</h1>
                 </div>
             </div>
             <div class="paca-consent-screen">
@@ -681,8 +660,6 @@ class ChillaDashboard {
         const consentCheckbox = document.getElementById('consent-checkbox');
         const startBtn = document.getElementById('start-automating-btn');
         const termsLink = document.getElementById('terms-link');
-        const backBtn = document.getElementById('paca-back-btn');
-        const menuBtn = document.getElementById('paca-menu-btn');
 
         consentCheckbox.addEventListener('change', () => {
             startBtn.disabled = !consentCheckbox.checked;
@@ -698,16 +675,6 @@ class ChillaDashboard {
                 this.showPacaForm();
             }
         });
-
-        menuBtn.addEventListener('click', () => {
-            this.showPacaSidebar();
-        });
-
-        // Add Paca theme toggle listener
-        const pacaThemeToggle = document.getElementById('paca-theme-toggle');
-        if (pacaThemeToggle) {
-            pacaThemeToggle.addEventListener('click', () => this.toggleTheme());
-        }
     }
 
     showPacaForm() {
@@ -715,28 +682,9 @@ class ChillaDashboard {
 
         dashboard.innerHTML = `
             <div class="paca-app-bar">
-                <div></div>
-                <h1 class="paca-app-title">
-                    <div class="paca-beaverly-logo"></div>
-                    Paca
-                </h1>
-                <button id="paca-menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="nav-darkmode-container">
-                <div class="floating-theme-toggle">
-                    <button id="paca-theme-toggle" class="theme-toggle-btn">
-                        <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="12" cy="12" r="5"/>
-                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                        </svg>
-                        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                        </svg>
-                    </button>
+                <div class="paca-title-container">
+                    <div class="paca-logo"></div>
+                    <h1 class="paca-app-title">Paca</h1>
                 </div>
             </div>
             <div class="paca-form-screen">
@@ -788,20 +736,6 @@ class ChillaDashboard {
         document.getElementById('strategy-form').addEventListener('submit', (e) => {
             this.handleStrategySubmission(e);
         });
-
-        document.getElementById('paca-back-btn').addEventListener('click', () => {
-            this.displayPacaDashboard();
-        });
-
-        document.getElementById('paca-menu-btn').addEventListener('click', () => {
-            this.showPacaSidebar();
-        });
-
-        // Add theme toggle listener
-        const pacaThemeToggle = document.getElementById('paca-theme-toggle');
-        if (pacaThemeToggle) {
-            pacaThemeToggle.addEventListener('click', () => this.toggleTheme());
-        }
     }
 
     restoreOriginalSidebar() {
@@ -904,6 +838,7 @@ class ChillaDashboard {
         document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
         document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
         document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
+        // Theme toggle is intentionally removed from here as per request
     }
 
     showPacaSidebar() {
@@ -949,21 +884,16 @@ class ChillaDashboard {
         // Add event listeners for paca sidebar
         document.getElementById('paca-terms-btn').addEventListener('click', () => {
             window.location.href = 'lose-terms.html';
-            this.closeSidebar();
         });
 
         document.getElementById('paca-privacy-btn').addEventListener('click', () => {
             window.location.href = 'lose-privacy.html';
-            this.closeSidebar();
         });
 
         document.getElementById('automate-strategy-btn').addEventListener('click', () => {
             this.showPacaForm();
             this.closeSidebar();
         });
-
-        // Add theme toggle listener
-        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
 
         sidebar.classList.add('open');
     }
