@@ -758,7 +758,7 @@
     padding: 1rem;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     height: 60px;
 }
 
@@ -786,6 +786,29 @@
     font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.01em;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.icon-btn:hover {
+    background: var(--bg-secondary);
+}
+
+.icon-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
 }
 
 .success-screen {
