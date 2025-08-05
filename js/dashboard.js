@@ -144,7 +144,7 @@ class ChillaDashboard {
 
             const verificationStatus = document.getElementById('verification-status');
             const isGmailUser = this.currentUser.auth_provider === 'gmail';
-
+            
             // Gmail users are automatically verified
             if (this.currentUser.email_verified || isGmailUser) {
                 verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
@@ -531,7 +531,7 @@ class ChillaDashboard {
                     // Update verification status display
                     const verificationStatus = document.getElementById('verification-status');
                     const isGmailUser = this.currentUser.auth_provider === 'gmail';
-
+                    
                     if (this.currentUser.email_verified || isGmailUser) {
                         verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
                     } else {
@@ -569,11 +569,12 @@ class ChillaDashboard {
         document.getElementById('home-nav').classList.add('active');
         document.getElementById('menu-nav').classList.remove('active');
 
-        // Show the main app bar
+        // Show the main app bar and dark mode container
         document.querySelector('.app-bar').style.display = 'flex';
+        document.querySelector('.nav-darkmode-container').style.display = 'flex';
 
         // Reset app title and dashboard
-        document.querySelector('.app-bar-title').textContent = 'Chilla'; // Corrected to app-bar-title
+        document.querySelector('.app-title').textContent = 'Chilla';
 
         // Restore original sidebar content
         this.restoreOriginalSidebar();
@@ -616,28 +617,41 @@ class ChillaDashboard {
 
     displayPacaDashboard() {
         const dashboard = document.getElementById('dashboard');
-        const appBarTitle = document.querySelector('.app-bar-title'); // Corrected to app-bar-title
+        const appTitle = document.querySelector('.app-title');
 
         // Update app title
-        appBarTitle.textContent = 'Paca'; // Corrected to app-bar-title
+        appTitle.textContent = 'Paca';
 
-        // Hide the main app bar
+        // Hide the main app bar and dark mode container
         document.querySelector('.app-bar').style.display = 'none';
+        document.querySelector('.nav-darkmode-container').style.display = 'none';
 
         // Always show consent screen when clicking on the tab
         dashboard.innerHTML = `
             <div class="paca-app-bar">
-                <button id="paca-back-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="paca-app-title">Paca</h1>
+                <div></div>
+                <h1 class="paca-app-title">
+                    <div class="paca-beaverly-logo"></div>
+                    Paca
+                </h1>
                 <button id="paca-menu-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
                     </svg>
                 </button>
+            </div>
+            <div class="nav-darkmode-container">
+                <div class="floating-theme-toggle">
+                    <button id="paca-theme-toggle" class="theme-toggle-btn">
+                        <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="paca-consent-screen">
                 <div class="paca-header">
@@ -667,6 +681,7 @@ class ChillaDashboard {
         const consentCheckbox = document.getElementById('consent-checkbox');
         const startBtn = document.getElementById('start-automating-btn');
         const termsLink = document.getElementById('terms-link');
+        const backBtn = document.getElementById('paca-back-btn');
         const menuBtn = document.getElementById('paca-menu-btn');
 
         consentCheckbox.addEventListener('change', () => {
@@ -687,6 +702,12 @@ class ChillaDashboard {
         menuBtn.addEventListener('click', () => {
             this.showPacaSidebar();
         });
+
+        // Add Paca theme toggle listener
+        const pacaThemeToggle = document.getElementById('paca-theme-toggle');
+        if (pacaThemeToggle) {
+            pacaThemeToggle.addEventListener('click', () => this.toggleTheme());
+        }
     }
 
     showPacaForm() {
@@ -694,17 +715,29 @@ class ChillaDashboard {
 
         dashboard.innerHTML = `
             <div class="paca-app-bar">
-                <button id="paca-back-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="paca-app-title">Paca</h1>
+                <div></div>
+                <h1 class="paca-app-title">
+                    <div class="paca-beaverly-logo"></div>
+                    Paca
+                </h1>
                 <button id="paca-menu-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
                     </svg>
                 </button>
+            </div>
+            <div class="nav-darkmode-container">
+                <div class="floating-theme-toggle">
+                    <button id="paca-theme-toggle" class="theme-toggle-btn">
+                        <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="paca-form-screen">
                 <div class="paca-header">
@@ -757,12 +790,18 @@ class ChillaDashboard {
         });
 
         document.getElementById('paca-back-btn').addEventListener('click', () => {
-            this.showHome();
+            this.displayPacaDashboard();
         });
 
         document.getElementById('paca-menu-btn').addEventListener('click', () => {
             this.showPacaSidebar();
         });
+
+        // Add theme toggle listener
+        const pacaThemeToggle = document.getElementById('paca-theme-toggle');
+        if (pacaThemeToggle) {
+            pacaThemeToggle.addEventListener('click', () => this.toggleTheme());
+        }
     }
 
     restoreOriginalSidebar() {
@@ -865,7 +904,6 @@ class ChillaDashboard {
         document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
         document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
         document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
-        // Theme toggle is intentionally removed from here as per request
     }
 
     showPacaSidebar() {
@@ -925,7 +963,7 @@ class ChillaDashboard {
         sidebar.classList.add('open');
     }
 
-
+    
 
     async handleStrategySubmission(e) {
         e.preventDefault();
@@ -971,7 +1009,7 @@ class ChillaDashboard {
             if (typeof emailjs === 'undefined') {
                 throw new Error('EmailJS library not found. Please ensure it is included.');
             }
-
+            
             // Initialize EmailJS if not already initialized
             if (!emailjs._config || !emailjs._config.publicKey) {
                 emailjs.init('0w-mDmXc8j3hyp1hw');
