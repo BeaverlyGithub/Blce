@@ -36,49 +36,39 @@
     color: var(--text-primary);
 }
 
-/* Bottom Navigation with Blurred Container for Theme Toggle */
-.bottom-nav-container {
+/* Bottom Navigation with Dark Mode Container */
+.nav-darkmode-container {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-}
-
-.nav-blur-container {
-    position: absolute;
-    bottom: 0;
+    bottom: 5rem;
     left: 50%;
     transform: translateX(-50%);
-    width: 200px;
-    height: 70px;
-    background: rgba(255, 255, 255, 0.1);
+    z-index: 150;
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 35px 35px 0 0;
+    border-radius: 20px;
+    padding: 8px 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    min-height: 56px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding-top: 10px;
 }
 
-[data-theme="dark"] .nav-blur-container {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+[data-theme="dark"] .nav-darkmode-container {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .floating-theme-toggle {
-    position: static;
-    background: transparent;
-    border: none;
-    padding: 0;
-    box-shadow: none;
+    position: relative;
+    z-index: 151;
 }
 
 .theme-toggle-btn {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border: none;
     border-radius: 50%;
     background: var(--bg-primary);
@@ -94,13 +84,17 @@
 }
 
 .theme-toggle-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
     box-shadow: 0 6px 16px var(--shadow-medium);
 }
 
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+
 .theme-icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     stroke: var(--text-primary);
     stroke-width: 2;
 }
@@ -114,6 +108,24 @@
     display: none;
 }
 
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .nav-darkmode-container {
+        bottom: 4.5rem;
+        padding: 6px 10px;
+    }
+
+    .theme-toggle-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .theme-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
 /* Sidebar */
 .sidebar {
     position: fixed;
@@ -124,7 +136,7 @@
     z-index: 200;
     visibility: hidden;
     opacity: 0;
-    transition: visibility 0.3s ease, opacity 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .sidebar.open {
@@ -141,6 +153,7 @@
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: opacity 0.3s ease;
+    cursor: pointer;
 }
 
 .sidebar.open .sidebar-overlay {
@@ -148,34 +161,20 @@
 }
 
 .sidebar-content {
-    width: 300px;
+    width: 280px;
     height: 100%;
     background: var(--bg-primary);
     border-right: 1px solid var(--border-color);
-    padding: 1rem 0 8rem 0;
+    padding: 2rem 0 6rem 0;
     transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.3s ease;
     overflow-y: auto;
-    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     position: relative;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar.open .sidebar-content {
     transform: translateX(0);
-}
-
-/* Ensure proper scrolling on mobile */
-@media (max-width: 768px) {
-    .sidebar-content {
-        width: 280px;
-        padding-bottom: 10rem;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .sidebar-menu {
-        padding-bottom: 4rem;
-    }
 }
 
 .sidebar-header {
@@ -370,12 +369,15 @@
 
 /* Bottom Navigation */
 .bottom-nav {
-    position: relative;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     background: var(--bg-primary);
     border-top: 1px solid var(--border-color);
     padding: 0.5rem 0;
-    z-index: 50;
+    z-index: 100;
 }
 
 .nav-item {
@@ -780,21 +782,16 @@
     height: 60px;
 }
 
-.paca-title-container {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex: 1;
-    justify-content: center;
-}
-
 .paca-app-title {
     font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.paca-logo {
+.paca-beaverly-logo {
     width: 28px;
     height: 28px;
     background-size: contain;
@@ -803,12 +800,8 @@
     background-image: url('../attached_assets/beaverly_logoi.png');
 }
 
-[data-theme="dark"] .paca-logo {
+[data-theme="dark"] .paca-beaverly-logo {
     background-image: url('../attached_assets/beaverly_lodo.png');
-}
-
-.paca-spacer {
-    width: 40px;
 }
 
 .success-screen {
