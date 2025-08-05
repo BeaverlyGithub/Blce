@@ -144,7 +144,7 @@ class ChillaDashboard {
 
             const verificationStatus = document.getElementById('verification-status');
             const isGmailUser = this.currentUser.auth_provider === 'gmail';
-            
+
             // Gmail users are automatically verified
             if (this.currentUser.email_verified || isGmailUser) {
                 verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
@@ -531,7 +531,7 @@ class ChillaDashboard {
                     // Update verification status display
                     const verificationStatus = document.getElementById('verification-status');
                     const isGmailUser = this.currentUser.auth_provider === 'gmail';
-                    
+
                     if (this.currentUser.email_verified || isGmailUser) {
                         verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
                     } else {
@@ -573,7 +573,7 @@ class ChillaDashboard {
         document.querySelector('.app-bar').style.display = 'flex';
 
         // Reset app title and dashboard
-        document.querySelector('.app-title').textContent = 'Chilla';
+        document.querySelector('.app-bar-title').textContent = 'Chilla'; // Corrected to app-bar-title
 
         // Restore original sidebar content
         this.restoreOriginalSidebar();
@@ -616,10 +616,10 @@ class ChillaDashboard {
 
     displayPacaDashboard() {
         const dashboard = document.getElementById('dashboard');
-        const appTitle = document.querySelector('.app-title');
+        const appBarTitle = document.querySelector('.app-bar-title'); // Corrected to app-bar-title
 
         // Update app title
-        appTitle.textContent = 'Paca';
+        appBarTitle.textContent = 'Paca'; // Corrected to app-bar-title
 
         // Hide the main app bar
         document.querySelector('.app-bar').style.display = 'none';
@@ -667,7 +667,6 @@ class ChillaDashboard {
         const consentCheckbox = document.getElementById('consent-checkbox');
         const startBtn = document.getElementById('start-automating-btn');
         const termsLink = document.getElementById('terms-link');
-        const backBtn = document.getElementById('paca-back-btn');
         const menuBtn = document.getElementById('paca-menu-btn');
 
         consentCheckbox.addEventListener('change', () => {
@@ -683,10 +682,6 @@ class ChillaDashboard {
             if (consentCheckbox.checked) {
                 this.showPacaForm();
             }
-        });
-
-        backBtn.addEventListener('click', () => {
-            this.showHome();
         });
 
         menuBtn.addEventListener('click', () => {
@@ -762,7 +757,7 @@ class ChillaDashboard {
         });
 
         document.getElementById('paca-back-btn').addEventListener('click', () => {
-            this.displayPacaDashboard();
+            this.showHome();
         });
 
         document.getElementById('paca-menu-btn').addEventListener('click', () => {
@@ -850,19 +845,6 @@ class ChillaDashboard {
                     Logout
                 </button>
             </div>
-
-            <!-- Floating Theme Toggle -->
-            <div class="floating-theme-toggle">
-                <button id="theme-toggle" class="theme-toggle-btn">
-                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="5"/>
-                        <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                    </svg>
-                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                    </svg>
-                </button>
-            </div>
         `;
 
         // Re-setup event listeners for original sidebar
@@ -883,7 +865,7 @@ class ChillaDashboard {
         document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
         document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
         document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
-        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+        // Theme toggle is intentionally removed from here as per request
     }
 
     showPacaSidebar() {
@@ -943,7 +925,7 @@ class ChillaDashboard {
         sidebar.classList.add('open');
     }
 
-    
+
 
     async handleStrategySubmission(e) {
         e.preventDefault();
@@ -989,7 +971,7 @@ class ChillaDashboard {
             if (typeof emailjs === 'undefined') {
                 throw new Error('EmailJS library not found. Please ensure it is included.');
             }
-            
+
             // Initialize EmailJS if not already initialized
             if (!emailjs._config || !emailjs._config.publicKey) {
                 emailjs.init('0w-mDmXc8j3hyp1hw');
