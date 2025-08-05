@@ -36,32 +36,49 @@
     color: var(--text-primary);
 }
 
-/* Floating Theme Toggle - Fixed positioning with blurred glass container */
-.floating-theme-toggle {
+/* Bottom Navigation with Blurred Container for Theme Toggle */
+.bottom-nav-container {
     position: fixed;
-    bottom: 7rem;
-    right: 1.5rem;
-    z-index: 999;
-    opacity: 1;
-    visibility: visible;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    padding: 8px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
 }
 
-[data-theme="dark"] .floating-theme-toggle {
+.nav-blur-container {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 35px 35px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+[data-theme="dark"] .nav-blur-container {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.floating-theme-toggle {
+    position: static;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
 }
 
 .theme-toggle-btn {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
     border: none;
     border-radius: 50%;
     background: var(--bg-primary);
@@ -82,8 +99,8 @@
 }
 
 .theme-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     stroke: var(--text-primary);
     stroke-width: 2;
 }
@@ -97,20 +114,6 @@
     display: none;
 }
 
-/* Ensure visibility and better spacing on mobile */
-@media (max-width: 768px) {
-    .floating-theme-toggle {
-        bottom: 6.5rem;
-        right: 1rem;
-        padding: 6px;
-    }
-
-    .theme-toggle-btn {
-        width: 48px;
-        height: 48px;
-    }
-}
-
 /* Sidebar */
 .sidebar {
     position: fixed;
@@ -119,12 +122,14 @@
     width: 100%;
     height: 100vh;
     z-index: 200;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s ease, opacity 0.3s ease;
 }
 
 .sidebar.open {
-    transform: translateX(0);
+    visibility: visible;
+    opacity: 1;
 }
 
 .sidebar-overlay {
@@ -143,18 +148,34 @@
 }
 
 .sidebar-content {
-    width: 280px;
+    width: 300px;
     height: 100%;
     background: var(--bg-primary);
     border-right: 1px solid var(--border-color);
-    padding: 2rem 0;
+    padding: 1rem 0 8rem 0;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar.open .sidebar-content {
     transform: translateX(0);
+}
+
+/* Ensure proper scrolling on mobile */
+@media (max-width: 768px) {
+    .sidebar-content {
+        width: 280px;
+        padding-bottom: 10rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .sidebar-menu {
+        padding-bottom: 4rem;
+    }
 }
 
 .sidebar-header {
@@ -349,15 +370,12 @@
 
 /* Bottom Navigation */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
     display: flex;
     background: var(--bg-primary);
     border-top: 1px solid var(--border-color);
     padding: 0.5rem 0;
-    z-index: 100;
+    z-index: 50;
 }
 
 .nav-item {
@@ -762,10 +780,35 @@
     height: 60px;
 }
 
+.paca-title-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    justify-content: center;
+}
+
 .paca-app-title {
     font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.01em;
+}
+
+.paca-logo {
+    width: 28px;
+    height: 28px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url('../attached_assets/beaverly_logoi.png');
+}
+
+[data-theme="dark"] .paca-logo {
+    background-image: url('../attached_assets/beaverly_lodo.png');
+}
+
+.paca-spacer {
+    width: 40px;
 }
 
 .success-screen {
