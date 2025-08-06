@@ -641,13 +641,13 @@ class ChillaDashboard {
             </div>
             <div class="paca-consent-screen">
                 <div class="paca-header">
-                    <h1 class="paca-title">PACA</h1>
-                    <p class="paca-tagline">Your zero-cost AI strategy lab.</p>
+                    <h1 class="paca-title">Paca by Beaverly®</h1>
+                    <p class="paca-tagline">Automate. Don't Code.</p>
                     <p class="paca-description">
-                        Just drop your logic — we automate it with M-II, the engine behind Chilla.
-                        No code, no infra, no limits.
-                        Use your AI personally or sell it in the open market. Forever.
-                        You build it. We automate it. The world runs on it.
+                        Paca turns your strategy into a live machine — free, fast, and scalable.
+                        Send your logic to M-II. We'll build it out.
+                        Deploy your strategy on your own funds.
+                        Or Publish it. Let others subscribe. Get paid.
                     </p>
                 </div>
 
@@ -1074,10 +1074,10 @@ class ChillaDashboard {
                     <div class="success-icon">✅</div>
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
-                        Thank you for trusting us to take your wealth game to the GOAT level.
+                        Congratulations! Your strategy has been submitted successfully.
                         If your logic is approved and deployed, we will contact you and unlock your store
                         to monetize it or use it for free on your Chilla Dashboard.
-                        Due to surge in demand, approval might take 4 weeks but rest assured that if you
+                        Due to surge in demand, deployment might take 4 weeks but rest assured that if you
                         pass our sandbox, you're on to something great. If you do not, we will educate you
                         on areas for improvements on your logic.
                     </p>
