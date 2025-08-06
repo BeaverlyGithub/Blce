@@ -405,8 +405,10 @@ class ChillaDashboard {
         if (selectedBroker === 'deriv') {
             // Deriv OAuth integration
             const appId = '85950';
-            const redirectUri = window.location.origin + '/dashboard.html';
-            const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=https://www.cook.beaverlyai.com/api/connect_oauth/callback?broker=deriv`;
+            const redirectUri = encodeURIComponent('https://www.cook.beaverlyai.com/api/connect_oauth/callback?broker=deriv');
+
+            const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}`;
+
 
             // Store that we're attempting Deriv connection
             localStorage.setItem('deriv_oauth_pending', 'true');
