@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Check if we're on an auth page - if not, don't initialize auth functionality
     const authForm = document.getElementById('auth-form');
+    if (!authForm) {
+        return; // Exit if not on auth page
+    }
+
     const authBtn = document.getElementById('auth-btn');
     const authText = document.getElementById('auth-text');
     const authSpinner = document.getElementById('auth-spinner');
