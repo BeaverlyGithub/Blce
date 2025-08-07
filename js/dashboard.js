@@ -405,7 +405,7 @@ class ChillaDashboard {
     if (selectedBroker === 'deriv') {
         try {
             // Step 1: Fetch state token from backend
-            const res = await fetch("https://www.cook.beaverlyai.com/api/generate_oauth_state", {
+            const res = await fetch("https://cook.beaverlyai.com/api/generate_oauth_state", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include" // optional, use if you're using cookies/sessions
