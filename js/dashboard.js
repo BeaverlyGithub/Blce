@@ -422,7 +422,7 @@ class ChillaDashboard {
 
             // Step 4: Construct Deriv OAuth URL
             const appId = '85950';
-            const redirectUri = encodeURIComponent('https://www.cook.beaverlyai.com/api/connect_oauth/callback');
+            const redirectUri = encodeURIComponent('https://cook.beaverlyai.com/api/connect_oauth/callback');
             const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
 
             // Step 5: Mark state in localStorage
