@@ -403,11 +403,21 @@ class ChillaDashboard {
         }
 
         if (selectedBroker === 'deriv') {
+
+            // Get signed state from backend
+            const res = await fetch("/api/generate_oauth_state", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include"  // if needed
+            });
+
+            const { state_token } = await res.json();
+
             // Deriv OAuth integration
             const appId = '85950';
             const redirectUri = encodeURIComponent('https://www.cook.beaverlyai.com/api/connect_oauth/callback');
-
-            const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=deriv`;
+            
+            const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
 
 
             // Store that we're attempting Deriv connection
