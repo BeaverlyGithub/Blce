@@ -395,41 +395,52 @@ class ChillaDashboard {
     }
 
     async handleBrokerOAuth() {
-        const selectedBroker = document.getElementById('broker-dropdown').value;
+    const selectedBroker = document.getElementById('broker-dropdown').value;
 
-        if (!selectedBroker) {
-            this.showNotification('Please select a broker', 'error');
-            return;
-        }
+    if (!selectedBroker) {
+        this.showNotification('Please select a broker', 'error');
+        return;
+    }
 
-        if (selectedBroker === 'deriv') {
-
-            // Get signed state from backend
-            const res = await fetch("/api/generate_oauth_state", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include"  // if needed
+    if (selectedBroker === 'deriv') {
+        try {
+            // Step 1: Fetch state token from backend
+            const res = await fetch("https://www.cook.beaverlyai.com/api/generate_oauth_state", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include" // optional, use if you're using cookies/sessions
             });
 
+            // Step 2: Check if response is OK
+            if (!res.ok) {
+                const errorText = await res.text(); // You can log this if needed
+                throw new Error(`Backend returned error: ${res.status} - ${errorText}`);
+            }
+
+            // Step 3: Extract JSON safely
             const { state_token } = await res.json();
 
-            // Deriv OAuth integration
+            // Step 4: Construct Deriv OAuth URL
             const appId = '85950';
             const redirectUri = encodeURIComponent('https://www.cook.beaverlyai.com/api/connect_oauth/callback');
-            
             const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
 
-
-            // Store that we're attempting Deriv connection
+            // Step 5: Mark state in localStorage
             localStorage.setItem('deriv_oauth_pending', 'true');
 
+            // Step 6: Redirect to Deriv
             window.location.href = derivOAuthUrl;
-        } else {
-            this.showNotification('Other brokers coming soon!', 'info');
+        } catch (error) {
+            console.error("OAuth error:", error);
+            this.showNotification('Could not start Deriv connection. Please try again.', 'error');
         }
-
-        this.closeBrokerModal();
+    } else {
+        this.showNotification('Other brokers coming soon!', 'info');
     }
+
+    this.closeBrokerModal();
+}
+
 
     async confirmDisconnect() {
         // Clear Deriv connection
