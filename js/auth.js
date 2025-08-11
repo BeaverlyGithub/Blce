@@ -1,38 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Hide loading screen and show auth container
-    const loadingScreen = document.getElementById('loading-screen');
-    const authContainer = document.getElementById('auth-container');
-    
-    if (loadingScreen) {
-        setTimeout(() => {
-            loadingScreen.classList.add('hidden');
-            if (authContainer) {
-                authContainer.classList.remove('hidden');
-            }
-        }, 1000);
-    }
-
     // Check if we're on an auth page - if not, don't initialize auth functionality
-    const loginScreen = document.getElementById('login-screen');
-    const signupScreen = document.getElementById('signup-screen');
-    if (!loginScreen && !signupScreen) {
+    const authForm = document.getElementById('auth-form');
+    if (!authForm) {
         return; // Exit if not on auth page
     }
 
-    // Get auth form elements
-    const loginBtn = document.getElementById('login-btn');
-    const signupBtn = document.getElementById('signup-btn');
-    const googleLoginBtn = document.getElementById('google-login-btn');
-    const googleSignupBtn = document.getElementById('google-signup-btn');
-    const showSignupLink = document.getElementById('show-signup');
-    const showLoginLink = document.getElementById('show-login');
-    const forgotPasswordLink = document.getElementById('forgot-password-link');
-    const backToLoginLink = document.getElementById('back-to-login');
-    
-    // Get screen elements
-    const loginScreen = document.getElementById('login-screen');
-    const signupScreen = document.getElementById('signup-screen');
-    const forgotPasswordScreen = document.getElementById('forgot-password-screen');
+    const authBtn = document.getElementById('auth-btn');
+    const authText = document.getElementById('auth-text');
+    const authSpinner = document.getElementById('auth-spinner');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const gmailLoginBtn = document.getElementById('gmail-login-btn');
 
     let isLoginMode = true;
 
@@ -60,168 +40,111 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 
 
-    // Screen switching functionality
-    if (showSignupLink) {
-        showSignupLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginScreen.classList.add('hidden');
-            signupScreen.classList.remove('hidden');
-        });
-    }
+    // Tab switching functionality
+    loginTab.addEventListener('click', function() {
+        isLoginMode = true;
+        loginTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md bg-white text-gray-900 shadow-sm';
+        registerTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900';
+        authText.textContent = 'Sign In';
+        showForgotPasswordLink(true);
+    });
 
-    if (showLoginLink) {
-        showLoginLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            signupScreen.classList.add('hidden');
-            loginScreen.classList.remove('hidden');
-        });
-    }
+    registerTab.addEventListener('click', function() {
+        isLoginMode = false;
+        registerTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md bg-white text-gray-900 shadow-sm';
+        loginTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900';
+        authText.textContent = 'Sign Up';
+        showForgotPasswordLink(false);
+    });
 
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            loginScreen.classList.add('hidden');
-            if (forgotPasswordScreen) {
-                forgotPasswordScreen.classList.remove('hidden');
-            }
-        });
-    }
+    // Gmail login functionality
+    gmailLoginBtn.addEventListener('click', () => {
+    const clientId = "514107671303-canjqpiuhlk97eigl1o9cv24i1bjpe54.apps.googleusercontent.com";
+    const redirectUri = "https://cook.beaverlyai.com/auth/callback";
+    const scope = "https://www.googleapis.com/auth/userinfo.email";
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=online&prompt=select_account`;
 
-    if (backToLoginLink) {
-        backToLoginLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (forgotPasswordScreen) {
-                forgotPasswordScreen.classList.add('hidden');
-            }
-            loginScreen.classList.remove('hidden');
-        });
-    }
-
-    // Google login functionality
-    if (googleLoginBtn) {
-        googleLoginBtn.addEventListener('click', () => {
-            const clientId = "514107671303-canjqpiuhlk97eigl1o9cv24i1bjpe54.apps.googleusercontent.com";
-            const redirectUri = "https://cook.beaverlyai.com/auth/callback";
-            const scope = "https://www.googleapis.com/auth/userinfo.email";
-            const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=online&prompt=select_account`;
-
-            window.location.href = oauthUrl;
-        });
-    }
-
-    if (googleSignupBtn) {
-        googleSignupBtn.addEventListener('click', () => {
-            const clientId = "514107671303-canjqpiuhlk97eigl1o9cv24i1bjpe54.apps.googleusercontent.com";
-            const redirectUri = "https://cook.beaverlyai.com/auth/callback";
-            const scope = "https://www.googleapis.com/auth/userinfo.email";
-            const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=online&prompt=select_account`;
-
-            window.location.href = oauthUrl;
-        });
-    }
+    window.location.href = oauthUrl;
+});
 
 
-    // Login form handler
-    if (loginBtn) {
-        loginBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
+    authForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-            if (!email || !password) {
-                alert('Please fill in all fields');
-                return;
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!email || !password) {
+            showError('Please fill in all fields');
+            return;
+        }
+
+        setLoadingState(true);
+        hideError();
+
+        try {
+            const endpoint = isLoginMode ? 'login' : 'register';
+            const response = await fetch(`https://cook.beaverlyai.com/api/${endpoint}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `${isLoginMode ? 'Login' : 'Registration'} failed`);
             }
 
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Signing In...';
+            const data = await response.json();
 
-            try {
-                const response = await fetch('https://cook.beaverlyai.com/api/login', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+            if (data.status === 'success') {
+                // Store user email for later use
+                localStorage.setItem('chilla_user_email', email);
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Login failed');
-                }
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    localStorage.setItem('chilla_user_email', email);
-                    window.location.href = 'dashboard.html';
-                } else {
-                    throw new Error(data.message || 'Login failed');
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert(error.message || 'Connection failed.');
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Sign In';
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html';
+            } else {
+                throw new Error(data.message || `${isLoginMode ? 'Login' : 'Registration'} failed`);
             }
-        });
+
+        } catch (error) {
+            console.error(error);
+            showError(error.message || 'Connection failed.');
+        } finally {
+            setLoadingState(false);
+        }
+    });
+
+    function setLoadingState(loading) {
+        authBtn.disabled = loading;
+        authText.textContent = loading ? (isLoginMode ? 'Signing In...' : 'Signing Up...') : (isLoginMode ? 'Sign In' : 'Sign Up');
+        authSpinner.classList.toggle('hidden', !loading);
     }
 
-    // Signup form handler
-    if (signupBtn) {
-        signupBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
-
-            if (!email || !password || !confirmPassword) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-
-            signupBtn.disabled = true;
-            signupBtn.textContent = 'Creating Account...';
-
-            try {
-                const response = await fetch('https://cook.beaverlyai.com/api/register', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Registration failed');
-                }
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    localStorage.setItem('chilla_user_email', email);
-                    window.location.href = 'dashboard.html';
-                } else {
-                    throw new Error(data.message || 'Registration failed');
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert(error.message || 'Connection failed.');
-            } finally {
-                signupBtn.disabled = false;
-                signupBtn.textContent = 'Create Account';
-            }
-        });
+    function showError(message) {
+        errorText.textContent = message;
+        errorMessage.classList.remove('hidden');
+        setTimeout(() => {
+            errorMessage.classList.add('hidden');
+        }, 5000);
     }
 
-    // No additional helper functions needed - using inline alerts and DOM manipulation
+    function hideError() {
+        errorMessage.classList.add('hidden');
+    }
+
+    function showForgotPasswordLink(show) {
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        if (forgotPasswordLink) {
+            if (show) {
+                forgotPasswordLink.classList.remove('hidden');
+            } else {
+                forgotPasswordLink.classList.add('hidden');
+            }
+        }
+    }
+
+    // Show forgot password link by default (login mode)
+    showForgotPasswordLink(true);
 });
