@@ -59,9 +59,6 @@ class PacaDashboard {
             console.warn('Auth check failed:', error);
         }
 
-        // Hide loading screen before redirecting
-        document.getElementById('loading-screen').classList.add('hidden');
-        
         // Redirect to login if not authenticated
         window.location.href = 'index.html';
     }
