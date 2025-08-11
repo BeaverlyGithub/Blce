@@ -26,33 +26,18 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ token: null })
         });
 
-        if (!res.ok) {
-            console.warn('Auth check failed with status:', res.status);
-            hideLoadingScreen();
-            return;
-        }
+        if (!res.ok) return;
 
         const json = await res.json();
         if (json.status === "valid") {
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 500);
-        } else {
-            hideLoadingScreen();
         }
     } catch (err) {
         console.warn('Silent auth check failed:', err);
-        hideLoadingScreen();
     }
 })();
-
-    // Helper function to hide loading screen
-    function hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const authContainer = document.getElementById('auth-container');
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        if (authContainer) authContainer.classList.remove('hidden');
-    }
 
 
     // Tab switching functionality
