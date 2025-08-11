@@ -116,7 +116,7 @@ class ChillaDashboard {
 
         // Bottom nav listeners
         document.getElementById('home-nav').addEventListener('click', () => this.showHome());
-        document.getElementById('menu-nav').addEventListener('click', () => this.showPaca());
+        document.getElementById('menu-nav').addEventListener('click', () => this.openIPPartners());
 
         // Modal listeners
         document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
@@ -628,163 +628,9 @@ class ChillaDashboard {
         this.loadDashboardData();
     }
 
-    showPaca() {
-        // Switch to paca tab
-        document.getElementById('home-nav').classList.remove('active');
-        document.getElementById('menu-nav').classList.add('active');
-
-        // Show paca dashboard
-        this.displayPacaDashboard();
-    }
-
-    displayPacaDashboard() {
-        const dashboard = document.getElementById('dashboard');
-        const appTitle = document.querySelector('.app-title');
-
-        // Update app title
-        appTitle.textContent = 'Paca';
-
-        // Hide the main app bar
-        document.querySelector('.app-bar').style.display = 'none';
-
-        // Always show consent screen when clicking on the tab
-        dashboard.innerHTML = `
-            <div class="paca-app-bar">
-                <button id="paca-back-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="paca-app-title">Paca</h1>
-                <button id="paca-menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="paca-consent-screen">
-                <div class="paca-header">
-                    <h1 class="paca-title">Paca by Beaverly®</h1>
-                    <p class="paca-tagline">Automate. Don't Code.</p>
-                    <p class="paca-description">
-                        Paca onboards your strategy into Beaverly’s autonomous execution layer; free, fast, and scalable.
-                    </p>
-                </div>
-
-                <div class="consent-section">
-                    <div class="consent-checkbox">
-                        <input type="checkbox" id="consent-checkbox">
-                        <label for="consent-checkbox">
-                            I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
-                        </label>
-                    </div>
-                    <button id="start-automating-btn" class="primary-btn" disabled>Get Automated</button>
-                </div>
-            </div>
-        `;
-
-        // Add event listeners
-        const consentCheckbox = document.getElementById('consent-checkbox');
-        const startBtn = document.getElementById('start-automating-btn');
-        const termsLink = document.getElementById('terms-link');
-        // Removed back button listener
-        const menuBtn = document.getElementById('paca-menu-btn');
-
-        consentCheckbox.addEventListener('change', () => {
-            startBtn.disabled = !consentCheckbox.checked;
-        });
-
-        termsLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'lose-terms.html';
-        });
-
-        startBtn.addEventListener('click', () => {
-            if (consentCheckbox.checked) {
-                this.showPacaForm();
-            }
-        });
-
-        // Removed back button listener
-        menuBtn.addEventListener('click', () => {
-            this.showPacaSidebar();
-        });
-    }
-
-    showPacaForm() {
-        const dashboard = document.getElementById('dashboard');
-
-        dashboard.innerHTML = `
-            <div class="paca-app-bar">
-                <button id="paca-back-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="paca-app-title">Paca</h1>
-                <button id="paca-menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="paca-form-screen">
-                <div class="paca-header">
-                    <h2>Integrate your strategy</h2>
-                    <p>Upload detailed logic to make integration easier. All markets are accepted.</p>
-                </div>
-
-                <form id="strategy-form" class="strategy-form">
-                    <div class="form-group">
-                        <label for="strategy-name">Strategy Name</label>
-                        <input type="text" id="strategy-name" name="strategyName" required placeholder="Enter your strategy name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="strategy-description">Detailed Description</label>
-                        <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make integration easier..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="trading-journal-link">Trading Journal/Plan Link (Google Drive, Dropbox, etc.)</label>
-                        <input type="url" id="trading-journal-link" name="tradingJournalLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
-                        <div class="link-hint">Share a link to your trading journal or strategy plan</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="trade-history-link">Trade History/Performance Link</label>
-                        <input type="url" id="trade-history-link" name="tradeHistoryLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
-                        <div class="link-hint">Share a link to your real-world performance data</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="additional-resources-link">Additional Resources Link (Optional)</label>
-                        <input type="url" id="additional-resources-link" name="additionalResourcesLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
-                        <div class="link-hint">Any additional strategy files or documentation</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="team-note">Any additional info to improve your AI development</label>
-                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your integration..."></textarea>
-                    </div>
-
-                    <button type="submit" class="primary-btn">Get Integrated</button>
-                </form>
-            </div>
-        `;
-
-        // Add event listeners
-        document.getElementById('strategy-form').addEventListener('submit', (e) => {
-            this.handleStrategySubmission(e);
-        });
-
-        document.getElementById('paca-back-btn').addEventListener('click', () => {
-            this.displayPacaDashboard();
-        });
-
-        document.getElementById('paca-menu-btn').addEventListener('click', () => {
-            this.showPacaSidebar();
-        });
+    openIPPartners() {
+        window.location.href = 'paca.html';
+        this.closeSidebar();
     }
 
     restoreOriginalSidebar() {
