@@ -667,10 +667,7 @@ class ChillaDashboard {
                     <h1 class="paca-title">Paca by Beaverly®</h1>
                     <p class="paca-tagline">Automate. Don't Code.</p>
                     <p class="paca-description">
-                        Paca turns your strategy into a live machine — free, fast, and scalable.
-                        Send your logic to M-II. We'll build it out.
-                        Deploy your strategy on your own funds.
-                        Or Publish it. Let others subscribe. Get paid.
+                        Paca onboards your strategy into Beaverly’s autonomous execution layer; free, fast, and scalable.
                     </p>
                 </div>
 
@@ -733,8 +730,8 @@ class ChillaDashboard {
             </div>
             <div class="paca-form-screen">
                 <div class="paca-header">
-                    <h2>Get Your Strategy Automated</h2>
-                    <p>Upload detailed logic to make automation easier. All markets are accepted.</p>
+                    <h2>Integrate your strategy</h2>
+                    <p>Upload detailed logic to make integration easier. All markets are accepted.</p>
                 </div>
 
                 <form id="strategy-form" class="strategy-form">
@@ -745,7 +742,7 @@ class ChillaDashboard {
 
                     <div class="form-group">
                         <label for="strategy-description">Detailed Description</label>
-                        <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make automation easier..."></textarea>
+                        <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make integration easier..."></textarea>
                     </div>
 
                     <div class="form-group">
@@ -768,10 +765,10 @@ class ChillaDashboard {
 
                     <div class="form-group">
                         <label for="team-note">Any additional info to improve your AI development</label>
-                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your automation..."></textarea>
+                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your integration..."></textarea>
                     </div>
 
-                    <button type="submit" class="primary-btn">Get Automated</button>
+                    <button type="submit" class="primary-btn">Get Integrated</button>
                 </form>
             </div>
         `;
@@ -1097,7 +1094,7 @@ class ChillaDashboard {
                     <div class="success-icon">✅</div>
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
-                        Congratulations! Your strategy has been submitted successfully.
+                        Congratulations! Your request has been submitted successfully.
                         If your logic is approved and deployed, we will contact you and unlock your store
                         to monetize it or use it for free on your Chilla Dashboard.
                         Due to surge in demand, deployment might take 4 weeks but rest assured that if you
