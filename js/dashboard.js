@@ -23,6 +23,15 @@ class ChillaDashboard {
         setTimeout(async () => {
             await this.checkAuthentication();
         }, 100);
+
+        // Failsafe: hide loading screen after 15 seconds regardless
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+                console.warn('Loading screen timeout - forcing redirect to login');
+                window.location.href = 'index.html';
+            }
+        }, 15000);
     }
 
     setupPageVisibilityHandler() {
@@ -56,12 +65,19 @@ class ChillaDashboard {
 
     async checkAuthentication() {
         try {
-            const response = await fetch(`${API_BASE}/api/verify_token`, {
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Authentication timeout')), 10000);
+            });
+
+            const fetchPromise = fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: null })
             });
+
+            const response = await Promise.race([fetchPromise, timeoutPromise]);
 
             if (response.ok) {
                 const data = await response.json();
@@ -91,6 +107,11 @@ class ChillaDashboard {
             }
         } catch (error) {
             console.warn('Auth check failed:', error);
+            // Force redirect after timeout or error
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+            return;
         }
 
         // Redirect to login if not authenticated
