@@ -26,16 +26,34 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ token: null })
         });
 
-        if (!res.ok) return;
+        if (!res.ok) {
+            // Hide loading screen and show auth form
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('auth-container').classList.remove('hidden');
+            }, 1000);
+            return;
+        }
 
         const json = await res.json();
         if (json.status === "valid") {
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 500);
+        } else {
+            // Hide loading screen and show auth form
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('auth-container').classList.remove('hidden');
+            }, 1000);
         }
     } catch (err) {
         console.warn('Silent auth check failed:', err);
+        // Hide loading screen and show auth form even on network error
+        setTimeout(() => {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+        }, 1000);
     }
 })();
 
