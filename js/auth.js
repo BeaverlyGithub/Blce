@@ -1,10 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Hide loading screen and show auth form
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-        loadingScreen.style.display = 'none';
-    }
-
     // Check if we're on an auth page - if not, don't initialize auth functionality
     const authForm = document.getElementById('auth-form');
     if (!authForm) {
