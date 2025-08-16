@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     // Get main containers
     const loadingScreen = document.getElementById('loading-screen');
@@ -30,20 +29,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Check cookie-based auth by pinging backend
     (async () => {
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
             const res = await fetch('https://cook.beaverlyai.com/api/verify_token', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: null }),
-                signal: controller.signal
+                body: JSON.stringify({ token: null })
             });
 
-            clearTimeout(timeoutId);
-
-            if (res && res.ok) {
+            if (res.ok) {
                 const json = await res.json();
                 if (json && json.status === "valid") {
                     window.location.href = 'dashboard.html';
@@ -51,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         } catch (err) {
-            console.warn('Silent auth check failed:', err.message || err);
+            // Silent fail for auth check
         }
 
         // Show auth container after auth check
@@ -138,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Login form submission
     if (loginForm) {
         const loginBtn = document.getElementById('login-btn');
-        
+
         // Add click event listener to button instead of form submit
         if (loginBtn) {
             loginBtn.addEventListener('click', async function (e) {
@@ -203,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Signup form submission
     if (signupForm) {
         const signupBtn = document.getElementById('signup-btn');
-        
+
         if (signupBtn) {
             signupBtn.addEventListener('click', async function (e) {
                 e.preventDefault();
@@ -281,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Forgot password form submission
     if (forgotPasswordForm) {
         const resetBtn = document.getElementById('reset-btn');
-        
+
         if (resetBtn) {
             resetBtn.addEventListener('click', async function (e) {
                 e.preventDefault();

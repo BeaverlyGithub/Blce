@@ -63,7 +63,7 @@ class ChillaDashboard {
                 body: JSON.stringify({ token: null })
             });
 
-            if (response && response.ok) {
+            if (response.ok) {
                 const data = await response.json();
                 if (data && data.status === 'valid') {
                     this.isAuthenticated = true;
@@ -83,8 +83,6 @@ class ChillaDashboard {
 
                     this.showMainApp();
                     this.loadDashboardData();
-
-                    // Set up periodic data refresh
                     this.setupPeriodicRefresh();
                     return;
                 }
@@ -96,16 +94,38 @@ class ChillaDashboard {
         // Check if we're coming from OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('code')) {
-            // We're on a callback URL but auth failed, wait a bit for cookies to be set
-            console.log('OAuth callback detected, waiting for authentication...');
-            setTimeout(() => {
-                this.checkAuthentication();
-            }, 2000);
+            // Clean URL and wait for cookies to be set by backend
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // Wait 3 seconds for backend to set cookies, then retry once
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/api/verify_token`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: null })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.status === 'valid') {
+                            // Force page reload to restart with clean state
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('OAuth callback retry failed:', err.message);
+                }
+
+                // If still not authenticated, redirect to login
+                window.location.href = 'index.html';
+            }, 3000);
             return;
         }
 
         // Redirect to login if not authenticated
-        console.log('Redirecting to login page');
         window.location.href = 'index.html';
     }
 
