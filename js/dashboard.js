@@ -98,35 +98,51 @@ class ChillaDashboard {
     }
 
     setupEventListeners() {
+        // Helper function to safely add event listeners
+        const addListener = (id, event, handler) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener(event, handler);
+            }
+        };
+
+        const addListenerByQuery = (selector, event, handler) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.addEventListener(event, handler);
+            }
+        };
+
         // Main app listeners
-        document.getElementById('menu-btn').addEventListener('click', () => this.toggleSidebar());
-        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
-        document.getElementById('nav-connect-btn').addEventListener('click', () => this.handleConnectChilla());
-        document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
+        addListener('menu-btn', 'click', () => this.toggleSidebar());
+        addListener('theme-toggle', 'click', () => this.toggleTheme());
+        addListener('nav-connect-btn', 'click', () => this.handleConnectChilla());
+        addListener('logout-btn', 'click', () => this.handleLogout());
 
         // Sidebar listeners
-        document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
-        document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
-        document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
-        document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
-        document.getElementById('contact-btn').addEventListener('click', () => this.showContact());
-        document.getElementById('faq-btn').addEventListener('click', () => this.showFAQ());
-        document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
-        document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
+        addListener('connect-chilla-btn', 'click', () => this.handleConnectChilla());
+        addListener('change-email-btn', 'click', () => this.changeEmail());
+        addListener('change-password-btn', 'click', () => this.changePassword());
+        addListener('verify-email-btn', 'click', () => this.verifyEmail());
+        addListener('ip-partners-btn', 'click', () => this.openIPPartners());
+        addListener('contact-btn', 'click', () => this.showContact());
+        addListener('faq-btn', 'click', () => this.showFAQ());
+        addListener('privacy-btn', 'click', () => this.showPrivacy());
+        addListener('terms-btn', 'click', () => this.showTerms());
 
-        // Bottom nav listeners
-        document.getElementById('home-nav').addEventListener('click', () => this.showHome());
-        document.getElementById('menu-nav').addEventListener('click', () => this.openIPPartners());
+        // Bottom nav listeners (optional elements)
+        addListener('home-nav', 'click', () => this.showHome());
+        addListener('menu-nav', 'click', () => this.openIPPartners());
 
         // Modal listeners
-        document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
-        document.getElementById('broker-oauth-btn').addEventListener('click', () => this.handleBrokerOAuth());
-        document.getElementById('modal-close-btn').addEventListener('click', () => this.closeBrokerModal());
-        document.getElementById('confirm-disconnect-btn').addEventListener('click', () => this.confirmDisconnect());
-        document.getElementById('cancel-disconnect-btn').addEventListener('click', () => this.closeDisconnectModal());
+        addListener('broker-dropdown', 'change', () => this.handleBrokerSelection());
+        addListener('broker-oauth-btn', 'click', () => this.handleBrokerOAuth());
+        addListener('modal-close-btn', 'click', () => this.closeBrokerModal());
+        addListener('confirm-disconnect-btn', 'click', () => this.confirmDisconnect());
+        addListener('cancel-disconnect-btn', 'click', () => this.closeDisconnectModal());
 
         // Sidebar overlay listener
-        document.querySelector('.sidebar-overlay').addEventListener('click', () => this.closeSidebar());
+        addListenerByQuery('.sidebar-overlay', 'click', () => this.closeSidebar());
     }
 
     setupTheme() {
