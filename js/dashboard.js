@@ -63,9 +63,9 @@ class ChillaDashboard {
                 body: JSON.stringify({ token: null })
             });
 
-            if (response.ok) {
+            if (response && response.ok) {
                 const data = await response.json();
-                if (data.status === 'valid') {
+                if (data && data.status === 'valid') {
                     this.isAuthenticated = true;
                     // Fix user data structure to match backend response
                     this.currentUser = data.users || data.user || {
@@ -88,9 +88,16 @@ class ChillaDashboard {
                     this.setupPeriodicRefresh();
                     return;
                 }
+            } else if (response && response.status >= 400) {
+                console.warn('Auth server error:', response.status, response.statusText);
             }
         } catch (error) {
             console.warn('Auth check failed:', error);
+            // Add a small delay before redirect to avoid immediate redirect loops
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+            return;
         }
 
         // Redirect to login if not authenticated
@@ -98,35 +105,51 @@ class ChillaDashboard {
     }
 
     setupEventListeners() {
+        // Helper function to safely add event listeners
+        const addListener = (id, event, handler) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener(event, handler);
+            }
+        };
+
+        const addListenerByQuery = (selector, event, handler) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.addEventListener(event, handler);
+            }
+        };
+
         // Main app listeners
-        document.getElementById('menu-btn').addEventListener('click', () => this.toggleSidebar());
-        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
-        document.getElementById('nav-connect-btn').addEventListener('click', () => this.handleConnectChilla());
-        document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
+        addListener('menu-btn', 'click', () => this.toggleSidebar());
+        addListener('theme-toggle', 'click', () => this.toggleTheme());
+        addListener('nav-connect-btn', 'click', () => this.handleConnectChilla());
+        addListener('logout-btn', 'click', () => this.handleLogout());
 
         // Sidebar listeners
-        document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
-        document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
-        document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
-        document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
-        document.getElementById('contact-btn').addEventListener('click', () => this.showContact());
-        document.getElementById('faq-btn').addEventListener('click', () => this.showFAQ());
-        document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
-        document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
+        addListener('connect-chilla-btn', 'click', () => this.handleConnectChilla());
+        addListener('change-email-btn', 'click', () => this.changeEmail());
+        addListener('change-password-btn', 'click', () => this.changePassword());
+        addListener('verify-email-btn', 'click', () => this.verifyEmail());
+        addListener('ip-partners-btn', 'click', () => this.openIPPartners());
+        addListener('contact-btn', 'click', () => this.showContact());
+        addListener('faq-btn', 'click', () => this.showFAQ());
+        addListener('privacy-btn', 'click', () => this.showPrivacy());
+        addListener('terms-btn', 'click', () => this.showTerms());
 
-        // Bottom nav listeners
-        document.getElementById('home-nav').addEventListener('click', () => this.showHome());
-        document.getElementById('menu-nav').addEventListener('click', () => this.showPaca());
+        // Bottom nav listeners (optional elements)
+        addListener('home-nav', 'click', () => this.showHome());
+        addListener('menu-nav', 'click', () => this.openIPPartners());
 
         // Modal listeners
-        document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
-        document.getElementById('broker-oauth-btn').addEventListener('click', () => this.handleBrokerOAuth());
-        document.getElementById('modal-close-btn').addEventListener('click', () => this.closeBrokerModal());
-        document.getElementById('confirm-disconnect-btn').addEventListener('click', () => this.confirmDisconnect());
-        document.getElementById('cancel-disconnect-btn').addEventListener('click', () => this.closeDisconnectModal());
+        addListener('broker-dropdown', 'change', () => this.handleBrokerSelection());
+        addListener('broker-oauth-btn', 'click', () => this.handleBrokerOAuth());
+        addListener('modal-close-btn', 'click', () => this.closeBrokerModal());
+        addListener('confirm-disconnect-btn', 'click', () => this.confirmDisconnect());
+        addListener('cancel-disconnect-btn', 'click', () => this.closeDisconnectModal());
 
         // Sidebar overlay listener
-        document.querySelector('.sidebar-overlay').addEventListener('click', () => this.closeSidebar());
+        addListenerByQuery('.sidebar-overlay', 'click', () => this.closeSidebar());
     }
 
     setupTheme() {
@@ -543,7 +566,7 @@ class ChillaDashboard {
 
             if (response.ok) {
                 const data = await response.json();
-                if (data.status === 'valid') {
+                if (data && data.status === 'valid') {
                     this.currentUser = data.users || data.user || {
                         email: data.email,
                         email_verified: data.email_verified,
@@ -628,166 +651,9 @@ class ChillaDashboard {
         this.loadDashboardData();
     }
 
-    showPaca() {
-        // Switch to paca tab
-        document.getElementById('home-nav').classList.remove('active');
-        document.getElementById('menu-nav').classList.add('active');
-
-        // Show paca dashboard
-        this.displayPacaDashboard();
-    }
-
-    displayPacaDashboard() {
-        const dashboard = document.getElementById('dashboard');
-        const appTitle = document.querySelector('.app-title');
-
-        // Update app title
-        appTitle.textContent = 'Paca';
-
-        // Hide the main app bar
-        document.querySelector('.app-bar').style.display = 'none';
-
-        // Always show consent screen when clicking on the tab
-        dashboard.innerHTML = `
-            <div class="paca-app-bar">
-                <button id="paca-back-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="paca-app-title">Paca</h1>
-                <button id="paca-menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="paca-consent-screen">
-                <div class="paca-header">
-                    <h1 class="paca-title">Paca by Beaverly®</h1>
-                    <p class="paca-tagline">Automate. Don't Code.</p>
-                    <p class="paca-description">
-                        Paca turns your strategy into a live machine — free, fast, and scalable.
-                        Send your logic to M-II. We'll build it out.
-                        Deploy your strategy on your own funds.
-                        Or Publish it. Let others subscribe. Get paid.
-                    </p>
-                </div>
-
-                <div class="consent-section">
-                    <div class="consent-checkbox">
-                        <input type="checkbox" id="consent-checkbox">
-                        <label for="consent-checkbox">
-                            I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
-                        </label>
-                    </div>
-                    <button id="start-automating-btn" class="primary-btn" disabled>Get Automated</button>
-                </div>
-            </div>
-        `;
-
-        // Add event listeners
-        const consentCheckbox = document.getElementById('consent-checkbox');
-        const startBtn = document.getElementById('start-automating-btn');
-        const termsLink = document.getElementById('terms-link');
-        // Removed back button listener
-        const menuBtn = document.getElementById('paca-menu-btn');
-
-        consentCheckbox.addEventListener('change', () => {
-            startBtn.disabled = !consentCheckbox.checked;
-        });
-
-        termsLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'lose-terms.html';
-        });
-
-        startBtn.addEventListener('click', () => {
-            if (consentCheckbox.checked) {
-                this.showPacaForm();
-            }
-        });
-
-        // Removed back button listener
-        menuBtn.addEventListener('click', () => {
-            this.showPacaSidebar();
-        });
-    }
-
-    showPacaForm() {
-        const dashboard = document.getElementById('dashboard');
-
-        dashboard.innerHTML = `
-            <div class="paca-app-bar">
-                <button id="paca-back-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="paca-app-title">Paca</h1>
-                <button id="paca-menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="paca-form-screen">
-                <div class="paca-header">
-                    <h2>Get Your Strategy Automated</h2>
-                    <p>Upload detailed logic to make automation easier. All markets are accepted.</p>
-                </div>
-
-                <form id="strategy-form" class="strategy-form">
-                    <div class="form-group">
-                        <label for="strategy-name">Strategy Name</label>
-                        <input type="text" id="strategy-name" name="strategyName" required placeholder="Enter your strategy name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="strategy-description">Detailed Description</label>
-                        <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make automation easier..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="trading-journal-link">Trading Journal/Plan Link (Google Drive, Dropbox, etc.)</label>
-                        <input type="url" id="trading-journal-link" name="tradingJournalLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
-                        <div class="link-hint">Share a link to your trading journal or strategy plan</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="trade-history-link">Trade History/Performance Link</label>
-                        <input type="url" id="trade-history-link" name="tradeHistoryLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
-                        <div class="link-hint">Share a link to your real-world performance data</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="additional-resources-link">Additional Resources Link (Optional)</label>
-                        <input type="url" id="additional-resources-link" name="additionalResourcesLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
-                        <div class="link-hint">Any additional strategy files or documentation</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="team-note">Any additional info to improve your AI development</label>
-                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your automation..."></textarea>
-                    </div>
-
-                    <button type="submit" class="primary-btn">Get Automated</button>
-                </form>
-            </div>
-        `;
-
-        // Add event listeners
-        document.getElementById('strategy-form').addEventListener('submit', (e) => {
-            this.handleStrategySubmission(e);
-        });
-
-        document.getElementById('paca-back-btn').addEventListener('click', () => {
-            this.displayPacaDashboard();
-        });
-
-        document.getElementById('paca-menu-btn').addEventListener('click', () => {
-            this.showPacaSidebar();
-        });
+    openIPPartners() {
+        window.location.href = 'paca.html';
+        this.closeSidebar();
     }
 
     restoreOriginalSidebar() {
@@ -939,7 +805,7 @@ class ChillaDashboard {
                 </button>
                 <button class="menu-item" id="automate-strategy-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2V5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     Automate Strategy
                 </button>
@@ -948,11 +814,11 @@ class ChillaDashboard {
 
         // Add event listeners for paca sidebar
         document.getElementById('paca-terms-btn').addEventListener('click', () => {
-            window.location.href = 'paca-terms.html';
+            window.location.href = 'lose-terms.html';
         });
 
         document.getElementById('paca-privacy-btn').addEventListener('click', () => {
-            window.location.href = 'paca-privacy.html';
+            window.location.href = 'lose-privacy.html';
         });
 
         document.getElementById('automate-strategy-btn').addEventListener('click', () => {
@@ -1097,7 +963,7 @@ class ChillaDashboard {
                     <div class="success-icon">✅</div>
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
-                        Congratulations! Your strategy has been submitted successfully.
+                        Congratulations! Your request has been submitted successfully.
                         If your logic is approved and deployed, we will contact you and unlock your store
                         to monetize it or use it for free on your Chilla Dashboard.
                         Due to surge in demand, deployment might take 4 weeks but rest assured that if you
