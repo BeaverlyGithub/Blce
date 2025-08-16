@@ -36,17 +36,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ token: null })
             });
 
-            if (!res || !res.ok) return;
-
-            const json = await res.json();
-            if (json && json.status === "valid") {
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 500);
-                return;
+            if (res && res.ok) {
+                const json = await res.json();
+                if (json && json.status === "valid") {
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                    return;
+                }
+            } else if (res && res.status >= 400) {
+                // Server error - show message but don't prevent login
+                console.warn('Auth server returned error:', res.status);
+                showError('Authentication service temporarily unavailable. You can still log in below.');
             }
         } catch (err) {
             console.warn('Silent auth check failed:', err);
+            // Show a user-friendly message for network issues
+            showError('Unable to connect to authentication service. Please check your internet connection.');
         }
 
         // Show auth container after auth check

@@ -88,9 +88,16 @@ class ChillaDashboard {
                     this.setupPeriodicRefresh();
                     return;
                 }
+            } else if (response && response.status >= 400) {
+                console.warn('Auth server error:', response.status, response.statusText);
             }
         } catch (error) {
             console.warn('Auth check failed:', error);
+            // Add a small delay before redirect to avoid immediate redirect loops
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+            return;
         }
 
         // Redirect to login if not authenticated
