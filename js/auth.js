@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Hide loading screen and show auth container when DOM loads
+    const loadingScreen = document.getElementById('loading-screen');
+    const authContainer = document.getElementById('auth-container');
+    
+    if (loadingScreen) {
+        loadingScreen.classList.add('hidden');
+    }
+    if (authContainer) {
+        authContainer.classList.remove('hidden');
+    }
+
     // Check if we're on an auth page - if not, don't initialize auth functionality
     const authForm = document.getElementById('auth-form');
     if (!authForm) {
@@ -27,11 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (!res.ok) {
-            // Hide loading screen and show auth form
-            setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('auth-container').classList.remove('hidden');
-            }, 1000);
+            console.warn('Auth check failed with status:', res.status);
             return;
         }
 
@@ -40,20 +47,10 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 500);
-        } else {
-            // Hide loading screen and show auth form
-            setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('auth-container').classList.remove('hidden');
-            }, 1000);
         }
     } catch (err) {
         console.warn('Silent auth check failed:', err);
-        // Hide loading screen and show auth form even on network error
-        setTimeout(() => {
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('auth-container').classList.remove('hidden');
-        }, 1000);
+        // Auth check failed, user stays on login page which is already visible
     }
 })();
 
