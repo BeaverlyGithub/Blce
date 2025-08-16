@@ -79,11 +79,11 @@ class ChillaDashboard {
                         const responseText = await response.text();
                         console.log(`Auth attempt ${attempt} response text:`, responseText);
                         
-                        if (responseText.trim()) {
+                        if (responseText && responseText.trim()) {
                             data = JSON.parse(responseText);
                         } else {
-                            console.warn(`Auth attempt ${attempt} - Empty response body`);
-                            // Empty response means authentication failed
+                            console.warn(`Auth attempt ${attempt} - Empty or null response body`);
+                            // Empty/null response means authentication failed
                             data = { status: 'invalid' };
                         }
                     } catch (jsonError) {
@@ -166,10 +166,10 @@ class ChillaDashboard {
                         let data = null;
                         try {
                             const responseText = await response.text();
-                            if (responseText.trim()) {
+                            if (responseText && responseText.trim()) {
                                 data = JSON.parse(responseText);
                             } else {
-                                console.warn('OAuth callback - Empty response body');
+                                console.warn('OAuth callback - Empty or null response body');
                                 data = { status: 'invalid' };
                             }
                         } catch (jsonError) {
