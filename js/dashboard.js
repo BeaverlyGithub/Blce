@@ -88,19 +88,24 @@ class ChillaDashboard {
                     this.setupPeriodicRefresh();
                     return;
                 }
-            } else if (response && response.status >= 400) {
-                console.warn('Auth server error:', response.status, response.statusText);
             }
         } catch (error) {
-            console.warn('Auth check failed:', error);
-            // Add a small delay before redirect to avoid immediate redirect loops
+            console.warn('Auth check failed:', error.message || error);
+        }
+
+        // Check if we're coming from OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('code')) {
+            // We're on a callback URL but auth failed, wait a bit for cookies to be set
+            console.log('OAuth callback detected, waiting for authentication...');
             setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
+                this.checkAuthentication();
+            }, 2000);
             return;
         }
 
         // Redirect to login if not authenticated
+        console.log('Redirecting to login page');
         window.location.href = 'index.html';
     }
 

@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function () {
     // Get main containers
     const loadingScreen = document.getElementById('loading-screen');
@@ -45,22 +46,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (res && res.ok) {
                 const json = await res.json();
                 if (json && json.status === "valid") {
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 500);
+                    window.location.href = 'dashboard.html';
                     return;
                 }
-            } else if (res && res.status >= 400) {
-                // Server error - show message but don't prevent login
-                console.warn('Auth server returned error:', res.status);
             }
         } catch (err) {
-            if (err.name === 'AbortError') {
-                console.warn('Auth check timed out');
-            } else {
-                console.warn('Silent auth check failed:', err);
-            }
-            // Don't show error messages during silent auth check
+            console.warn('Silent auth check failed:', err.message || err);
         }
 
         // Show auth container after auth check
@@ -146,181 +137,192 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Login form submission
     if (loginForm) {
-        loginForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        const loginBtn = document.getElementById('login-btn');
+        
+        // Add click event listener to button instead of form submit
+        if (loginBtn) {
+            loginBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
 
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            const loginBtn = document.getElementById('login-btn');
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value.trim();
 
-            if (!email || !password) {
-                showError('Please fill in all fields');
-                return;
-            }
+                if (!email || !password) {
+                    showError('Please fill in all fields');
+                    return;
+                }
 
-            setLoadingState(loginBtn, true, 'Signing In...');
+                setLoadingState(loginBtn, true, 'Signing In...');
 
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                try {
+                    const response = await fetch('https://cook.beaverlyai.com/api/login', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
 
-                const response = await fetch('https://cook.beaverlyai.com/api/login', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
-                if (!response || !response.ok) {
-                    let errorMessage = 'Login failed';
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
-                    } catch (e) {
-                        // If we can't parse error response, use default message
-                        errorMessage = response ? `Server error (${response.status})` : 'Network error';
+                    if (!response.ok) {
+                        let errorMessage = 'Login failed';
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = `Server error (${response.status})`;
+                        }
+                        throw new Error(errorMessage);
                     }
-                    throw new Error(errorMessage);
-                }
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                if (data && data.status === 'success') {
-                    localStorage.setItem('chilla_user_email', email);
-                    window.location.href = 'dashboard.html';
-                } else {
-                    throw new Error(data.message || 'Login failed');
-                }
+                    if (data && data.status === 'success') {
+                        localStorage.setItem('chilla_user_email', email);
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error(data.message || 'Login failed');
+                    }
 
-            } catch (error) {
-                console.error('Login error:', error);
-                if (error.name === 'AbortError') {
-                    showError('Login request timed out. Please try again.');
-                } else {
+                } catch (error) {
+                    console.error('Login error:', error);
                     showError(error.message || 'Connection failed. Please check your internet connection.');
+                } finally {
+                    setLoadingState(loginBtn, false, 'Sign In');
                 }
-            } finally {
-                setLoadingState(loginBtn, false, 'Sign In');
+            });
+        }
+
+        // Also add form submit handler as backup
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (loginBtn) {
+                loginBtn.click();
             }
         });
     }
 
     // Signup form submission
     if (signupForm) {
-        signupForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        const signupBtn = document.getElementById('signup-btn');
+        
+        if (signupBtn) {
+            signupBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
 
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
-            const firstName = document.getElementById('first-name').value.trim();
-            const lastName = document.getElementById('last-name').value.trim();
-            const signupBtn = document.getElementById('signup-btn');
+                const email = document.getElementById('signup-email').value.trim();
+                const password = document.getElementById('signup-password').value.trim();
+                const confirmPassword = document.getElementById('confirm-password').value.trim();
+                const firstName = document.getElementById('first-name').value.trim();
+                const lastName = document.getElementById('last-name').value.trim();
 
-            if (!email || !password || !confirmPassword || !firstName || !lastName) {
-                showError('Please fill in all required fields');
-                return;
-            }
+                if (!email || !password || !confirmPassword || !firstName || !lastName) {
+                    showError('Please fill in all required fields');
+                    return;
+                }
 
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match');
+                    return;
+                }
 
-            setLoadingState(signupBtn, true, 'Creating Account...');
+                setLoadingState(signupBtn, true, 'Creating Account...');
 
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                try {
+                    const response = await fetch('https://cook.beaverlyai.com/api/register', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email, 
+                            password,
+                            first_name: firstName,
+                            last_name: lastName,
+                            middle_name: document.getElementById('middle-name').value.trim(),
+                            date_of_birth: document.getElementById('date-of-birth').value
+                        })
+                    });
 
-                const response = await fetch('https://cook.beaverlyai.com/api/register', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        email, 
-                        password,
-                        first_name: firstName,
-                        last_name: lastName,
-                        middle_name: document.getElementById('middle-name').value.trim(),
-                        date_of_birth: document.getElementById('date-of-birth').value
-                    }),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
-                if (!response || !response.ok) {
-                    let errorMessage = 'Registration failed';
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
-                    } catch (e) {
-                        errorMessage = response ? `Server error (${response.status})` : 'Network error';
+                    if (!response.ok) {
+                        let errorMessage = 'Registration failed';
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = `Server error (${response.status})`;
+                        }
+                        throw new Error(errorMessage);
                     }
-                    throw new Error(errorMessage);
-                }
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                if (data && data.status === 'success') {
-                    localStorage.setItem('chilla_user_email', email);
-                    window.location.href = 'dashboard.html';
-                } else {
-                    throw new Error(data.message || 'Registration failed');
-                }
+                    if (data && data.status === 'success') {
+                        localStorage.setItem('chilla_user_email', email);
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error(data.message || 'Registration failed');
+                    }
 
-            } catch (error) {
-                console.error('Signup error:', error);
-                if (error.name === 'AbortError') {
-                    showError('Registration request timed out. Please try again.');
-                } else {
+                } catch (error) {
+                    console.error('Signup error:', error);
                     showError(error.message || 'Connection failed. Please check your internet connection.');
+                } finally {
+                    setLoadingState(signupBtn, false, 'Create Account');
                 }
-            } finally {
-                setLoadingState(signupBtn, false, 'Create Account');
+            });
+        }
+
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (signupBtn) {
+                signupBtn.click();
             }
         });
     }
 
     // Forgot password form submission
     if (forgotPasswordForm) {
-        forgotPasswordForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        const resetBtn = document.getElementById('reset-btn');
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
 
-            const email = document.getElementById('reset-email').value.trim();
-            const resetBtn = document.getElementById('reset-btn');
+                const email = document.getElementById('reset-email').value.trim();
 
-            if (!email) {
-                showError('Please enter your email address');
-                return;
-            }
-
-            setLoadingState(resetBtn, true, 'Sending...');
-
-            try {
-                const response = await fetch('https://cook.beaverlyai.com/api/forgot-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-
-                if (response.ok) {
-                    showSuccess('Password reset link sent to your email');
-                    setTimeout(() => showLoginScreen(), 2000);
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to send reset link');
+                if (!email) {
+                    showError('Please enter your email address');
+                    return;
                 }
 
-            } catch (error) {
-                console.error(error);
-                showError(error.message || 'Connection failed.');
-            } finally {
-                setLoadingState(resetBtn, false, 'Send Reset Link');
+                setLoadingState(resetBtn, true, 'Sending...');
+
+                try {
+                    const response = await fetch('https://cook.beaverlyai.com/api/forgot-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+
+                    if (response.ok) {
+                        showSuccess('Password reset link sent to your email');
+                        setTimeout(() => showLoginScreen(), 2000);
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to send reset link');
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    showError(error.message || 'Connection failed.');
+                } finally {
+                    setLoadingState(resetBtn, false, 'Send Reset Link');
+                }
+            });
+        }
+
+        forgotPasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (resetBtn) {
+                resetBtn.click();
             }
         });
     }
@@ -333,60 +335,72 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showError(message) {
-        // Create or update error message
-        let errorDiv = document.querySelector('.error-message');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.style.cssText = `
-                background: #fee;
-                color: #c33;
-                padding: 1rem;
-                border-radius: 8px;
-                margin: 1rem 0;
-                border: 1px solid #fcc;
-            `;
-            // Prepending to the first form found, assuming one main form wrapper
-            const formContainer = document.querySelector('.auth-container') || document.body;
-            const firstForm = formContainer.querySelector('.auth-form');
-            if (firstForm) {
-                firstForm.prepend(errorDiv);
-            } else {
-                formContainer.prepend(errorDiv);
-            }
-        }
+        // Remove existing error/success messages
+        const existingError = document.querySelector('.error-message');
+        const existingSuccess = document.querySelector('.success-message');
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+
+        // Create error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.style.cssText = `
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #fcc;
+            text-align: center;
+        `;
         errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
+
+        // Insert at the top of the current screen
+        const currentScreenElement = getCurrentScreen();
+        const authForm = currentScreenElement.querySelector('.auth-form');
+        if (authForm) {
+            authForm.insertBefore(errorDiv, authForm.firstChild);
+        }
 
         setTimeout(() => {
-            errorDiv.style.display = 'none';
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
         }, 5000);
     }
 
     function showSuccess(message) {
-        // Create or update success message
-        let successDiv = document.querySelector('.success-message');
-        if (!successDiv) {
-            successDiv = document.createElement('div');
-            successDiv.className = 'success-message';
-            successDiv.style.cssText = `
-                background: #efe;
-                color: #363;
-                padding: 1rem;
-                border-radius: 8px;
-                margin: 1rem 0;
-                border: 1px solid #cfc;
-            `;
-            // Prepending to the first form found, assuming one main form wrapper
-            const formContainer = document.querySelector('.auth-container') || document.body;
-            const firstForm = formContainer.querySelector('.auth-form');
-            if (firstForm) {
-                firstForm.prepend(successDiv);
-            } else {
-                formContainer.prepend(successDiv);
-            }
-        }
+        // Remove existing error/success messages
+        const existingError = document.querySelector('.error-message');
+        const existingSuccess = document.querySelector('.success-message');
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+
+        // Create success message
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.style.cssText = `
+            background: #efe;
+            color: #363;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #cfc;
+            text-align: center;
+        `;
         successDiv.textContent = message;
-        successDiv.style.display = 'block';
+
+        // Insert at the top of the current screen
+        const currentScreenElement = getCurrentScreen();
+        const authForm = currentScreenElement.querySelector('.auth-form');
+        if (authForm) {
+            authForm.insertBefore(successDiv, authForm.firstChild);
+        }
+    }
+
+    function getCurrentScreen() {
+        if (currentScreen === 'signup') return signupScreen;
+        if (currentScreen === 'forgot') return forgotPasswordScreen;
+        return loginScreen;
     }
 });
