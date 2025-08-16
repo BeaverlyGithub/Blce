@@ -63,9 +63,9 @@ class ChillaDashboard {
                 body: JSON.stringify({ token: null })
             });
 
-            if (response.ok) {
+            if (response && response.ok) {
                 const data = await response.json();
-                if (data.status === 'valid') {
+                if (data && data.status === 'valid') {
                     this.isAuthenticated = true;
                     // Fix user data structure to match backend response
                     this.currentUser = data.users || data.user || {
@@ -559,7 +559,7 @@ class ChillaDashboard {
 
             if (response.ok) {
                 const data = await response.json();
-                if (data.status === 'valid') {
+                if (data && data.status === 'valid') {
                     this.currentUser = data.users || data.user || {
                         email: data.email,
                         email_verified: data.email_verified,
@@ -798,7 +798,7 @@ class ChillaDashboard {
                 </button>
                 <button class="menu-item" id="automate-strategy-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2V5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     Automate Strategy
                 </button>

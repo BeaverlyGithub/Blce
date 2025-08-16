@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     // Get main containers
     const loadingScreen = document.getElementById('loading-screen');
@@ -298,11 +297,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 margin: 1rem 0;
                 border: 1px solid #fcc;
             `;
-            document.querySelector('.auth-form').prepend(errorDiv);
+            // Prepending to the first form found, assuming one main form wrapper
+            const formContainer = document.querySelector('.auth-container') || document.body;
+            const firstForm = formContainer.querySelector('.auth-form');
+            if (firstForm) {
+                firstForm.prepend(errorDiv);
+            } else {
+                formContainer.prepend(errorDiv);
+            }
         }
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
-        
+
         setTimeout(() => {
             errorDiv.style.display = 'none';
         }, 5000);
@@ -322,7 +328,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 margin: 1rem 0;
                 border: 1px solid #cfc;
             `;
-            document.querySelector('.auth-form').prepend(successDiv);
+            // Prepending to the first form found, assuming one main form wrapper
+            const formContainer = document.querySelector('.auth-container') || document.body;
+            const firstForm = formContainer.querySelector('.auth-form');
+            if (firstForm) {
+                firstForm.prepend(successDiv);
+            } else {
+                formContainer.prepend(successDiv);
+            }
         }
         successDiv.textContent = message;
         successDiv.style.display = 'block';
