@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (data && data.status === 'success') {
                         localStorage.setItem('chilla_user_email', email);
+                        sessionStorage.setItem('just_logged_in', 'true');
                         window.location.href = 'dashboard.html';
                     } else {
                         throw new Error(data.message || 'Login failed');
@@ -249,6 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (data && data.status === 'success') {
                         localStorage.setItem('chilla_user_email', email);
+                        sessionStorage.setItem('just_logged_in', 'true');
                         window.location.href = 'dashboard.html';
                     } else {
                         throw new Error(data.message || 'Registration failed');

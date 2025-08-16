@@ -55,40 +55,64 @@ class ChillaDashboard {
     }
 
     async checkAuthentication() {
-        try {
-            const response = await fetch(`${API_BASE}/api/verify_token`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: null })
-            });
+        // First check if we just came from a successful login
+        const justLoggedIn = sessionStorage.getItem('just_logged_in') === 'true';
+        if (justLoggedIn) {
+            sessionStorage.removeItem('just_logged_in');
+            // Add a small delay to ensure cookies are set
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data && data.status === 'valid') {
-                    this.isAuthenticated = true;
-                    // Fix user data structure to match backend response
-                    this.currentUser = data.users || data.user || {
-                        email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
-                        email_verified: data.email_verified || false,
-                        full_name: data.full_name || 'User',
-                        plan: data.plan || "Chilla's Gift",
-                        auth_provider: data.auth_provider || null
-                    };
+        // Try authentication check with retries
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const response = await fetch(`${API_BASE}/api/verify_token`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: null })
+                });
 
-                    // Store user email for other components
-                    if (this.currentUser.email) {
-                        localStorage.setItem('chilla_user_email', this.currentUser.email);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.status === 'valid') {
+                        this.isAuthenticated = true;
+                        // Fix user data structure to match backend response
+                        this.currentUser = data.users || data.user || {
+                            email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
+                            email_verified: data.email_verified || false,
+                            full_name: data.full_name || 'User',
+                            plan: data.plan || "Chilla's Gift",
+                            auth_provider: data.auth_provider || null
+                        };
+
+                        // Store user email for other components
+                        if (this.currentUser.email) {
+                            localStorage.setItem('chilla_user_email', this.currentUser.email);
+                        }
+
+                        this.showMainApp();
+                        this.loadDashboardData();
+                        this.setupPeriodicRefresh();
+                        return;
                     }
+                }
 
-                    this.showMainApp();
-                    this.loadDashboardData();
-                    this.setupPeriodicRefresh();
-                    return;
+                // Log the response for debugging
+                console.log(`Auth attempt ${attempt} failed. Status: ${response.status}`);
+                
+                // If this isn't the last attempt, wait before retrying
+                if (attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                }
+            } catch (error) {
+                console.warn(`Auth check attempt ${attempt} failed:`, error.message || error);
+                
+                // If this isn't the last attempt, wait before retrying
+                if (attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
                 }
             }
-        } catch (error) {
-            console.warn('Auth check failed:', error.message || error);
         }
 
         // Check if we're coming from OAuth callback
@@ -125,7 +149,8 @@ class ChillaDashboard {
             return;
         }
 
-        // Redirect to login if not authenticated
+        // Final fallback - redirect to login
+        console.warn('All authentication attempts failed, redirecting to login');
         window.location.href = 'index.html';
     }
 
