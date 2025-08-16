@@ -74,7 +74,17 @@ class ChillaDashboard {
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
+                    let data = null;
+                    try {
+                        const responseText = await response.text();
+                        if (responseText.trim()) {
+                            data = JSON.parse(responseText);
+                        }
+                    } catch (jsonError) {
+                        console.warn(`Auth attempt ${attempt} - JSON parse error:`, jsonError);
+                        data = null;
+                    }
+                    
                     console.log(`Auth attempt ${attempt} response data:`, data);
                     
                     // Check for various possible success indicators
@@ -147,7 +157,16 @@ class ChillaDashboard {
                     });
 
                     if (response.ok) {
-                        const data = await response.json();
+                        let data = null;
+                        try {
+                            const responseText = await response.text();
+                            if (responseText.trim()) {
+                                data = JSON.parse(responseText);
+                            }
+                        } catch (jsonError) {
+                            console.warn('OAuth callback JSON parse error:', jsonError);
+                        }
+                        
                         if (data && data.status === 'valid') {
                             // Force page reload to restart with clean state
                             window.location.reload();
