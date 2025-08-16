@@ -77,12 +77,18 @@ class ChillaDashboard {
                     let data = null;
                     try {
                         const responseText = await response.text();
+                        console.log(`Auth attempt ${attempt} response text:`, responseText);
+                        
                         if (responseText.trim()) {
                             data = JSON.parse(responseText);
+                        } else {
+                            console.warn(`Auth attempt ${attempt} - Empty response body`);
+                            // Empty response means authentication failed
+                            data = { status: 'invalid' };
                         }
                     } catch (jsonError) {
                         console.warn(`Auth attempt ${attempt} - JSON parse error:`, jsonError);
-                        data = null;
+                        data = { status: 'invalid' };
                     }
                     
                     console.log(`Auth attempt ${attempt} response data:`, data);
@@ -162,9 +168,13 @@ class ChillaDashboard {
                             const responseText = await response.text();
                             if (responseText.trim()) {
                                 data = JSON.parse(responseText);
+                            } else {
+                                console.warn('OAuth callback - Empty response body');
+                                data = { status: 'invalid' };
                             }
                         } catch (jsonError) {
                             console.warn('OAuth callback JSON parse error:', jsonError);
+                            data = { status: 'invalid' };
                         }
                         
                         if (data && data.status === 'valid') {
