@@ -74,7 +74,8 @@ class ChillaDashboard {
                 });
 
                 if (response.ok) {
-                    let data = null;
+                    // Initialize data with default invalid status
+                    let data = { status: 'invalid' };
                     try {
                         const responseText = await response.text();
                         console.log(`Auth attempt ${attempt} response text:`, responseText);
@@ -83,12 +84,11 @@ class ChillaDashboard {
                             data = JSON.parse(responseText);
                         } else {
                             console.warn(`Auth attempt ${attempt} - Empty or null response body`);
-                            // Empty/null response means authentication failed
-                            data = { status: 'invalid' };
+                            // Keep default invalid status
                         }
                     } catch (jsonError) {
                         console.warn(`Auth attempt ${attempt} - JSON parse error:`, jsonError);
-                        data = { status: 'invalid' };
+                        // Keep default invalid status
                     }
                     
                     console.log(`Auth attempt ${attempt} response data:`, data);
@@ -163,18 +163,19 @@ class ChillaDashboard {
                     });
 
                     if (response.ok) {
-                        let data = null;
+                        // Initialize data with default invalid status
+                        let data = { status: 'invalid' };
                         try {
                             const responseText = await response.text();
                             if (responseText && responseText.trim()) {
                                 data = JSON.parse(responseText);
                             } else {
                                 console.warn('OAuth callback - Empty or null response body');
-                                data = { status: 'invalid' };
+                                // Keep default invalid status
                             }
                         } catch (jsonError) {
                             console.warn('OAuth callback JSON parse error:', jsonError);
-                            data = { status: 'invalid' };
+                            // Keep default invalid status
                         }
                         
                         if (data && data.status === 'valid') {
