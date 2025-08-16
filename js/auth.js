@@ -1,15 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Hide loading screen and show auth container when DOM loads
-    const loadingScreen = document.getElementById('loading-screen');
-    const authContainer = document.getElementById('auth-container');
-    
-    if (loadingScreen) {
-        loadingScreen.classList.add('hidden');
-    }
-    if (authContainer) {
-        authContainer.classList.remove('hidden');
-    }
-
     // Check if we're on an auth page - if not, don't initialize auth functionality
     const authForm = document.getElementById('auth-form');
     if (!authForm) {
@@ -37,10 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ token: null })
         });
 
-        if (!res.ok) {
-            console.warn('Auth check failed with status:', res.status);
-            return;
-        }
+        if (!res.ok) return;
 
         const json = await res.json();
         if (json.status === "valid") {
@@ -50,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     } catch (err) {
         console.warn('Silent auth check failed:', err);
-        // Auth check failed, user stays on login page which is already visible
     }
 })();
 
