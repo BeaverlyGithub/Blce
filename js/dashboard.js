@@ -75,7 +75,19 @@ class ChillaDashboard {
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data && data.status === 'valid') {
+                    console.log(`Auth attempt ${attempt} response data:`, data);
+                    
+                    // Check for various possible success indicators
+                    const isValid = data && (
+                        data.status === 'valid' || 
+                        data.status === 'success' ||
+                        data.authenticated === true ||
+                        (data.user && data.user.email) ||
+                        (data.users && data.users.email) ||
+                        data.email
+                    );
+                    
+                    if (isValid) {
                         this.isAuthenticated = true;
                         // Fix user data structure to match backend response
                         this.currentUser = data.users || data.user || {
@@ -91,10 +103,13 @@ class ChillaDashboard {
                             localStorage.setItem('chilla_user_email', this.currentUser.email);
                         }
 
+                        console.log('Authentication successful, user data:', this.currentUser);
                         this.showMainApp();
                         this.loadDashboardData();
                         this.setupPeriodicRefresh();
                         return;
+                    } else {
+                        console.log(`Auth attempt ${attempt} failed - invalid status. Expected 'valid' but got:`, data.status);
                     }
                 }
 
