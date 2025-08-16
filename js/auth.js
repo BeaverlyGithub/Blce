@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ token: null })
             });
 
-            if (!res.ok) return;
+            if (!res || !res.ok) return;
 
             const json = await res.json();
-            if (json.status === "valid") {
+            if (json && json.status === "valid") {
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 500);
