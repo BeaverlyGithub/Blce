@@ -948,11 +948,11 @@ class ChillaDashboard {
 
         // Add event listeners for paca sidebar
         document.getElementById('paca-terms-btn').addEventListener('click', () => {
-            window.location.href = 'lose-terms.html';
+            window.location.href = 'paca-terms.html';
         });
 
         document.getElementById('paca-privacy-btn').addEventListener('click', () => {
-            window.location.href = 'lose-privacy.html';
+            window.location.href = 'paca-privacy.html';
         });
 
         document.getElementById('automate-strategy-btn').addEventListener('click', () => {
