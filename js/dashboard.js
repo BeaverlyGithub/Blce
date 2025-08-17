@@ -63,139 +63,141 @@ class ChillaDashboard {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        // Try authentication check with retries
-        for (let attempt = 1; attempt <= 3; attempt++) {
+        // Check if we're coming from OAuth callback first
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('code')) {
+            console.log('OAuth callback detected, waiting for backend processing...');
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Wait for backend to process OAuth and set cookies
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+
+        // Try authentication check with simplified logic
+        for (let attempt = 1; attempt <= 2; attempt++) {
             try {
+                console.log(`Authentication attempt ${attempt}...`);
+                
                 const response = await fetch(`${API_BASE}/api/verify_token`, {
                     method: 'POST',
                     credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({ token: null })
                 });
 
-                if (response.ok) {
-                    // Initialize data with default invalid status
-                    let data = { status: 'invalid' };
-                    try {
-                        const responseText = await response.text();
-                        console.log(`Auth attempt ${attempt} response text:`, responseText);
-                        
-                        if (responseText && responseText.trim()) {
-                            data = JSON.parse(responseText);
-                        } else {
-                            console.warn(`Auth attempt ${attempt} - Empty or null response body`);
-                            // Keep default invalid status
-                        }
-                    } catch (jsonError) {
-                        console.warn(`Auth attempt ${attempt} - JSON parse error:`, jsonError);
-                        // Keep default invalid status
-                    }
-                    
-                    console.log(`Auth attempt ${attempt} response data:`, data);
-                    
-                    // Check for various possible success indicators
-                    const isValid = data && (
-                        data.status === 'valid' || 
-                        data.status === 'success' ||
-                        data.authenticated === true ||
-                        (data.user && data.user.email) ||
-                        (data.users && data.users.email) ||
-                        data.email
-                    );
-                    
-                    if (isValid) {
-                        this.isAuthenticated = true;
-                        // Fix user data structure to match backend response
-                        this.currentUser = data.users || data.user || {
-                            email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
-                            email_verified: data.email_verified || false,
-                            full_name: data.full_name || 'User',
-                            plan: data.plan || "Chilla's Gift",
-                            auth_provider: data.auth_provider || null
-                        };
+                console.log(`Auth attempt ${attempt} - Response status: ${response.status}`);
 
-                        // Store user email for other components
-                        if (this.currentUser.email) {
-                            localStorage.setItem('chilla_user_email', this.currentUser.email);
-                        }
-
-                        console.log('Authentication successful, user data:', this.currentUser);
-                        this.showMainApp();
-                        this.loadDashboardData();
-                        this.setupPeriodicRefresh();
-                        return;
-                    } else {
-                        console.log(`Auth attempt ${attempt} failed - invalid status. Expected 'valid' but got:`, data.status);
+                if (!response.ok) {
+                    console.log(`Auth attempt ${attempt} failed - HTTP ${response.status}`);
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        continue;
                     }
+                    break;
                 }
 
-                // Log the response for debugging
-                console.log(`Auth attempt ${attempt} failed. Status: ${response.status}`);
-                
-                // If this isn't the last attempt, wait before retrying
-                if (attempt < 3) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                // Get response text and handle empty responses
+                const responseText = await response.text();
+                console.log(`Auth attempt ${attempt} response text:`, responseText);
+
+                // Handle empty or null responses
+                if (!responseText || responseText.trim() === '' || responseText === 'null') {
+                    console.warn(`Auth attempt ${attempt} - Empty/null response from server`);
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        continue;
+                    }
+                    break;
                 }
+
+                // Parse JSON response
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error(`Auth attempt ${attempt} - Invalid JSON response:`, jsonError);
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        continue;
+                    }
+                    break;
+                }
+
+                console.log(`Auth attempt ${attempt} response data:`, data);
+
+                // Check if authentication is valid
+                if (this.isValidAuthResponse(data)) {
+                    console.log('Authentication successful!');
+                    this.handleSuccessfulAuth(data);
+                    return;
+                }
+
+                console.log(`Auth attempt ${attempt} - Invalid auth response`);
+                if (attempt < 2) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+
             } catch (error) {
-                console.warn(`Auth check attempt ${attempt} failed:`, error.message || error);
-                
-                // If this isn't the last attempt, wait before retrying
-                if (attempt < 3) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                console.error(`Auth attempt ${attempt} failed:`, error);
+                if (attempt < 2) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
         }
 
-        // Check if we're coming from OAuth callback
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('code')) {
-            // Clean URL and wait for cookies to be set by backend
-            window.history.replaceState({}, document.title, window.location.pathname);
+        // All attempts failed, redirect to login
+        console.warn('Authentication failed after all attempts, redirecting to login');
+        this.redirectToLogin();
+    }
 
-            // Wait 3 seconds for backend to set cookies, then retry once
-            setTimeout(async () => {
-                try {
-                    const response = await fetch(`${API_BASE}/api/verify_token`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token: null })
-                    });
-
-                    if (response.ok) {
-                        // Initialize data with default invalid status
-                        let data = { status: 'invalid' };
-                        try {
-                            const responseText = await response.text();
-                            if (responseText && responseText.trim()) {
-                                data = JSON.parse(responseText);
-                            } else {
-                                console.warn('OAuth callback - Empty or null response body');
-                                // Keep default invalid status
-                            }
-                        } catch (jsonError) {
-                            console.warn('OAuth callback JSON parse error:', jsonError);
-                            // Keep default invalid status
-                        }
-                        
-                        if (data && data.status === 'valid') {
-                            // Force page reload to restart with clean state
-                            window.location.reload();
-                            return;
-                        }
-                    }
-                } catch (err) {
-                    console.warn('OAuth callback retry failed:', err.message);
-                }
-
-                // If still not authenticated, redirect to login
-                window.location.href = 'index.html';
-            }, 3000);
-            return;
+    isValidAuthResponse(data) {
+        if (!data || typeof data !== 'object') {
+            return false;
         }
 
-        // Final fallback - redirect to login
-        console.warn('All authentication attempts failed, redirecting to login');
+        return (
+            data.status === 'valid' || 
+            data.status === 'success' ||
+            data.authenticated === true ||
+            (data.user && data.user.email) ||
+            (data.users && data.users.email) ||
+            data.email
+        );
+    }
+
+    handleSuccessfulAuth(data) {
+        this.isAuthenticated = true;
+        
+        // Extract user data from various possible response formats
+        this.currentUser = data.users || data.user || {
+            email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
+            email_verified: data.email_verified !== undefined ? data.email_verified : false,
+            full_name: data.full_name || data.name || 'User',
+            plan: data.plan || "Chilla's Gift",
+            auth_provider: data.auth_provider || null
+        };
+
+        // Store user email for other components
+        if (this.currentUser.email) {
+            localStorage.setItem('chilla_user_email', this.currentUser.email);
+        }
+
+        console.log('User data set:', this.currentUser);
+        
+        this.showMainApp();
+        this.loadDashboardData();
+        this.setupPeriodicRefresh();
+    }
+
+    redirectToLogin() {
+        // Clear any stored data
+        localStorage.removeItem('chilla_user_email');
+        sessionStorage.clear();
+        
+        // Redirect to login page
         window.location.href = 'index.html';
     }
 
@@ -655,22 +657,45 @@ class ChillaDashboard {
             const response = await fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({ token: null })
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data && data.status === 'valid') {
-                    this.currentUser = data.users || data.user || {
-                        email: data.email,
-                        email_verified: data.email_verified,
-                        full_name: data.full_name,
-                        auth_provider: data.auth_provider
-                    };
+            if (!response.ok) {
+                console.warn('Failed to refresh user data - HTTP', response.status);
+                return;
+            }
 
-                    // Update verification status display
-                    const verificationStatus = document.getElementById('verification-status');
+            const responseText = await response.text();
+            
+            // Handle empty or null responses
+            if (!responseText || responseText.trim() === '' || responseText === 'null') {
+                console.warn('Refresh user data - Empty/null response from server');
+                return;
+            }
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error('Refresh user data - Invalid JSON response:', jsonError);
+                return;
+            }
+
+            if (data && this.isValidAuthResponse(data)) {
+                this.currentUser = data.users || data.user || {
+                    email: data.email || this.currentUser?.email,
+                    email_verified: data.email_verified !== undefined ? data.email_verified : this.currentUser?.email_verified,
+                    full_name: data.full_name || data.name || this.currentUser?.full_name,
+                    auth_provider: data.auth_provider || this.currentUser?.auth_provider
+                };
+
+                // Update verification status display
+                const verificationStatus = document.getElementById('verification-status');
+                if (verificationStatus) {
                     const isGmailUser = this.currentUser.auth_provider === 'gmail';
 
                     if (this.currentUser.email_verified || isGmailUser) {
