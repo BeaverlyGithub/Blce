@@ -90,19 +90,12 @@ class PacaDashboard {
         dashboard.innerHTML = `
             <div class="paca-consent-screen">
                 <div class="paca-header">
-                    <div class="paca-logo-container">
-                        <div class="paca-logo"></div>
-                        <div class="paca-title-section">
-                            <h1 class="paca-title">Paca</h1>
-                            <p class="paca-tagline">by beaverly</p>
-                        </div>
-                    </div>
-                    
-                    <div class="paca-description-container">
-                        <p class="paca-description">
-                            Paca onboards your strategy into Beaverly's autonomous execution layer; free, fast, and scalable.
-                        </p>
-                    </div>
+                    <div class="paca-logo"></div>
+                    <h1 class="paca-title">Paca</h1>
+                    <p class="paca-tagline">by beaverly</p>
+                    <p class="paca-description">
+                        Paca onboards your strategy into Beaverly's autonomous execution layer; free, fast, and scalable.
+                    </p>
                 </div>
 
                 <div class="consent-section">

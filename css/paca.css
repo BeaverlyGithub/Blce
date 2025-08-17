@@ -178,19 +178,6 @@
     margin-bottom: 3rem;
 }
 
-.paca-logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
 .paca-logo {
     width: 64px;
     height: 64px;
@@ -199,6 +186,7 @@
     background-position: center;
     background-image: url('../attached_assets/beaverly_logoi.png');
     transition: transform 0.3s ease;
+    margin: 0 auto 1.5rem;
 }
 
 [data-theme="dark"] .paca-logo {
@@ -209,18 +197,11 @@
     transform: scale(1.05);
 }
 
-.paca-title-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
 .paca-title {
     font-size: clamp(2.5rem, 8vw, 4rem);
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0;
+    margin-bottom: 0.25rem;
     letter-spacing: 2px;
 }
 
@@ -228,24 +209,16 @@
     font-size: clamp(0.9rem, 3vw, 1.2rem);
     font-weight: 400;
     color: var(--text-secondary);
-    margin: 0;
+    margin-bottom: 1.5rem;
     text-transform: lowercase;
-}
-
-.paca-description-container {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .paca-description {
     font-size: clamp(0.9rem, 2.5vw, 1.1rem);
     line-height: 1.6;
     color: var(--text-secondary);
-    margin: 0;
-    max-width: none;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .consent-section {
@@ -428,13 +401,6 @@
     .paca-header {
         margin-bottom: 4rem;
         text-align: center;
-    }
-
-    .paca-logo-container {
-        flex-direction: row;
-        justify-content: center;
-        padding: 2.5rem;
-        gap: 2rem;
     }
 
     .paca-logo {
