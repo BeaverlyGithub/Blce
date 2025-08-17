@@ -90,8 +90,8 @@ class PacaDashboard {
         dashboard.innerHTML = `
             <div class="paca-consent-screen">
                 <div class="paca-header">
-                    <h1 class="paca-title">Paca by Beaverly®</h1>
-                    <p class="paca-tagline">Automate. Don't Code.</p>
+                    <h1 class="paca-title">Paca</h1>
+                    <p class="paca-tagline">by beaverly</p>
                     <p class="paca-description">
                         Paca onboards your strategy into Beaverly's autonomous execution layer; free, fast, and scalable.
                     </p>
