@@ -25,6 +25,46 @@ class ChillaDashboard {
         }, 100);
     }
 
+    setupWebSocket() {
+        if (!this.currentUser?.email) return;
+
+        const wsUrl = `wss://${window.location.host}/ws?email=${encodeURIComponent(this.currentUser.email)}`;
+        this.ws = new WebSocket(wsUrl);
+
+        this.ws.onopen = () => {
+            console.log('📡 WebSocket connected');
+        };
+
+        this.ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                this.handleWebSocketMessage(data);
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+            }
+        };
+
+        this.ws.onclose = () => {
+            console.log('📡 WebSocket disconnected');
+            // Reconnect after 5 seconds
+            setTimeout(() => this.setupWebSocket(), 5000);
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    }
+
+    handleWebSocketMessage(data) {
+        if (data.type === 'balance_update') {
+            document.getElementById('account-balance').textContent = this.formatCurrency(data.balance);
+        } else if (data.type === 'position_update') {
+            this.displayPositions(data.positions);
+        } else if (data.type === 'trade_signal') {
+            this.showNotification(`Trade Signal: ${data.action} ${data.symbol}`, 'info');
+        }
+    }
+
     setupPageVisibilityHandler() {
         // Listen for page visibility changes to refresh verification status
         document.addEventListener('visibilitychange', async () => {
@@ -94,20 +134,21 @@ class ChillaDashboard {
                         this.showMainApp();
                         this.loadDashboardData();
                         this.setupPeriodicRefresh();
+                        this.setupWebSocket();
                         return;
                     }
                 }
 
                 // Log the response for debugging
                 console.log(`Auth attempt ${attempt} failed. Status: ${response.status}`);
-                
+
                 // If this isn't the last attempt, wait before retrying
                 if (attempt < 3) {
                     await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
                 }
             } catch (error) {
                 console.warn(`Auth check attempt ${attempt} failed:`, error.message || error);
-                
+
                 // If this isn't the last attempt, wait before retrying
                 if (attempt < 3) {
                     await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
@@ -342,7 +383,28 @@ class ChillaDashboard {
     }
 
     async checkConnectionStatus() {
-        // Check local storage for Deriv connection status
+        try {
+            const response = await fetch(`${API_BASE}/api/verify_token`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: null })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.status === 'valid' && data.users) {
+                    // Check if user has broker connection in backend
+                    const hasConnection = data.users.broker_connected || false;
+                    this.updateConnectionStatus(hasConnection);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking connection status:', error);
+        }
+
+        // Fallback to localStorage for backwards compatibility
         const derivConnected = localStorage.getItem('deriv_connected') === 'true';
         this.updateConnectionStatus(derivConnected);
     }
