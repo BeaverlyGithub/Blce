@@ -27,15 +27,17 @@
         <div id="main-app" class="screen">
             <!-- App Bar -->
             <div class="app-bar">
-                <button id="menu-btn" class="icon-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
-                    </svg>
-                </button>
-                <h1 class="app-title">Chilla</h1>
+                <div class="app-left-section">
+                    <button id="menu-btn" class="icon-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                        </svg>
+                    </button>
+                    <h1 class="app-title">Chilla</h1>
+                </div>
                 <button id="nav-connect-btn" class="icon-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
                     </svg>
                 </button>
             </div>
@@ -160,6 +162,17 @@
                 </div>
             </main>
 
+            <!-- Dashboard Disclaimer -->
+            <div class="dashboard-disclaimer">
+                <svg class="disclaimer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4"/>
+                    <path d="M12 8h.01"/>
+                </svg>
+                <p class="disclaimer-text">
+                    Heads-up: Chilla might occasionally miss trades. Start small while we learn together.
+                </p>
+            </div>
 
         </div>
 
