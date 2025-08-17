@@ -114,6 +114,7 @@ try {
 } catch (error) {
     console.error('Auth check failed:', error);
 }
+    }        
 
 
     isValidAuthResponse(data) {
