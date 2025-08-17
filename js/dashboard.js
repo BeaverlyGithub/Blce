@@ -28,7 +28,8 @@ class ChillaDashboard {
     setupWebSocket() {
         if (!this.currentUser?.email) return;
 
-        const wsUrl = `wss://${window.location.host}/ws?email=${encodeURIComponent(this.currentUser.email)}`;
+        const wsHost = API_BASE.replace('https://', '').replace('http://', '');
+        const wsUrl = `wss://${wsHost}/ws?email=${encodeURIComponent(this.currentUser.email)}`;
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
