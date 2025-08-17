@@ -55,186 +55,78 @@ class ChillaDashboard {
     }
 
     async checkAuthentication() {
-        // First check if we just came from a successful login
-        const justLoggedIn = sessionStorage.getItem('just_logged_in') === 'true';
-        if (justLoggedIn) {
-            sessionStorage.removeItem('just_logged_in');
-            // Add a small delay to ensure cookies are set
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        // Check if we're coming from OAuth callback first
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('code')) {
-            console.log('OAuth callback detected, waiting for backend processing...');
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            // Wait for backend to process OAuth and set cookies
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-
-       // Always validate with backend instead of checking document.cookie
-try {
-    console.log('Validating session with backend...');
-    const response = await fetch(`${API_BASE}/api/verify_token`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ token: null })
-    });
-
-    console.log('Token validation response status:', response.status);
-
-    if (response.ok) {
-        const responseText = await response.text();
-        console.log('Token validation response text:', responseText);
-
-        if (!responseText || responseText.trim() === '' || responseText === 'null') {
-            console.log('Empty/null response, treating as valid with minimal user object');
-            this.handleTokenOnlyAuth();
-            return;
-        }
-
         try {
-            const data = JSON.parse(responseText);
-            if (this.isValidAuthResponse(data)) {
-                console.log('Token validation successful!');
-                this.handleSuccessfulAuth(data);
-                return;
+            const response = await fetch(`${API_BASE}/api/verify_token`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: null })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'valid') {
+                    this.isAuthenticated = true;
+                    // Fix user data structure to match backend response
+                    this.currentUser = data.users || data.user || {
+                        email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
+                        email_verified: data.email_verified || false,
+                        full_name: data.full_name || 'User',
+                        plan: data.plan || "Chilla's Gift",
+                        auth_provider: data.auth_provider || null
+                    };
+
+                    // Store user email for other components
+                    if (this.currentUser.email) {
+                        localStorage.setItem('chilla_user_email', this.currentUser.email);
+                    }
+
+                    this.showMainApp();
+                    this.loadDashboardData();
+
+                    // Set up periodic data refresh
+                    this.setupPeriodicRefresh();
+                    return;
+                }
             }
-        } catch (jsonError) {
-            console.error('Failed to parse token validation response:', jsonError);
-            this.handleTokenOnlyAuth();
-            return;
-        }
-    }
-} catch (error) {
-    console.error('Auth check failed:', error);
-}
-    }        
-
-
-    isValidAuthResponse(data) {
-        if (!data || typeof data !== 'object') {
-            return false;
+        } catch (error) {
+            console.warn('Auth check failed:', error);
         }
 
-        return (
-            data.status === 'valid' || 
-            data.status === 'success' ||
-            data.authenticated === true ||
-            (data.user && data.user.email) ||
-            (data.users && data.users.email) ||
-            data.email
-        );
-    }
-
-    handleTokenOnlyAuth() {
-        // Handle authentication when we have a token but minimal user data
-        console.log('Handling token-only authentication');
-        
-        this.isAuthenticated = true;
-        
-        // Try to get email from localStorage or set a default
-        const storedEmail = localStorage.getItem('chilla_user_email');
-        
-        this.currentUser = {
-            email: storedEmail || 'user@example.com',
-            email_verified: false,
-            full_name: 'User',
-            plan: "Chilla's Gift",
-            auth_provider: null
-        };
-
-        console.log('Token-only user data set:', this.currentUser);
-        
-        this.showMainApp();
-        this.loadDashboardData();
-        this.setupPeriodicRefresh();
-    }
-
-    handleSuccessfulAuth(data) {
-        this.isAuthenticated = true;
-        
-        // Extract user data from various possible response formats
-        this.currentUser = data.users || data.user || {
-            email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
-            email_verified: data.email_verified !== undefined ? data.email_verified : false,
-            full_name: data.full_name || data.name || 'User',
-            plan: data.plan || "Chilla's Gift",
-            auth_provider: data.auth_provider || null
-        };
-
-        // Store user email for other components
-        if (this.currentUser.email) {
-            localStorage.setItem('chilla_user_email', this.currentUser.email);
-        }
-
-        console.log('User data set:', this.currentUser);
-        
-        this.showMainApp();
-        this.loadDashboardData();
-        this.setupPeriodicRefresh();
-    }
-
-    redirectToLogin() {
-        // Clear any stored data
-        localStorage.removeItem('chilla_user_email');
-        sessionStorage.clear();
-        
-        // Redirect to login page
+        // Redirect to login if not authenticated
         window.location.href = 'index.html';
     }
 
     setupEventListeners() {
-        // Helper function to safely add event listeners
-        const addListener = (id, event, handler) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener(event, handler);
-            }
-        };
-
-        const addListenerByQuery = (selector, event, handler) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.addEventListener(event, handler);
-            }
-        };
-
         // Main app listeners
-        addListener('menu-btn', 'click', () => this.toggleSidebar());
-        addListener('theme-toggle', 'click', () => this.toggleTheme());
-        addListener('nav-connect-btn', 'click', () => this.handleConnectChilla());
-        addListener('logout-btn', 'click', () => this.handleLogout());
+        document.getElementById('menu-btn').addEventListener('click', () => this.toggleSidebar());
+        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+        document.getElementById('nav-connect-btn').addEventListener('click', () => this.handleConnectChilla());
+        document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
 
         // Sidebar listeners
-        addListener('connect-chilla-btn', 'click', () => this.handleConnectChilla());
-        addListener('change-email-btn', 'click', () => this.changeEmail());
-        addListener('change-password-btn', 'click', () => this.changePassword());
-        addListener('verify-email-btn', 'click', () => this.verifyEmail());
-        addListener('ip-partners-btn', 'click', () => this.openIPPartners());
-        addListener('contact-btn', 'click', () => this.showContact());
-        addListener('faq-btn', 'click', () => this.showFAQ());
-        addListener('privacy-btn', 'click', () => this.showPrivacy());
-        addListener('terms-btn', 'click', () => this.showTerms());
+        document.getElementById('connect-chilla-btn').addEventListener('click', () => this.handleConnectChilla());
+        document.getElementById('change-email-btn').addEventListener('click', () => this.changeEmail());
+        document.getElementById('change-password-btn').addEventListener('click', () => this.changePassword());
+        document.getElementById('verify-email-btn').addEventListener('click', () => this.verifyEmail());
+        document.getElementById('contact-btn').addEventListener('click', () => this.showContact());
+        document.getElementById('faq-btn').addEventListener('click', () => this.showFAQ());
+        document.getElementById('privacy-btn').addEventListener('click', () => this.showPrivacy());
+        document.getElementById('terms-btn').addEventListener('click', () => this.showTerms());
 
-        // Bottom nav listeners (optional elements)
-        addListener('home-nav', 'click', () => this.showHome());
-        addListener('menu-nav', 'click', () => this.openIPPartners());
+        // Bottom nav listeners
+        document.getElementById('home-nav').addEventListener('click', () => this.showHome());
+        document.getElementById('menu-nav').addEventListener('click', () => this.showPaca());
 
         // Modal listeners
-        addListener('broker-dropdown', 'change', () => this.handleBrokerSelection());
-        addListener('broker-oauth-btn', 'click', () => this.handleBrokerOAuth());
-        addListener('modal-close-btn', 'click', () => this.closeBrokerModal());
-        addListener('confirm-disconnect-btn', 'click', () => this.confirmDisconnect());
-        addListener('cancel-disconnect-btn', 'click', () => this.closeDisconnectModal());
+        document.getElementById('broker-dropdown').addEventListener('change', () => this.handleBrokerSelection());
+        document.getElementById('broker-oauth-btn').addEventListener('click', () => this.handleBrokerOAuth());
+        document.getElementById('modal-close-btn').addEventListener('click', () => this.closeBrokerModal());
+        document.getElementById('confirm-disconnect-btn').addEventListener('click', () => this.confirmDisconnect());
+        document.getElementById('cancel-disconnect-btn').addEventListener('click', () => this.closeDisconnectModal());
 
         // Sidebar overlay listener
-        addListenerByQuery('.sidebar-overlay', 'click', () => this.closeSidebar());
+        document.querySelector('.sidebar-overlay').addEventListener('click', () => this.closeSidebar());
     }
 
     setupTheme() {
@@ -645,45 +537,22 @@ try {
             const response = await fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: null })
             });
 
-            if (!response.ok) {
-                console.warn('Failed to refresh user data - HTTP', response.status);
-                return;
-            }
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'valid') {
+                    this.currentUser = data.users || data.user || {
+                        email: data.email,
+                        email_verified: data.email_verified,
+                        full_name: data.full_name,
+                        auth_provider: data.auth_provider
+                    };
 
-            const responseText = await response.text();
-            
-            // Handle empty or null responses
-            if (!responseText || responseText.trim() === '' || responseText === 'null') {
-                console.warn('Refresh user data - Empty/null response from server');
-                return;
-            }
-
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (jsonError) {
-                console.error('Refresh user data - Invalid JSON response:', jsonError);
-                return;
-            }
-
-            if (data && this.isValidAuthResponse(data)) {
-                this.currentUser = data.users || data.user || {
-                    email: data.email || this.currentUser?.email,
-                    email_verified: data.email_verified !== undefined ? data.email_verified : this.currentUser?.email_verified,
-                    full_name: data.full_name || data.name || this.currentUser?.full_name,
-                    auth_provider: data.auth_provider || this.currentUser?.auth_provider
-                };
-
-                // Update verification status display
-                const verificationStatus = document.getElementById('verification-status');
-                if (verificationStatus) {
+                    // Update verification status display
+                    const verificationStatus = document.getElementById('verification-status');
                     const isGmailUser = this.currentUser.auth_provider === 'gmail';
 
                     if (this.currentUser.email_verified || isGmailUser) {
@@ -759,9 +628,166 @@ try {
         this.loadDashboardData();
     }
 
-    openIPPartners() {
-        window.location.href = 'paca.html';
-        this.closeSidebar();
+    showPaca() {
+        // Switch to paca tab
+        document.getElementById('home-nav').classList.remove('active');
+        document.getElementById('menu-nav').classList.add('active');
+
+        // Show paca dashboard
+        this.displayPacaDashboard();
+    }
+
+    displayPacaDashboard() {
+        const dashboard = document.getElementById('dashboard');
+        const appTitle = document.querySelector('.app-title');
+
+        // Update app title
+        appTitle.textContent = 'Paca';
+
+        // Hide the main app bar
+        document.querySelector('.app-bar').style.display = 'none';
+
+        // Always show consent screen when clicking on the tab
+        dashboard.innerHTML = `
+            <div class="paca-app-bar">
+                <button id="paca-back-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="paca-app-title">Paca</h1>
+                <button id="paca-menu-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="paca-consent-screen">
+                <div class="paca-header">
+                    <h1 class="paca-title">Paca by Beaverly®</h1>
+                    <p class="paca-tagline">Automate. Don't Code.</p>
+                    <p class="paca-description">
+                        Paca turns your strategy into a live machine — free, fast, and scalable.
+                        Send your logic to M-II. We'll build it out.
+                        Deploy your strategy on your own funds.
+                        Or Publish it. Let others subscribe. Get paid.
+                    </p>
+                </div>
+
+                <div class="consent-section">
+                    <div class="consent-checkbox">
+                        <input type="checkbox" id="consent-checkbox">
+                        <label for="consent-checkbox">
+                            I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
+                        </label>
+                    </div>
+                    <button id="start-automating-btn" class="primary-btn" disabled>Get Automated</button>
+                </div>
+            </div>
+        `;
+
+        // Add event listeners
+        const consentCheckbox = document.getElementById('consent-checkbox');
+        const startBtn = document.getElementById('start-automating-btn');
+        const termsLink = document.getElementById('terms-link');
+        // Removed back button listener
+        const menuBtn = document.getElementById('paca-menu-btn');
+
+        consentCheckbox.addEventListener('change', () => {
+            startBtn.disabled = !consentCheckbox.checked;
+        });
+
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'lose-terms.html';
+        });
+
+        startBtn.addEventListener('click', () => {
+            if (consentCheckbox.checked) {
+                this.showPacaForm();
+            }
+        });
+
+        // Removed back button listener
+        menuBtn.addEventListener('click', () => {
+            this.showPacaSidebar();
+        });
+    }
+
+    showPacaForm() {
+        const dashboard = document.getElementById('dashboard');
+
+        dashboard.innerHTML = `
+            <div class="paca-app-bar">
+                <button id="paca-back-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="paca-app-title">Paca</h1>
+                <button id="paca-menu-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="paca-form-screen">
+                <div class="paca-header">
+                    <h2>Get Your Strategy Automated</h2>
+                    <p>Upload detailed logic to make automation easier. All markets are accepted.</p>
+                </div>
+
+                <form id="strategy-form" class="strategy-form">
+                    <div class="form-group">
+                        <label for="strategy-name">Strategy Name</label>
+                        <input type="text" id="strategy-name" name="strategyName" required placeholder="Enter your strategy name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="strategy-description">Detailed Description</label>
+                        <textarea id="strategy-description" name="description" rows="5" required placeholder="Provide detailed logic to make automation easier..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="trading-journal-link">Trading Journal/Plan Link (Google Drive, Dropbox, etc.)</label>
+                        <input type="url" id="trading-journal-link" name="tradingJournalLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
+                        <div class="link-hint">Share a link to your trading journal or strategy plan</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="trade-history-link">Trade History/Performance Link</label>
+                        <input type="url" id="trade-history-link" name="tradeHistoryLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
+                        <div class="link-hint">Share a link to your real-world performance data</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional-resources-link">Additional Resources Link (Optional)</label>
+                        <input type="url" id="additional-resources-link" name="additionalResourcesLink" placeholder="https://drive.google.com/file/d/... or https://dropbox.com/...">
+                        <div class="link-hint">Any additional strategy files or documentation</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="team-note">Any additional info to improve your AI development</label>
+                        <textarea id="team-note" name="teamNote" rows="3" placeholder="Optional: Any additional information to enhance your automation..."></textarea>
+                    </div>
+
+                    <button type="submit" class="primary-btn">Get Automated</button>
+                </form>
+            </div>
+        `;
+
+        // Add event listeners
+        document.getElementById('strategy-form').addEventListener('submit', (e) => {
+            this.handleStrategySubmission(e);
+        });
+
+        document.getElementById('paca-back-btn').addEventListener('click', () => {
+            this.displayPacaDashboard();
+        });
+
+        document.getElementById('paca-menu-btn').addEventListener('click', () => {
+            this.showPacaSidebar();
+        });
     }
 
     restoreOriginalSidebar() {
@@ -913,7 +939,7 @@ try {
                 </button>
                 <button class="menu-item" id="automate-strategy-btn">
                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2V5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     Automate Strategy
                 </button>
@@ -922,11 +948,11 @@ try {
 
         // Add event listeners for paca sidebar
         document.getElementById('paca-terms-btn').addEventListener('click', () => {
-            window.location.href = 'lose-terms.html';
+            window.location.href = 'paca-terms.html';
         });
 
         document.getElementById('paca-privacy-btn').addEventListener('click', () => {
-            window.location.href = 'lose-privacy.html';
+            window.location.href = 'paca-privacy.html';
         });
 
         document.getElementById('automate-strategy-btn').addEventListener('click', () => {
@@ -1071,7 +1097,7 @@ try {
                     <div class="success-icon">✅</div>
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
-                        Congratulations! Your request has been submitted successfully.
+                        Congratulations! Your strategy has been submitted successfully.
                         If your logic is approved and deployed, we will contact you and unlock your store
                         to monetize it or use it for free on your Chilla Dashboard.
                         Due to surge in demand, deployment might take 4 weeks but rest assured that if you
