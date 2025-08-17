@@ -90,21 +90,31 @@ class PacaDashboard {
         dashboard.innerHTML = `
             <div class="paca-consent-screen">
                 <div class="paca-header">
-                    <h1 class="paca-title">Paca</h1>
-                    <p class="paca-tagline">by beaverly</p>
-                    <p class="paca-description">
-                        Paca onboards your strategy into Beaverly's autonomous execution layer; free, fast, and scalable.
-                    </p>
+                    <div class="paca-logo-container">
+                        <div class="paca-logo"></div>
+                        <div class="paca-title-section">
+                            <h1 class="paca-title">Paca</h1>
+                            <p class="paca-tagline">by beaverly</p>
+                        </div>
+                    </div>
+                    
+                    <div class="paca-description-container">
+                        <p class="paca-description">
+                            Paca onboards your strategy into Beaverly's autonomous execution layer; free, fast, and scalable.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="consent-section">
-                    <div class="consent-checkbox">
-                        <input type="checkbox" id="consent-checkbox">
-                        <label for="consent-checkbox">
-                            I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
-                        </label>
+                    <div class="consent-container">
+                        <div class="consent-checkbox">
+                            <input type="checkbox" id="consent-checkbox">
+                            <label for="consent-checkbox">
+                                I consent to the <a href="#" id="terms-link">Terms & IP Agreement</a>
+                            </label>
+                        </div>
+                        <button id="start-automating-btn" class="primary-btn" disabled>Get Automated</button>
                     </div>
-                    <button id="start-automating-btn" class="primary-btn" disabled>Get Automated</button>
                 </div>
             </div>
         `;
