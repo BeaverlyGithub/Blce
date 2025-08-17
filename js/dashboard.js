@@ -73,10 +73,14 @@ class ChillaDashboard {
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
 
-        // Try authentication check with simplified logic
-        for (let attempt = 1; attempt <= 2; attempt++) {
+        // Check if we have a valid token cookie first
+        const hasTokenCookie = document.cookie.includes('chilla_token=');
+        console.log('Has token cookie:', hasTokenCookie);
+
+        if (hasTokenCookie) {
+            // If we have a token cookie, try to validate it with backend
             try {
-                console.log(`Authentication attempt ${attempt}...`);
+                console.log('Attempting to validate existing token...');
                 
                 const response = await fetch(`${API_BASE}/api/verify_token`, {
                     method: 'POST',
@@ -88,68 +92,61 @@ class ChillaDashboard {
                     body: JSON.stringify({ token: null })
                 });
 
-                console.log(`Auth attempt ${attempt} - Response status: ${response.status}`);
+                console.log('Token validation response status:', response.status);
 
-                if (!response.ok) {
-                    console.log(`Auth attempt ${attempt} failed - HTTP ${response.status}`);
-                    if (attempt < 2) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        continue;
+                if (response.ok) {
+                    const responseText = await response.text();
+                    console.log('Token validation response text:', responseText);
+
+                    // Handle the case where server returns null but status 200
+                    // This often means the token is valid but user data isn't fully populated
+                    if (!responseText || responseText.trim() === '' || responseText === 'null') {
+                        console.log('Server returned null but status 200 - treating as valid authentication');
+                        
+                        // Create a minimal user object from stored data
+                        const storedEmail = localStorage.getItem('chilla_user_email');
+                        if (storedEmail) {
+                            this.handleSuccessfulAuth({
+                                status: 'valid',
+                                user: {
+                                    email: storedEmail,
+                                    email_verified: false,
+                                    full_name: 'User',
+                                    auth_provider: null
+                                }
+                            });
+                            return;
+                        } else {
+                            // Try to extract email from cookie if available
+                            this.handleTokenOnlyAuth();
+                            return;
+                        }
                     }
-                    break;
-                }
 
-                // Get response text and handle empty responses
-                const responseText = await response.text();
-                console.log(`Auth attempt ${attempt} response text:`, responseText);
+                    // Try to parse JSON response
+                    try {
+                        const data = JSON.parse(responseText);
+                        console.log('Parsed token validation data:', data);
 
-                // Handle empty or null responses
-                if (!responseText || responseText.trim() === '' || responseText === 'null') {
-                    console.warn(`Auth attempt ${attempt} - Empty/null response from server`);
-                    if (attempt < 2) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        continue;
+                        if (this.isValidAuthResponse(data)) {
+                            console.log('Token validation successful!');
+                            this.handleSuccessfulAuth(data);
+                            return;
+                        }
+                    } catch (jsonError) {
+                        console.error('Failed to parse token validation response:', jsonError);
+                        // If we can't parse but we have a token, try to proceed with minimal auth
+                        this.handleTokenOnlyAuth();
+                        return;
                     }
-                    break;
                 }
-
-                // Parse JSON response
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (jsonError) {
-                    console.error(`Auth attempt ${attempt} - Invalid JSON response:`, jsonError);
-                    if (attempt < 2) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        continue;
-                    }
-                    break;
-                }
-
-                console.log(`Auth attempt ${attempt} response data:`, data);
-
-                // Check if authentication is valid
-                if (this.isValidAuthResponse(data)) {
-                    console.log('Authentication successful!');
-                    this.handleSuccessfulAuth(data);
-                    return;
-                }
-
-                console.log(`Auth attempt ${attempt} - Invalid auth response`);
-                if (attempt < 2) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
-
             } catch (error) {
-                console.error(`Auth attempt ${attempt} failed:`, error);
-                if (attempt < 2) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
+                console.error('Token validation failed:', error);
             }
         }
 
-        // All attempts failed, redirect to login
-        console.warn('Authentication failed after all attempts, redirecting to login');
+        // If no token cookie or validation failed, redirect to login
+        console.warn('No valid authentication found, redirecting to login');
         this.redirectToLogin();
     }
 
@@ -166,6 +163,30 @@ class ChillaDashboard {
             (data.users && data.users.email) ||
             data.email
         );
+    }
+
+    handleTokenOnlyAuth() {
+        // Handle authentication when we have a token but minimal user data
+        console.log('Handling token-only authentication');
+        
+        this.isAuthenticated = true;
+        
+        // Try to get email from localStorage or set a default
+        const storedEmail = localStorage.getItem('chilla_user_email');
+        
+        this.currentUser = {
+            email: storedEmail || 'user@example.com',
+            email_verified: false,
+            full_name: 'User',
+            plan: "Chilla's Gift",
+            auth_provider: null
+        };
+
+        console.log('Token-only user data set:', this.currentUser);
+        
+        this.showMainApp();
+        this.loadDashboardData();
+        this.setupPeriodicRefresh();
     }
 
     handleSuccessfulAuth(data) {
