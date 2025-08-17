@@ -297,7 +297,7 @@ class ChillaDashboard {
         }
 
         try {
-            const response = await fetch(`${API_BASE}/api/stats`, {
+            const response = await fetch(`${API_BASE}/stats`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -333,7 +333,7 @@ class ChillaDashboard {
         }
 
         try {
-            const response = await fetch(`${API_BASE}/api/stats`, {
+            const response = await fetch(`${API_BASE}/stats`, {
                 method: 'GET',
                 credentials: 'include'
             });
