@@ -73,82 +73,48 @@ class ChillaDashboard {
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
 
-        // Check if we have a valid token cookie first
-        const hasTokenCookie = document.cookie.includes('chilla_token=');
-        console.log('Has token cookie:', hasTokenCookie);
+       // Always validate with backend instead of checking document.cookie
+try {
+    console.log('Validating session with backend...');
+    const response = await fetch(`${API_BASE}/api/verify_token`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ token: null })
+    });
 
-        if (hasTokenCookie) {
-            // If we have a token cookie, try to validate it with backend
-            try {
-                console.log('Attempting to validate existing token...');
-                
-                const response = await fetch(`${API_BASE}/api/verify_token`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ token: null })
-                });
+    console.log('Token validation response status:', response.status);
 
-                console.log('Token validation response status:', response.status);
+    if (response.ok) {
+        const responseText = await response.text();
+        console.log('Token validation response text:', responseText);
 
-                if (response.ok) {
-                    const responseText = await response.text();
-                    console.log('Token validation response text:', responseText);
-
-                    // Handle the case where server returns null but status 200
-                    // This often means the token is valid but user data isn't fully populated
-                    if (!responseText || responseText.trim() === '' || responseText === 'null') {
-                        console.log('Server returned null but status 200 - treating as valid authentication');
-                        
-                        // Create a minimal user object from stored data
-                        const storedEmail = localStorage.getItem('chilla_user_email');
-                        if (storedEmail) {
-                            this.handleSuccessfulAuth({
-                                status: 'valid',
-                                user: {
-                                    email: storedEmail,
-                                    email_verified: false,
-                                    full_name: 'User',
-                                    auth_provider: null
-                                }
-                            });
-                            return;
-                        } else {
-                            // Try to extract email from cookie if available
-                            this.handleTokenOnlyAuth();
-                            return;
-                        }
-                    }
-
-                    // Try to parse JSON response
-                    try {
-                        const data = JSON.parse(responseText);
-                        console.log('Parsed token validation data:', data);
-
-                        if (this.isValidAuthResponse(data)) {
-                            console.log('Token validation successful!');
-                            this.handleSuccessfulAuth(data);
-                            return;
-                        }
-                    } catch (jsonError) {
-                        console.error('Failed to parse token validation response:', jsonError);
-                        // If we can't parse but we have a token, try to proceed with minimal auth
-                        this.handleTokenOnlyAuth();
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.error('Token validation failed:', error);
-            }
+        if (!responseText || responseText.trim() === '' || responseText === 'null') {
+            console.log('Empty/null response, treating as valid with minimal user object');
+            this.handleTokenOnlyAuth();
+            return;
         }
 
-        // If no token cookie or validation failed, redirect to login
-        console.warn('No valid authentication found, redirecting to login');
-        this.redirectToLogin();
+        try {
+            const data = JSON.parse(responseText);
+            if (this.isValidAuthResponse(data)) {
+                console.log('Token validation successful!');
+                this.handleSuccessfulAuth(data);
+                return;
+            }
+        } catch (jsonError) {
+            console.error('Failed to parse token validation response:', jsonError);
+            this.handleTokenOnlyAuth();
+            return;
+        }
     }
+} catch (error) {
+    console.error('Auth check failed:', error);
+}
+
 
     isValidAuthResponse(data) {
         if (!data || typeof data !== 'object') {
