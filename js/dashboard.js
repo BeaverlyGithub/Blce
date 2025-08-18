@@ -870,7 +870,15 @@ class ChillaDashboard {
 
         dashboard.innerHTML = `
             <div id="chilla-activity-status" class="activity-card">
-                <!-- Activity status will be populated by WebSocket -->
+                <div class="activity-status status-disconnected">
+                    <div class="status-indicator"></div>
+                    <div class="status-details">
+                        <div class="status-title">⚪ Not Connected</div>
+                        <div class="status-info">
+                            <span>Connect a broker to start monitoring</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="balance-card">

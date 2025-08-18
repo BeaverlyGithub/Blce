@@ -309,6 +309,105 @@
     min-height: calc(100vh - 8rem);
 }
 
+/* Activity Status Styles */
+.activity-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.activity-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+}
+
+.status-active .status-indicator {
+    background: var(--success-color);
+}
+
+.status-idle .status-indicator {
+    background: var(--warning-color);
+}
+
+.status-disconnected .status-indicator {
+    background: var(--text-tertiary);
+}
+
+.status-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.status-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.status-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.status-info span {
+    white-space: nowrap;
+}
+
+.watching-markets {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+    word-break: break-word;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Responsive adjustments for activity card */
+@media (max-width: 768px) {
+    .activity-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-info {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .status-title {
+        font-size: 1rem;
+    }
+    
+    .status-info,
+    .watching-markets {
+        font-size: 0.8rem;
+    }
+}
+
 /* Dashboard Disclaimer */
 .dashboard-disclaimer {
     position: fixed;
