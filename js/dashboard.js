@@ -125,7 +125,16 @@ class ChillaDashboard {
                 <div class="activity-status ${statusClass}">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">🤖 Chilla is Active</div>
+                        <div class="status-title">
+                            <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="11" width="18" height="10" rx="2" ry="2"/>
+                                <circle cx="12" cy="5" r="2"/>
+                                <path d="M12 7v4"/>
+                                <line x1="8" y1="16" x2="8" y2="16"/>
+                                <line x1="16" y1="16" x2="16" y2="16"/>
+                            </svg>
+                            Chilla is Active
+                        </div>
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
                             <span>Last active: ${timeAgo}</span>
@@ -142,7 +151,12 @@ class ChillaDashboard {
                 <div class="activity-status ${statusClass}">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">🔗 Connected</div>
+                        <div class="status-title">
+                            <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+                            </svg>
+                            Connected
+                        </div>
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
                             <span>Status: Idle</span>
@@ -159,7 +173,14 @@ class ChillaDashboard {
                 <div class="activity-status ${statusClass}">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">⚪ Not Connected</div>
+                        <div class="status-title">
+                            <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M15 9l-6 6"/>
+                                <path d="M9 9l6 6"/>
+                            </svg>
+                            Not Connected
+                        </div>
                         <div class="status-info">
                             <span>Connect a broker to start monitoring</span>
                         </div>
@@ -873,7 +894,14 @@ class ChillaDashboard {
                 <div class="activity-status status-disconnected">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">⚪ Not Connected</div>
+                        <div class="status-title">
+                            <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M15 9l-6 6"/>
+                                <path d="M9 9l6 6"/>
+                            </svg>
+                            Not Connected
+                        </div>
                         <div class="status-info">
                             <span>Connect a broker to start monitoring</span>
                         </div>
