@@ -1,4 +1,3 @@
-
 const API_BASE = 'https://cook.beaverlyai.com';
 
 class PacaDashboard {
@@ -67,7 +66,7 @@ class PacaDashboard {
         document.getElementById('paca-back-btn').addEventListener('click', () => {
             window.location.href = 'dashboard.html';
         });
-        
+
         document.getElementById('paca-menu-btn').addEventListener('click', () => this.toggleSidebar());
 
         // Sidebar overlay listener
@@ -320,8 +319,9 @@ class PacaDashboard {
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
                         Congratulations! Your request has been submitted successfully.
-                        If your logic is approved and deployed, we will contact you and unlock your store
-                        to monetize it or use it for free on your Chilla Dashboard.
+                        Your strategy will be onboarded into Beaverly's autonomous execution layer.
+                        You gain free infrastructure, free deployment, and free integration.
+                        Run your logic anywhere to any broker and supported market. It's your mini Chilla, free forever.
                         Due to surge in demand, deployment might take 4 weeks but rest assured that if you
                         pass our sandbox, you're on to something great. If you do not, we will educate you
                         on areas for improvements on your logic.
