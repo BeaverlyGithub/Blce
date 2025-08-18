@@ -29,6 +29,8 @@ class ChillaDashboard {
         if (!this.currentUser?.email) return;
 
         const wsHost = API_BASE.replace('https://', '').replace('http://', '');
+
+        // Main WebSocket for signals
         const wsUrl = `wss://${wsHost}/ws?email=${encodeURIComponent(this.currentUser.email)}`;
         this.ws = new WebSocket(wsUrl);
 
@@ -54,6 +56,40 @@ class ChillaDashboard {
         this.ws.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
+
+        // Activity WebSocket for status updates
+        this.setupActivityWebSocket();
+    }
+
+    setupActivityWebSocket() {
+        if (!this.currentUser?.email) return;
+
+        const wsHost = API_BASE.replace('https://', '').replace('http://', '');
+        const activityWsUrl = `wss://${wsHost}/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`;
+        this.activityWs = new WebSocket(activityWsUrl);
+
+        this.activityWs.onopen = () => {
+            console.log('📊 Activity WebSocket connected');
+        };
+
+        this.activityWs.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                this.handleActivityMessage(data);
+            } catch (error) {
+                console.error('Error parsing activity message:', error);
+            }
+        };
+
+        this.activityWs.onclose = () => {
+            console.log('📊 Activity WebSocket disconnected');
+            // Reconnect after 10 seconds
+            setTimeout(() => this.setupActivityWebSocket(), 10000);
+        };
+
+        this.activityWs.onerror = (error) => {
+            console.error('Activity WebSocket error:', error);
+        };
     }
 
     handleWebSocketMessage(data) {
@@ -64,6 +100,85 @@ class ChillaDashboard {
         } else if (data.type === 'trade_signal') {
             this.showNotification(`Trade Signal: ${data.action} ${data.symbol}`, 'info');
         }
+    }
+
+    handleActivityMessage(data) {
+        if (data.type === 'activity_update') {
+            this.updateActivityStatus(data.data);
+        }
+    }
+
+    updateActivityStatus(activityData) {
+        // Update activity status display
+        const activityElement = document.getElementById('chilla-activity-status');
+        if (!activityElement) return;
+
+        const { status, broker, watching_markets, last_activity, monitoring_active } = activityData;
+
+        let statusHtml = '';
+        let statusClass = '';
+
+        if (status === 'connected' && monitoring_active) {
+            statusClass = 'status-active';
+            const timeAgo = last_activity ? this.formatTimeAgo(last_activity) : 'just now';
+            statusHtml = `
+                <div class="activity-status ${statusClass}">
+                    <div class="status-indicator"></div>
+                    <div class="status-details">
+                        <div class="status-title">🤖 Chilla is Active</div>
+                        <div class="status-info">
+                            <span>Broker: ${broker || 'Unknown'}</span>
+                            <span>Last active: ${timeAgo}</span>
+                        </div>
+                        <div class="watching-markets">
+                            Watching: ${watching_markets.map(m => m.name).join(', ') || 'No markets'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (status === 'connected') {
+            statusClass = 'status-idle';
+            statusHtml = `
+                <div class="activity-status ${statusClass}">
+                    <div class="status-indicator"></div>
+                    <div class="status-details">
+                        <div class="status-title">🔗 Connected</div>
+                        <div class="status-info">
+                            <span>Broker: ${broker || 'Unknown'}</span>
+                            <span>Status: Idle</span>
+                        </div>
+                        <div class="watching-markets">
+                            Configured: ${watching_markets.map(m => m.name).join(', ') || 'No markets'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            statusClass = 'status-disconnected';
+            statusHtml = `
+                <div class="activity-status ${statusClass}">
+                    <div class="status-indicator"></div>
+                    <div class="status-details">
+                        <div class="status-title">⚪ Not Connected</div>
+                        <div class="status-info">
+                            <span>Connect a broker to start monitoring</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        activityElement.innerHTML = statusHtml;
+    }
+
+    formatTimeAgo(timestamp) {
+        const now = Date.now() / 1000;
+        const diff = now - timestamp;
+
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
     }
 
     setupPageVisibilityHandler() {
@@ -480,6 +595,15 @@ class ChillaDashboard {
             this.refreshInterval = null;
         }
 
+        // Close WebSocket connections
+        if (this.ws) {
+            this.ws.close();
+        }
+
+        if (this.activityWs) {
+            this.activityWs.close();
+        }
+
         try {
             await fetch(`${API_BASE}/api/logout`, {
                 method: 'POST',
@@ -745,6 +869,10 @@ class ChillaDashboard {
         const dashboard = document.getElementById('dashboard');
 
         dashboard.innerHTML = `
+            <div id="chilla-activity-status" class="activity-card">
+                <!-- Activity status will be populated by WebSocket -->
+            </div>
+
             <div class="balance-card">
                 <h2>Account Balance</h2>
                 <div class="balance-amount" id="account-balance">$0.00</div>
