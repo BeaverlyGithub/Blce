@@ -125,7 +125,7 @@ class ChillaDashboard {
                 <div class="activity-status ${statusClass}">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">🤖 Chilla is Active</div>
+                        <div class="status-title">Chilla is Active</div>
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
                             <span>Last active: ${timeAgo}</span>
@@ -142,7 +142,7 @@ class ChillaDashboard {
                 <div class="activity-status ${statusClass}">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">🔗 Connected</div>
+                        <div class="status-title">Connected</div>
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
                             <span>Status: Idle</span>
@@ -159,7 +159,7 @@ class ChillaDashboard {
                 <div class="activity-status ${statusClass}">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">⚪ Not Connected</div>
+                        <div class="status-title">Not Connected</div>
                         <div class="status-info">
                             <span>Connect a broker to start monitoring</span>
                         </div>
@@ -873,7 +873,7 @@ class ChillaDashboard {
                 <div class="activity-status status-disconnected">
                     <div class="status-indicator"></div>
                     <div class="status-details">
-                        <div class="status-title">⚪ Not Connected</div>
+                        <div class="status-title">Not Connected</div>
                         <div class="status-info">
                             <span>Connect a broker to start monitoring</span>
                         </div>
