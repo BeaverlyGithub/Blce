@@ -703,13 +703,48 @@ class ChillaDashboard {
 
 
     async confirmDisconnect() {
-        // Clear Deriv connection
-        localStorage.removeItem('deriv_connected');
-        localStorage.removeItem('deriv_auth_code');
+        try {
+            // Call backend API to properly disconnect OAuth
+            const response = await fetch(`${API_BASE}/api/disconnect_oauth`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-        this.updateConnectionStatus(false);
-        this.closeDisconnectModal();
-        this.showNotification('Chilla disconnected successfully', 'success');
+            if (response.ok) {
+                const result = await response.json();
+
+                // Clear local storage
+                localStorage.removeItem('deriv_connected');
+                localStorage.removeItem('deriv_auth_code');
+                localStorage.removeItem('deriv_oauth_pending');
+
+                // Update UI
+                this.updateConnectionStatus(false);
+                this.closeDisconnectModal();
+                this.showNotification(`Successfully disconnected from ${result.broker || 'broker'}`, 'success');
+
+                // Refresh dashboard data to show empty state
+                this.loadDashboardData();
+            } else {
+                const error = await response.json();
+                this.showNotification(error.detail || 'Failed to disconnect from broker', 'error');
+            }
+        } catch (error) {
+            console.error('Error disconnecting:', error);
+
+            // Fallback: clear local storage anyway
+            localStorage.removeItem('deriv_connected');
+            localStorage.removeItem('deriv_auth_code');
+            localStorage.removeItem('deriv_oauth_pending');
+
+            this.updateConnectionStatus(false);
+            this.closeDisconnectModal();
+            this.showNotification('Disconnected locally (network error)', 'warning');
+
+            // Refresh dashboard data
+            this.loadDashboardData();
+        }
     }
 
     changeEmail() {
