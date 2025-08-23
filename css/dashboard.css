@@ -408,7 +408,7 @@
     font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
     font-weight: 600;
     color: var(--text-primary);
-    background: var(--bg-primary);
+    background: var(--bg-tertiary);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     margin-left: 0.5rem;
