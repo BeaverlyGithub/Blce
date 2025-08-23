@@ -115,6 +115,8 @@ class ChillaDashboard {
 
     handleActivityMessage(data) {
         if (data.type === 'activity_update') {
+            console.log('Activity data received:', data.data);
+            console.log('Account ID in data:', data.data?.account_id);
             this.updateActivityStatus(data.data);
         }
     }
@@ -125,6 +127,12 @@ class ChillaDashboard {
         if (!activityElement) return;
 
         const { status, broker, account_id, watching_markets, last_activity, monitoring_active } = activityData;
+
+        // Try to get account ID from multiple possible locations
+        const displayAccountId = account_id || activityData.accountId || activityData.account || 
+                                (activityData.broker_data && activityData.broker_data.account_id);
+
+        console.log('Updating activity status - Account ID:', displayAccountId, 'Status:', status, 'Full data:', activityData);
 
         let statusHtml = '';
         let statusClass = '';
@@ -137,7 +145,7 @@ class ChillaDashboard {
                     <div class="status-indicator"></div>
                     <div class="status-details">
                         <div class="status-title">Chilla is Active</div>
-                        ${account_id ? `<div class="account-id-display">Account ID: <span class="account-id-value">${account_id}</span></div>` : ''}
+                        ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
                             <span>Last active: ${timeAgo}</span>
@@ -155,7 +163,7 @@ class ChillaDashboard {
                     <div class="status-indicator"></div>
                     <div class="status-details">
                         <div class="status-title">Connected</div>
-                        ${account_id ? `<div class="account-id-display">Account ID: <span class="account-id-value">${account_id}</span></div>` : ''}
+                        ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
                             <span>Status: Idle</span>
