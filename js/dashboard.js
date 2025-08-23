@@ -7,6 +7,7 @@ class ChillaDashboard {
         this.currentTheme = 'light';
         this.isConnected = false;
         this.verificationPollingInterval = null;
+        this.activityWsReconnectAttempts = 0;
 
         this.init();
     }
@@ -70,6 +71,8 @@ class ChillaDashboard {
 
         this.activityWs.onopen = () => {
             console.log('📊 Activity WebSocket connected');
+            // Reset reconnection counter on successful connection
+            this.activityWsReconnectAttempts = 0;
         };
 
         this.activityWs.onmessage = (event) => {
@@ -81,10 +84,18 @@ class ChillaDashboard {
             }
         };
 
-        this.activityWs.onclose = () => {
-            console.log('📊 Activity WebSocket disconnected');
-            // Reconnect after 10 seconds
-            setTimeout(() => this.setupActivityWebSocket(), 10000);
+        this.activityWs.onclose = (event) => {
+            console.log('📊 Activity WebSocket disconnected', event.code, event.reason);
+
+            // Only reconnect if it's not a deliberate close
+            if (event.code !== 1000 && this.currentUser?.email) {
+                // Exponential backoff: start with 5s, max 30s
+                const reconnectDelay = Math.min(5000 * Math.pow(2, (this.activityWsReconnectAttempts || 0)), 30000);
+                this.activityWsReconnectAttempts = (this.activityWsReconnectAttempts || 0) + 1;
+
+                console.log(`📊 Will reconnect Activity WebSocket in ${reconnectDelay/1000}s (attempt ${this.activityWsReconnectAttempts})`);
+                setTimeout(() => this.setupActivityWebSocket(), reconnectDelay);
+            }
         };
 
         this.activityWs.onerror = (error) => {
@@ -113,7 +124,7 @@ class ChillaDashboard {
         const activityElement = document.getElementById('chilla-activity-status');
         if (!activityElement) return;
 
-        const { status, broker, watching_markets, last_activity, monitoring_active } = activityData;
+        const { status, broker, account_id, watching_markets, last_activity, monitoring_active } = activityData;
 
         let statusHtml = '';
         let statusClass = '';
@@ -128,6 +139,7 @@ class ChillaDashboard {
                         <div class="status-title">Chilla is Active</div>
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
+                            ${account_id ? `<span>Account: ${account_id}</span>` : ''}
                             <span>Last active: ${timeAgo}</span>
                         </div>
                         <div class="watching-markets">
@@ -145,6 +157,7 @@ class ChillaDashboard {
                         <div class="status-title">Connected</div>
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
+                            ${account_id ? `<span>Account: ${account_id}</span>` : ''}
                             <span>Status: Idle</span>
                         </div>
                         <div class="watching-markets">
