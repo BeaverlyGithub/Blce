@@ -1085,62 +1085,7 @@ class ChillaDashboard {
         document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
     }
 
-    showPacaSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const sidebarContent = sidebar.querySelector('.sidebar-content');
-
-        // Update sidebar for Paca
-        sidebarContent.innerHTML = `
-            <div class="sidebar-header">
-                <div class="user-info">
-                    <div class="user-name" id="user-display-name">${this.currentUser?.full_name || 'User'}</div>
-                    <div class="user-email" id="user-display-email">${this.currentUser?.email || 'user@example.com'}</div>
-                </div>
-            </div>
-            <div class="sidebar-menu">
-                <button class="menu-item" id="my-store-btn" disabled>
-                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005 16v1a1 1 0 001 1h1M16 16v1a1 1 0 011 1h1m0-2a1 1 0 01-1-1v-1h-1m0 0V9a1 1 0 011-1h1a1 1 0 011 1v1M9 19v1a1 1 0 001 1h1"/>
-                    </svg>
-                    My Store (Coming Soon)
-                </button>
-                <button class="menu-item" id="paca-terms-btn">
-                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    Terms & IP
-                </button>
-                <button class="menu-item" id="paca-privacy-btn">
-                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                    Privacy Policy
-                </button>
-                <button class="menu-item" id="automate-strategy-btn">
-                    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2V5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    Automate Strategy
-                </button>
-            </div>
-        `;
-
-        // Add event listeners for paca sidebar
-        document.getElementById('paca-terms-btn').addEventListener('click', () => {
-            window.location.href = 'lose-terms.html';
-        });
-
-        document.getElementById('paca-privacy-btn').addEventListener('click', () => {
-            window.location.href = 'lose-privacy.html';
-        });
-
-        document.getElementById('automate-strategy-btn').addEventListener('click', () => {
-            this.showPacaForm();
-            this.closeSidebar();
-        });
-
-        sidebar.classList.add('open');
-    }
+    
 
 
     formatCurrency(amount) {
