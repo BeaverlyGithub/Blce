@@ -137,9 +137,9 @@ class ChillaDashboard {
                     <div class="status-indicator"></div>
                     <div class="status-details">
                         <div class="status-title">Chilla is Active</div>
+                        ${account_id ? `<div class="account-id-display">Account ID: <span class="account-id-value">${account_id}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
-                            ${account_id ? `<span>Account: ${account_id}</span>` : ''}
                             <span>Last active: ${timeAgo}</span>
                         </div>
                         <div class="watching-markets">
@@ -155,9 +155,9 @@ class ChillaDashboard {
                     <div class="status-indicator"></div>
                     <div class="status-details">
                         <div class="status-title">Connected</div>
+                        ${account_id ? `<div class="account-id-display">Account ID: <span class="account-id-value">${account_id}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
-                            ${account_id ? `<span>Account: ${account_id}</span>` : ''}
                             <span>Status: Idle</span>
                         </div>
                         <div class="watching-markets">
