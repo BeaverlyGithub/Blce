@@ -129,7 +129,7 @@ class ChillaDashboard {
         const { status, broker, account_id, watching_markets, last_activity, monitoring_active } = activityData;
 
         // Try to get account ID from multiple possible locations
-        const displayAccountId = account_id || activityData.accountId || activityData.account || 
+        const displayAccountId = account_id || activityData.accountId || activityData.account ||
                                 (activityData.broker_data && activityData.broker_data.account_id);
 
         console.log('Updating activity status - Account ID:', displayAccountId, 'Status:', status, 'Full data:', activityData);
@@ -142,9 +142,11 @@ class ChillaDashboard {
             const timeAgo = last_activity ? this.formatTimeAgo(last_activity) : 'just now';
             statusHtml = `
                 <div class="activity-status ${statusClass}">
-                    <div class="status-indicator"></div>
-                    <div class="status-details">
+                    <div class="status-header">
                         <div class="status-title">Chilla is Active</div>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="status-details">
                         ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
@@ -160,9 +162,11 @@ class ChillaDashboard {
             statusClass = 'status-idle';
             statusHtml = `
                 <div class="activity-status ${statusClass}">
-                    <div class="status-indicator"></div>
+                    <div class="status-header">
+                        <div class="status-title">Connected - Idle</div>
+                        <div class="status-indicator"></div>
+                    </div>
                     <div class="status-details">
-                        <div class="status-title">Connected</div>
                         ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
@@ -178,9 +182,11 @@ class ChillaDashboard {
             statusClass = 'status-disconnected';
             statusHtml = `
                 <div class="activity-status ${statusClass}">
-                    <div class="status-indicator"></div>
-                    <div class="status-details">
+                    <div class="status-header">
                         <div class="status-title">Not Connected</div>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="status-details">
                         <div class="status-info">
                             <span>Connect a broker to start monitoring</span>
                         </div>
@@ -927,9 +933,11 @@ class ChillaDashboard {
         dashboard.innerHTML = `
             <div id="chilla-activity-status" class="activity-card">
                 <div class="activity-status status-disconnected">
-                    <div class="status-indicator"></div>
-                    <div class="status-details">
+                    <div class="status-header">
                         <div class="status-title">Not Connected</div>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="status-details">
                         <div class="status-info">
                             <span>Connect a broker to start monitoring</span>
                         </div>
@@ -1134,6 +1142,46 @@ class ChillaDashboard {
         sidebar.classList.add('open');
     }
 
+    showPacaForm() {
+        const dashboard = document.getElementById('dashboard');
+
+        dashboard.innerHTML = `
+            <div class="paca-form-container">
+                <h2>Automate Your Strategy</h2>
+                <p>Share your trading strategy with us. If it's approved, you'll be able to use it on your Chilla Dashboard and potentially earn revenue.</p>
+                <form id="strategy-submission-form">
+                    <div class="form-group">
+                        <label for="strategyName">Strategy Name:</label>
+                        <input type="text" id="strategyName" name="strategyName" required placeholder="e.g., Momentum Breakout">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Strategy Description:</label>
+                        <textarea id="description" name="description" rows="5" required placeholder="Explain your strategy logic, entry/exit rules, risk management, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tradingJournalLink">Trading Journal/Plan Link (Optional):</label>
+                        <input type="url" id="tradingJournalLink" name="tradingJournalLink" placeholder="https://your-journal.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="tradeHistoryLink">Trade History/Performance Link (Optional):</label>
+                        <input type="url" id="tradeHistoryLink" name="tradeHistoryLink" placeholder="https://your-performance.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalResourcesLink">Additional Resources Link (Optional):</label>
+                        <input type="url" id="additionalResourcesLink" name="additionalResourcesLink" placeholder="https://resources.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="teamNote">Team Note (Optional):</label>
+                        <textarea id="teamNote" name="teamNote" rows="3" placeholder="Any specific notes for the Chilla team"></textarea>
+                    </div>
+                    <button type="submit" class="primary-btn">Submit Strategy</button>
+                </form>
+            </div>
+        `;
+
+        const form = document.getElementById('strategy-submission-form');
+        form.addEventListener('submit', (e) => this.handleStrategySubmission(e));
+    }
 
 
     async handleStrategySubmission(e) {
