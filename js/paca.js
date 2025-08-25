@@ -93,7 +93,7 @@ class PacaDashboard {
                     <h1 class="paca-title">Paca</h1>
                     <p class="paca-tagline">by beaverly</p>
                     <p class="paca-description">
-                        Paca onboards your strategy into Beaverly's autonomous execution layer; free, fast, and scalable.
+                        Paca carefully integrates your strategy into Beaverly's autonomous execution layer; free, reliable, and scalable.
                     </p>
                 </div>
 
@@ -319,10 +319,7 @@ class PacaDashboard {
                     <h2>Strategy Submitted Successfully!</h2>
                     <p class="success-message">
                         Congratulations! Your request has been submitted successfully.
-                        Your strategy will be onboarded into Beaverly's autonomous execution layer.
-                        You gain free infrastructure, free deployment, and free integration.
-                        Run your logic anywhere to any broker and supported market. It's your mini Chilla, free forever.
-                        Due to surge in demand, deployment might take 4 weeks but rest assured that if you
+                        If you
                         pass our sandbox, you're on to something great. If you do not, we will educate you
                         on areas for improvements on your logic.
                     </p>
