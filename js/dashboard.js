@@ -55,8 +55,7 @@ class ChillaDashboard {
 
         } catch (error) {
             console.error('Session validation failed:', error);
-            // Don't redirect on network errors, show dashboard anyway for demo
-            this.showDemoContent();
+            this.redirectToLogin();
         }
     }
 
@@ -91,17 +90,7 @@ class ChillaDashboard {
         this.showDashboardContent();
     }
 
-    showDemoContent() {
-        // Show demo content when API is unavailable
-        this.currentUser = {
-            email: 'demo@example.com',
-            full_name: 'Demo User',
-            email_verified: false,
-            broker_connected: false,
-            plan: "chilla's gift"
-        };
-        this.updateUserInterface();
-    }
+    
 
     showDashboardContent() {
         const dashboard = document.getElementById('dashboard');
