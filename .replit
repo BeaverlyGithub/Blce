@@ -7,6 +7,26 @@ channel = "stable-25_05"
 [deployment]
 run = ["sh", "-c", "run"]
 
+[[deployment.responseHeaders]]
+path = "/*"
+name = "X-Frame-Options"
+value = "DENY"
+
+[[deployment.responseHeaders]]
+path = "/*"
+name = "X-Content-Type-Options"
+value = "nosniff"
+
+[[deployment.responseHeaders]]
+path = "/*"
+name = "Referrer-Policy"
+value = "strict-origin-when-cross-origin"
+
+[[deployment.responseHeaders]]
+path = "/*"
+name = "Strict-Transport-Security"
+value = "max-age=31536000; includeSubDomains; preload"
+
 [workflows]
 runButton = "Serve Static Site"
 
