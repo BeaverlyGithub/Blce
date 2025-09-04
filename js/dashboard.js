@@ -14,6 +14,95 @@ class ChillaDashboard {
         await this.loadCSRFToken();
         this.setupEventListeners();
         this.initializeWebSocket();
+        
+        // Ensure dashboard is fully functional
+        this.initializeDashboardFeatures();
+    }
+
+    initializeDashboardFeatures() {
+        // Update activity status
+        this.updateActivityStatus();
+        
+        // Load account data if connected
+        if (this.currentUser?.broker_connected) {
+            this.loadAccountData();
+        }
+    }
+
+    updateActivityStatus() {
+        const activityStatus = document.querySelector('.activity-status');
+        const statusTitle = document.querySelector('.status-title');
+        const statusInfo = document.querySelector('.status-info span');
+        
+        if (this.currentUser?.broker_connected) {
+            if (activityStatus) {
+                activityStatus.className = 'activity-status status-connected';
+            }
+            if (statusTitle) {
+                statusTitle.textContent = 'Connected';
+            }
+            if (statusInfo) {
+                statusInfo.textContent = 'Chilla is monitoring your account';
+            }
+        } else {
+            if (activityStatus) {
+                activityStatus.className = 'activity-status status-disconnected';
+            }
+            if (statusTitle) {
+                statusTitle.textContent = 'Not Connected';
+            }
+            if (statusInfo) {
+                statusInfo.textContent = 'Connect a broker to start monitoring';
+            }
+        }
+    }
+
+    async loadAccountData() {
+        try {
+            const response = await fetch('https://cook.beaverlyai.com/api/account_data', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.updateAccountBalance(data.balance || 0);
+                this.updatePositions(data.positions || []);
+            }
+        } catch (error) {
+            console.error('Failed to load account data:', error);
+            // Show demo data for offline mode
+            this.updateAccountBalance(0);
+            this.updatePositions([]);
+        }
+    }
+
+    updateAccountBalance(balance) {
+        const balanceElement = document.getElementById('account-balance');
+        if (balanceElement) {
+            balanceElement.textContent = `$${balance.toFixed(2)}`;
+        }
+    }
+
+    updatePositions(positions) {
+        const positionsList = document.getElementById('positions-list');
+        if (!positionsList) return;
+
+        if (positions.length === 0) {
+            positionsList.innerHTML = '<div class="position-item"><span>No open positions</span></div>';
+        } else {
+            positionsList.innerHTML = positions.map(position => `
+                <div class="position-item">
+                    <span class="position-symbol">${position.symbol}</span>
+                    <span class="position-pnl ${position.pnl >= 0 ? 'profit' : 'loss'}">
+                        ${position.pnl >= 0 ? '+' : ''}$${position.pnl.toFixed(2)}
+                    </span>
+                </div>
+            `).join('');
+        }
     }
 
     async validateSession() {
@@ -399,15 +488,182 @@ class ChillaDashboard {
     }
 
     setupEventListeners() {
-        // Logout
-        document.getElementById('logout-btn')?.addEventListener('click', () => {
-            this.logout();
-        });
+        // Wait for DOM to be fully ready
+        setTimeout(() => {
+            this.attachAllEventListeners();
+        }, 100);
+    }
 
-        // Settings navigation
-        document.getElementById('settings-btn')?.addEventListener('click', () => {
-            window.location.href = 'settings.html';
-        });
+    attachAllEventListeners() {
+        // Logout
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        }
+
+        // Menu toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        if (menuBtn && sidebar) {
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        // Sidebar overlay close
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+            });
+        }
+
+        // Connect Chilla button
+        const connectBtn = document.getElementById('connect-chilla-btn');
+        if (connectBtn) {
+            connectBtn.addEventListener('click', () => {
+                this.showBrokerModal();
+            });
+        }
+
+        // Nav connect button
+        const navConnectBtn = document.getElementById('nav-connect-btn');
+        if (navConnectBtn) {
+            navConnectBtn.addEventListener('click', () => {
+                this.showBrokerModal();
+            });
+        }
+
+        // Broker modal controls
+        this.setupBrokerModal();
+
+        // Other menu items
+        this.setupMenuItems();
+
+        // Theme toggle
+        this.setupThemeToggle();
+
+        console.log('All event listeners attached');
+    }
+
+    setupBrokerModal() {
+        const brokerModal = document.getElementById('broker-modal');
+        const brokerDropdown = document.getElementById('broker-dropdown');
+        const brokerOAuthBtn = document.getElementById('broker-oauth-btn');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        if (brokerDropdown) {
+            brokerDropdown.addEventListener('change', (e) => {
+                if (brokerOAuthBtn) {
+                    brokerOAuthBtn.disabled = !e.target.value;
+                }
+            });
+        }
+
+        if (brokerOAuthBtn) {
+            brokerOAuthBtn.addEventListener('click', () => {
+                const selectedBroker = brokerDropdown?.value;
+                if (selectedBroker === 'deriv') {
+                    this.initiateOAuthConnection('deriv');
+                }
+            });
+        }
+
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', () => {
+                this.hideBrokerModal();
+            });
+        }
+    }
+
+    setupMenuItems() {
+        // Change email
+        const changeEmailBtn = document.getElementById('change-email-btn');
+        if (changeEmailBtn) {
+            changeEmailBtn.addEventListener('click', () => {
+                window.location.href = 'change-email.html';
+            });
+        }
+
+        // Change password
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        if (changePasswordBtn) {
+            changePasswordBtn.addEventListener('click', () => {
+                window.location.href = 'change-password.html';
+            });
+        }
+
+        // Verify email
+        const verifyEmailBtn = document.getElementById('verify-email-btn');
+        if (verifyEmailBtn) {
+            verifyEmailBtn.addEventListener('click', () => {
+                this.resendVerificationEmail();
+            });
+        }
+
+        // Contact
+        const contactBtn = document.getElementById('contact-btn');
+        if (contactBtn) {
+            contactBtn.addEventListener('click', () => {
+                window.location.href = 'contact.html';
+            });
+        }
+
+        // FAQ
+        const faqBtn = document.getElementById('faq-btn');
+        if (faqBtn) {
+            faqBtn.addEventListener('click', () => {
+                window.location.href = 'faq.html';
+            });
+        }
+
+        // Privacy
+        const privacyBtn = document.getElementById('privacy-btn');
+        if (privacyBtn) {
+            privacyBtn.addEventListener('click', () => {
+                window.location.href = 'privacy.html';
+            });
+        }
+
+        // Terms
+        const termsBtn = document.getElementById('terms-btn');
+        if (termsBtn) {
+            termsBtn.addEventListener('click', () => {
+                window.location.href = 'terms.html';
+            });
+        }
+    }
+
+    setupThemeToggle() {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+            });
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    }
+
+    showBrokerModal() {
+        const brokerModal = document.getElementById('broker-modal');
+        if (brokerModal) {
+            brokerModal.classList.remove('hidden');
+        }
+    }
+
+    hideBrokerModal() {
+        const brokerModal = document.getElementById('broker-modal');
+        if (brokerModal) {
+            brokerModal.classList.add('hidden');
+        }
     }
 
     async logout() {

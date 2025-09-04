@@ -145,30 +145,31 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
     height: 100vh;
-    z-index: 200;
+    z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
 }
 
-.sidebar.open {
+.sidebar.active {
     transform: translateX(0);
 }
 
 .sidebar-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.sidebar.open .sidebar-overlay {
+.sidebar.active .sidebar-overlay {
     opacity: 1;
+    visibility: visible;
 }
 
 .sidebar-content {
@@ -434,16 +435,16 @@
         padding: 1.5rem;
         margin-bottom: 1.5rem;
     }
-    
+
     .status-info {
         flex-direction: column;
         gap: 0.25rem;
     }
-    
+
     .status-title {
         font-size: 1rem;
     }
-    
+
     .status-info,
     .watching-markets {
         font-size: 0.8rem;
@@ -501,12 +502,12 @@
         padding: 0.875rem 1rem;
         gap: 0.5rem;
     }
-    
+
     .disclaimer-icon {
         width: 18px;
         height: 18px;
     }
-    
+
     .disclaimer-text {
         font-size: 0.8rem;
     }
