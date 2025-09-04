@@ -584,13 +584,13 @@ class ChillaDashboard {
     }
 
     setupActivityWebSocket(wsToken) {
-        if (!wsToken) {
-            console.error('No Activity WebSocket token provided');
+        if (!this.currentUser?.email) {
+            console.error('No user email available for Activity WebSocket');
             return;
         }
 
         const wsHost = API_BASE.replace('https://', '').replace('http://', '');
-        const activityWsUrl = `wss://${wsHost}/activity-ws?token=${wsToken}`;
+        const activityWsUrl = `wss://${wsHost}/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`;
 
         try {
             this.activityWs = new WebSocket(activityWsUrl);
