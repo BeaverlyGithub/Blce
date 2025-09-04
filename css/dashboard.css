@@ -183,7 +183,7 @@
     overflow-y: auto;
 }
 
-.sidebar.open .sidebar-content {
+.sidebar.active .sidebar-content {
     transform: translateX(0);
 }
 

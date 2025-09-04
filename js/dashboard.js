@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
     new ContactFormHandler();
 });
 
+const API_BASE = 'https://cook.beaverlyai.com';
+
 // Secure Dashboard with Server-Side Validation
 class ChillaDashboard {
     constructor() {
@@ -805,14 +807,14 @@ class ChillaDashboard {
     toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         if (sidebar) {
-            sidebar.classList.toggle('open');
+            sidebar.classList.toggle('active');
         }
     }
 
     closeSidebar() {
         const sidebar = document.getElementById('sidebar');
         if (sidebar) {
-            sidebar.classList.remove('open');
+            sidebar.classList.remove('active');
         }
     }
 
