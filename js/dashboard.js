@@ -119,6 +119,7 @@ class ChillaDashboard {
         this.isConnected = false;
         this.verificationPollingInterval = null;
         this.refreshInterval = null;
+        this.authToken = null;
         this.init();
     }
 
@@ -175,7 +176,8 @@ class ChillaDashboard {
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ token: null })
                 });
@@ -184,6 +186,7 @@ class ChillaDashboard {
                     const data = await response.json();
                     if (data && data.status === 'valid') {
                         this.isAuthenticated = true;
+                        this.authToken = data.token || null;
                         this.currentUser = data.users || data.user || {
                             email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
                             email_verified: data.email_verified || false,
@@ -266,7 +269,8 @@ class ChillaDashboard {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 }
             });
 
@@ -277,6 +281,24 @@ class ChillaDashboard {
         } catch (error) {
             console.error('Failed to load CSRF token:', error);
         }
+    }
+
+    getSecureHeaders() {
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        };
+
+        if (this.csrfToken) {
+            headers['X-CSRF-Token'] = this.csrfToken;
+        }
+
+        if (this.authToken) {
+            headers['Authorization'] = `Bearer ${this.authToken}`;
+        }
+
+        return headers;
     }
 
     redirectToLogin() {
@@ -331,10 +353,7 @@ class ChillaDashboard {
             const response = await fetch(`${API_BASE}/api/account_data`, {
                 method: 'GET',
                 credentials: 'include',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
-                }
+                headers: this.getSecureHeaders()
             });
 
             if (response.ok) {
@@ -348,7 +367,7 @@ class ChillaDashboard {
                 if (totalEarnings) totalEarnings.textContent = '$0.00';
                 return;
             } else {
-                throw new Error('Failed to load balance');
+                throw new Error(`Failed to load balance: ${response.status}`);
             }
         } catch (error) {
             console.error('Error loading balance:', error);
@@ -370,10 +389,7 @@ class ChillaDashboard {
             const response = await fetch(`${API_BASE}/api/account_data`, {
                 method: 'GET',
                 credentials: 'include',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
-                }
+                headers: this.getSecureHeaders()
             });
 
             if (response.ok) {
@@ -383,7 +399,7 @@ class ChillaDashboard {
                 this.displayPositions([]);
                 return;
             } else {
-                throw new Error('Failed to load positions');
+                throw new Error(`Failed to load positions: ${response.status}`);
             }
         } catch (error) {
             console.error('Error loading positions:', error);
@@ -427,10 +443,7 @@ class ChillaDashboard {
             const response = await fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: this.getSecureHeaders(),
                 body: JSON.stringify({ token: null })
             });
 
@@ -495,7 +508,14 @@ class ChillaDashboard {
     }
 
     async initializeWebSocket() {
-        if (!this.currentUser?.email || !this.currentUser?.email_verified) {
+        if (!this.currentUser?.email) {
+            console.log('WebSocket initialization skipped - no user email');
+            return;
+        }
+
+        const isGmailUser = this.currentUser.auth_provider === 'gmail';
+        if (!this.currentUser.email_verified && !isGmailUser) {
+            console.log('WebSocket initialization skipped - email not verified');
             return;
         }
 
@@ -503,17 +523,17 @@ class ChillaDashboard {
             const wsTokenResponse = await fetch(`${API_BASE}/api/ws_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
-                }
+                headers: this.getSecureHeaders()
             });
 
             if (wsTokenResponse.ok) {
                 const tokenData = await wsTokenResponse.json();
-                this.connectWebSocket(tokenData.ws_token);
-                this.setupActivityWebSocket(tokenData.ws_token);
+                if (tokenData.ws_token) {
+                    this.connectWebSocket(tokenData.ws_token);
+                    this.setupActivityWebSocket(tokenData.ws_token);
+                }
+            } else {
+                console.error('Failed to get WebSocket token:', wsTokenResponse.status);
             }
         } catch (error) {
             console.error('WebSocket token error:', error);
@@ -521,70 +541,92 @@ class ChillaDashboard {
     }
 
     connectWebSocket(wsToken) {
+        if (!wsToken) {
+            console.error('No WebSocket token provided');
+            return;
+        }
+
         const wsHost = API_BASE.replace('https://', '').replace('http://', '');
         const wsUrl = `wss://${wsHost}/ws?token=${wsToken}`;
 
-        this.wsConnection = new WebSocket(wsUrl);
+        try {
+            this.wsConnection = new WebSocket(wsUrl);
 
-        this.wsConnection.onopen = () => {
-            console.log('📡 WebSocket connected');
-            this.reconnectAttempts = 0;
-        };
+            this.wsConnection.onopen = () => {
+                console.log('📡 WebSocket connected');
+                this.reconnectAttempts = 0;
+            };
 
-        this.wsConnection.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                this.handleWebSocketMessage(data);
-            } catch (error) {
-                console.error('WebSocket message parse error:', error);
-            }
-        };
+            this.wsConnection.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    this.handleWebSocketMessage(data);
+                } catch (error) {
+                    console.error('WebSocket message parse error:', error);
+                }
+            };
 
-        this.wsConnection.onclose = () => {
-            console.log('📡 WebSocket disconnected');
-            setTimeout(() => this.initializeWebSocket(), 5000);
-        };
+            this.wsConnection.onclose = (event) => {
+                console.log('📡 WebSocket disconnected');
+                if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.reconnectAttempts++;
+                    const delay = Math.min(5000 * this.reconnectAttempts, 30000);
+                    setTimeout(() => this.initializeWebSocket(), delay);
+                }
+            };
 
-        this.wsConnection.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+            this.wsConnection.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        } catch (error) {
+            console.error('WebSocket connection error:', error);
+        }
     }
 
     setupActivityWebSocket(wsToken) {
+        if (!wsToken) {
+            console.error('No Activity WebSocket token provided');
+            return;
+        }
+
         const wsHost = API_BASE.replace('https://', '').replace('http://', '');
         const activityWsUrl = `wss://${wsHost}/activity-ws?token=${wsToken}`;
 
-        this.activityWs = new WebSocket(activityWsUrl);
+        try {
+            this.activityWs = new WebSocket(activityWsUrl);
 
-        this.activityWs.onopen = () => {
-            console.log('📊 Activity WebSocket connected');
-            this.activityWsReconnectAttempts = 0;
-        };
+            this.activityWs.onopen = () => {
+                console.log('📊 Activity WebSocket connected');
+                this.activityWsReconnectAttempts = 0;
+            };
 
-        this.activityWs.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                this.handleActivityMessage(data);
-            } catch (error) {
-                console.error('Error parsing activity message:', error);
-            }
-        };
+            this.activityWs.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    this.handleActivityMessage(data);
+                } catch (error) {
+                    console.error('Error parsing activity message:', error);
+                }
+            };
 
-        this.activityWs.onclose = (event) => {
-            console.log('📊 Activity WebSocket disconnected', event.code, event.reason);
+            this.activityWs.onclose = (event) => {
+                console.log('📊 Activity WebSocket disconnected', event.code);
 
-            if (event.code !== 1000 && this.currentUser?.email) {
-                const reconnectDelay = Math.min(5000 * Math.pow(2, (this.activityWsReconnectAttempts || 0)), 30000);
-                this.activityWsReconnectAttempts = (this.activityWsReconnectAttempts || 0) + 1;
+                if (event.code !== 1000 && this.activityWsReconnectAttempts < this.maxReconnectAttempts) {
+                    const reconnectDelay = Math.min(5000 * Math.pow(2, this.activityWsReconnectAttempts), 30000);
+                    this.activityWsReconnectAttempts++;
 
-                console.log(`📊 Will reconnect Activity WebSocket in ${reconnectDelay/1000}s (attempt ${this.activityWsReconnectAttempts})`);
-                setTimeout(() => this.initializeWebSocket(), reconnectDelay);
-            }
-        };
+                    console.log(`📊 Will reconnect Activity WebSocket in ${reconnectDelay/1000}s (attempt ${this.activityWsReconnectAttempts})`);
+                    setTimeout(() => this.initializeWebSocket(), reconnectDelay);
+                }
+            };
 
-        this.activityWs.onerror = (error) => {
-            console.error('Activity WebSocket error:', error);
-        };
+            this.activityWs.onerror = (error) => {
+                console.error('Activity WebSocket error:', error);
+            };
+        } catch (error) {
+            console.error('Activity WebSocket connection error:', error);
+        }
     }
 
     handleWebSocketMessage(data) {
@@ -701,6 +743,7 @@ class ChillaDashboard {
         const addListener = (id, event, handler) => {
             const element = document.getElementById(id);
             if (element) {
+                element.removeEventListener(event, handler); // Remove existing listener
                 element.addEventListener(event, handler);
             }
         };
@@ -708,31 +751,53 @@ class ChillaDashboard {
         const addListenerByQuery = (selector, event, handler) => {
             const element = document.querySelector(selector);
             if (element) {
+                element.removeEventListener(event, handler); // Remove existing listener
                 element.addEventListener(event, handler);
             }
         };
 
-        addListener('menu-btn', 'click', () => this.toggleSidebar());
-        addListener('theme-toggle', 'click', () => this.toggleTheme());
-        addListener('nav-connect-btn', 'click', () => this.handleConnectChilla());
-        addListener('logout-btn', 'click', () => this.handleLogout());
+        // Bind methods to maintain context
+        const boundMethods = {
+            toggleSidebar: this.toggleSidebar.bind(this),
+            toggleTheme: this.toggleTheme.bind(this),
+            handleConnectChilla: this.handleConnectChilla.bind(this),
+            handleLogout: this.handleLogout.bind(this),
+            changeEmail: this.changeEmail.bind(this),
+            changePassword: this.changePassword.bind(this),
+            verifyEmail: this.verifyEmail.bind(this),
+            showContact: this.showContact.bind(this),
+            showFAQ: this.showFAQ.bind(this),
+            showPrivacy: this.showPrivacy.bind(this),
+            showTerms: this.showTerms.bind(this),
+            handleBrokerSelection: this.handleBrokerSelection.bind(this),
+            handleBrokerOAuth: this.handleBrokerOAuth.bind(this),
+            closeBrokerModal: this.closeBrokerModal.bind(this),
+            confirmDisconnect: this.confirmDisconnect.bind(this),
+            closeDisconnectModal: this.closeDisconnectModal.bind(this),
+            closeSidebar: this.closeSidebar.bind(this)
+        };
 
-        addListener('connect-chilla-btn', 'click', () => this.handleConnectChilla());
-        addListener('change-email-btn', 'click', () => this.changeEmail());
-        addListener('change-password-btn', 'click', () => this.changePassword());
-        addListener('verify-email-btn', 'click', () => this.verifyEmail());
-        addListener('contact-btn', 'click', () => this.showContact());
-        addListener('faq-btn', 'click', () => this.showFAQ());
-        addListener('privacy-btn', 'click', () => this.showPrivacy());
-        addListener('terms-btn', 'click', () => this.showTerms());
+        addListener('menu-btn', 'click', boundMethods.toggleSidebar);
+        addListener('theme-toggle', 'click', boundMethods.toggleTheme);
+        addListener('nav-connect-btn', 'click', boundMethods.handleConnectChilla);
+        addListener('logout-btn', 'click', boundMethods.handleLogout);
 
-        addListener('broker-dropdown', 'change', () => this.handleBrokerSelection());
-        addListener('broker-oauth-btn', 'click', () => this.handleBrokerOAuth());
-        addListener('modal-close-btn', 'click', () => this.closeBrokerModal());
-        addListener('confirm-disconnect-btn', 'click', () => this.confirmDisconnect());
-        addListener('cancel-disconnect-btn', 'click', () => this.closeDisconnectModal());
+        addListener('connect-chilla-btn', 'click', boundMethods.handleConnectChilla);
+        addListener('change-email-btn', 'click', boundMethods.changeEmail);
+        addListener('change-password-btn', 'click', boundMethods.changePassword);
+        addListener('verify-email-btn', 'click', boundMethods.verifyEmail);
+        addListener('contact-btn', 'click', boundMethods.showContact);
+        addListener('faq-btn', 'click', boundMethods.showFAQ);
+        addListener('privacy-btn', 'click', boundMethods.showPrivacy);
+        addListener('terms-btn', 'click', boundMethods.showTerms);
 
-        addListenerByQuery('.sidebar-overlay', 'click', () => this.closeSidebar());
+        addListener('broker-dropdown', 'change', boundMethods.handleBrokerSelection);
+        addListener('broker-oauth-btn', 'click', boundMethods.handleBrokerOAuth);
+        addListener('modal-close-btn', 'click', boundMethods.closeBrokerModal);
+        addListener('confirm-disconnect-btn', 'click', boundMethods.confirmDisconnect);
+        addListener('cancel-disconnect-btn', 'click', boundMethods.closeDisconnectModal);
+
+        addListenerByQuery('.sidebar-overlay', 'click', boundMethods.closeSidebar);
 
         console.log('All event listeners attached');
     }
@@ -782,10 +847,7 @@ class ChillaDashboard {
             await fetch(`${API_BASE}/api/logout`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
-                }
+                headers: this.getSecureHeaders()
             });
         } catch (error) {
             console.warn('Logout failed silently:', error);
@@ -860,11 +922,7 @@ class ChillaDashboard {
             try {
                 const res = await fetch(`${API_BASE}/api/generate_oauth_state`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-Token': this.csrfToken || ''
-                    },
+                    headers: this.getSecureHeaders(),
                     credentials: "include"
                 });
 
@@ -897,11 +955,7 @@ class ChillaDashboard {
             const response = await fetch(`${API_BASE}/api/disconnect_oauth`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
-                }
+                headers: this.getSecureHeaders()
             });
 
             if (response.ok) {
@@ -951,11 +1005,7 @@ class ChillaDashboard {
         try {
             const response = await fetch(`${API_BASE}/api/send_verification_email`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
-                },
+                headers: this.getSecureHeaders(),
                 credentials: 'include',
                 body: JSON.stringify({ email })
             });
@@ -1012,10 +1062,7 @@ class ChillaDashboard {
             const response = await fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: this.getSecureHeaders(),
                 body: JSON.stringify({ token: null })
             });
 
