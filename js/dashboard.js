@@ -104,8 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     new ContactFormHandler();
 });
 
-const API_BASE = 'https://cook.beaverlyai.com';
-
 // Secure Dashboard with Server-Side Validation
 class ChillaDashboard {
     constructor() {
