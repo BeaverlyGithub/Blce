@@ -1,0 +1,526 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Upgrade - Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-229WRH1KTN');
+    </script>
+</head>
+<body>
+    <div class="auth-screen">
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7-7l-7 7 7 7"/>
+            </svg>
+        </button>
+
+        <!-- Header Section -->
+        <div class="upgrade-header">
+            <div class="logo-text">Let's Do It Again</div>
+            <p class="subtitle">Keep Chilla running smoothly with uninterrupted service.</p>
+
+            <!-- Billing Toggle -->
+            <div class="billing-toggle">
+                <span class="billing-label monthly-label">Monthly</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="billing-toggle" class="toggle-input">
+                    <label for="billing-toggle" class="toggle-label">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <span class="billing-label annual-label">
+                    Annual <span class="savings-badge">Save 55%</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="upgrade-container">
+            <!-- Level One Plan -->
+            <div class="plan-card basic-plan">
+                <div class="plan-header">
+                    <h3>Level One</h3>
+                    <div class="price" data-monthly="15" data-annual="99">$15</div>
+                    <p class="billing">per month</p>
+                    <p class="plan-description">A calm, confident way to begin your chill journey</p>
+                </div>
+
+                <ul class="plan-features">
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Smarter earnings with real-time decisions
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Steady, automated growth
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Covers essential markets mix: e.g forex, indices, crypto
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Priority access to 1 refined strategy
+                    </li>
+                </ul>
+
+                <a href="https://paystack.shop/pay/gj89tz5341" class="plan-button primary-btn">
+                    Start Chilling Now
+                </a>
+            </div>
+
+            <!-- Deep Chill Plan -->
+            <div class="plan-card premium-plan">
+                <div class="popular-badge">Gain 400% more value</div>
+
+                <div class="plan-header">
+                    <h3>Deep Chill</h3>
+                    <div class="price" data-monthly="75" data-annual="499">$75</div>
+                    <p class="billing">per month</p>
+                    <p class="plan-description">Just enough power to chill like a boss</p>
+                </div>
+
+                <ul class="plan-features">
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Faster decisions = faster earnings
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Chilla adapts in realtime for better results
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Manages more markets to grow more silently
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Feels premium, built for everyday winners
+                    </li>
+                </ul>
+
+                <a href="https://paystack.shop/pay/iq567nig5e" class="plan-button premium-button">
+                    Go Deeper Now
+                </a>
+            </div>
+
+            <!-- Peak Chill Plan -->
+            <div class="plan-card basic-plan">
+                <div class="plan-header">
+                    <h3>Peak Chill</h3>
+                    <div class="price" data-monthly="150" data-annual="999">$150</div>
+                    <p class="billing">per month</p>
+                    <p class="plan-description">Front-row money-making experience</p>
+                </div>
+
+                <ul class="plan-features">
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Maximum speed, zero delay
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Highest market access = highest growth potential
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Access all advanced Chilla strategies in real time
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        The ultimate chill — nothing held back
+                    </li>
+                    <li>
+                        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Early access to new features and market drops
+                    </li>
+                </ul>
+
+                <a href="https://paystack.shop/pay/gj89tz5341" class="plan-button primary-btn">
+                    Unlock Peak Chill Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .back-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.1);
+        }
+
+        .upgrade-header {
+            text-align: center;
+            margin-top: 5rem;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .upgrade-header {
+                margin-top: 6rem;
+                margin-bottom: 2rem;
+            }
+
+            .back-btn {
+                top: 0.5rem;
+                left: 0.5rem;
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        .upgrade-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .upgrade-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2.5rem;
+                padding: 0 2rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .upgrade-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 3rem;
+                padding: 0;
+            }
+        }
+
+        .plan-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 16px var(--shadow-light);
+            position: relative;
+            transition: all 0.3s ease;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px var(--shadow-medium);
+            border-color: var(--accent-color);
+        }
+
+        @media (max-width: 767px) {
+            .plan-card {
+                padding: 2rem 1.5rem;
+                min-height: auto;
+            }
+        }
+
+        .premium-plan {
+            background: #000000;
+            color: white;
+            border-color: #333;
+        }
+
+        [data-theme="dark"] .premium-plan {
+            background: #000000;
+            border-color: white;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: white;
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 0 12px 0 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .premium-plan .plan-header h3 {
+            color: white;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .premium-plan .price {
+            color: white;
+        }
+
+        .billing {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .premium-plan .billing {
+            color: #ccc;
+        }
+
+        .plan-description {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-bottom: 2rem;
+        }
+
+        .premium-plan .plan-description {
+            color: #aaa;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .premium-plan .plan-features li {
+            color: white;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            color: var(--success-color);
+            stroke-width: 2;
+        }
+
+        .premium-plan .check-icon {
+            color: #4ade80;
+        }
+
+        .plan-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .premium-button {
+            background: white;
+            color: black;
+        }
+
+        .premium-button:hover {
+            background: #f5f5f5;
+            transform: translateY(-1px);
+        }
+
+        /* Billing Toggle Styles */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .billing-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .billing-label.active {
+            color: var(--text-primary);
+        }
+
+        .savings-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .toggle-label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-input:checked + .toggle-label {
+            background: var(--accent-color);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-input:checked + .toggle-label .toggle-slider {
+            transform: translateX(30px);
+        }
+    </style>
+
+    <script>
+        // Setup theme from localStorage
+        const theme = localStorage.getItem('chilla-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Pricing toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('billing-toggle');
+            const monthlyLabel = document.querySelector('.monthly-label');
+            const annualLabel = document.querySelector('.annual-label');
+            const prices = document.querySelectorAll('.price');
+            const billingTexts = document.querySelectorAll('.billing');
+
+            function updatePricing() {
+                const isAnnual = toggle.checked;
+
+                // Update labels
+                monthlyLabel.classList.toggle('active', !isAnnual);
+                annualLabel.classList.toggle('active', isAnnual);
+
+                // Update prices
+                prices.forEach(price => {
+                    const monthlyPrice = price.dataset.monthly;
+                    const annualPrice = price.dataset.annual;
+                    price.textContent = isAnnual ? `$${annualPrice}` : `$${monthlyPrice}`;
+                });
+
+                // Update billing text
+                billingTexts.forEach(billing => {
+                    billing.textContent = isAnnual ? 'per year' : 'per month';
+                });
+            }
+
+            toggle.addEventListener('change', updatePricing);
+
+            // Initial state
+            monthlyLabel.classList.add('active');
+            updatePricing();
+        });
+    </script>
+    
+    <!-- Chatbot -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
+
+    
+</body>
+</html>

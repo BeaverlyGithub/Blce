@@ -1,0 +1,27 @@
+modules = ["web", "nodejs-20", "python-3.12"]
+run = "run"
+
+[nix]
+channel = "stable-25_05"
+
+[deployment]
+run = ["sh", "-c", "run"]
+
+[workflows]
+runButton = "Serve Static Site"
+
+[[workflows.workflow]]
+name = "Serve Static Site"
+author = 43600285
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -m http.server 5000"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[agent]
+expertMode = true

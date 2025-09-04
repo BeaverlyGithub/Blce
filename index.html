@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cook.beaverlyai.com https://accounts.google.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://cook.beaverlyai.com https://accounts.google.com https://www.google-analytics.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
+    <title>Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Chilla">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="logo">Chilla</div>
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Auth Flow -->
+        <div id="auth-container" class="screen hidden">
+            <!-- Login Screen -->
+            <div id="login-screen" class="auth-screen">
+                <div class="auth-header">
+                    <h1 class="logo-text">Chilla</h1>
+                    <p class="subtitle">by Beaverly</p>
+                </div>
+                <div class="auth-form">
+                    <input type="email" id="login-email" placeholder="Email" class="input-field">
+                    <input type="password" id="login-password" placeholder="Password" class="input-field">
+                    <button id="login-btn" class="primary-btn">Sign In</button>
+                    <button id="google-login-btn" class="secondary-btn">Continue with Google</button>
+                    <div class="auth-links">
+                        <a href="#" id="forgot-password-link">Forgot password?</a>
+                        <a href="#" id="show-signup">Don't have an account? Sign up</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signup Screen -->
+            <div id="signup-screen" class="auth-screen hidden">
+                <div class="auth-header">
+                    <h1 class="logo-text">Create Account</h1>
+                    <p class="subtitle">Join Chilla</p>
+                </div>
+                <div class="auth-form">
+                    <input type="email" id="signup-email" placeholder="Email" class="input-field">
+                    <input type="password" id="signup-password" placeholder="Password" class="input-field">
+                    <input type="password" id="confirm-password" placeholder="Confirm Password" class="input-field">
+                    <input type="text" id="first-name" placeholder="First Name" class="input-field">
+                    <input type="text" id="middle-name" placeholder="Middle Name (Optional)" class="input-field">
+                    <input type="text" id="last-name" placeholder="Last Name" class="input-field">
+                    <input type="date" id="date-of-birth" placeholder="Date of Birth" class="input-field">
+                    <button id="signup-btn" class="primary-btn">Create Account</button>
+                    <button id="google-signup-btn" class="secondary-btn">Continue with Google</button>
+                    <div class="auth-links">
+                        <a href="#" id="show-login">Already have an account? Sign in</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forgot Password Screen -->
+            <div id="forgot-password-screen" class="auth-screen hidden">
+                <div class="auth-header">
+                    <h1 class="logo-text">Reset Password</h1>
+                    <p class="subtitle">Enter your email to reset</p>
+                </div>
+                <div class="auth-form">
+                    <input type="email" id="reset-email" placeholder="Email" class="input-field">
+                    <button id="reset-btn" class="primary-btn">Send Reset Link</button>
+                    <div class="auth-links">
+                        <a href="#" id="back-to-login">Back to Sign In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+
+    <!-- Chatbot -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-229WRH1KTN');
+    </script>
+</body>
+</html>

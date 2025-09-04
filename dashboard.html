@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cook.beaverlyai.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
+    <title>Dashboard - Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Chilla">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="logo">Chilla</div>
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="screen">
+            <!-- App Bar -->
+            <div class="app-bar">
+                <div class="app-left-section">
+                    <button id="menu-btn" class="icon-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
+                        </svg>
+                    </button>
+                    <h1 class="app-title">Chilla</h1>
+                </div>
+                <button id="nav-connect-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 5v14m7-7H5"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Sidebar/Drawer -->
+            <div id="sidebar" class="sidebar">
+                <div class="sidebar-overlay"></div>
+                <div class="sidebar-content">
+                    <div class="sidebar-header">
+                        <div class="user-info">
+                            <div class="user-name" id="user-display-name">Loading...</div>
+                            <div class="user-email" id="user-display-email">Loading...</div>
+                            <div class="verification-status" id="verification-status">
+                                <span class="status-dot unverified"></span>
+                                <span>Unverified</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidebar-menu">
+                        <button class="menu-item connect-unique" id="connect-chilla-btn">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+                            </svg>
+                            <span class="status-dot disconnected"></span>
+                            Connect Chilla
+                        </button>
+
+                        <button class="menu-item" id="change-email-btn">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline stroke-linecap="round" stroke-linejoin="round" points="22,6 12,13 2,6"/>
+                            </svg>
+                            Change Email
+                        </button>
+                        <button class="menu-item" id="change-password-btn">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <circle cx="12" cy="16" r="1"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            Change Password
+                        </button>
+                        <button class="menu-item" id="verify-email-btn">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline stroke-linecap="round" stroke-linejoin="round" points="20,6 9,17 4,12"/>
+                            </svg>
+                            Verify Email
+                        </button>
+                        
+                        <button class="menu-item" id="contact-btn">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            Contact
+                        </button>
+                        <button id="faq-btn" class="menu-item">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
+                            </svg>
+                            FAQ
+                        </button>
+                        <button id="privacy-btn" class="menu-item">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            Privacy Policy
+                        </button>
+                        <button id="terms-btn" class="menu-item">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Terms of Service
+                        </button>
+                        <button class="menu-item logout" id="logout-btn">
+                            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline stroke-linecap="round" stroke-linejoin="round" points="16,17 21,12 16,7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </div>
+
+                    <!-- Floating Theme Toggle -->
+                    <div class="floating-theme-toggle">
+                        <button id="theme-toggle" class="theme-toggle-btn">
+                            <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="5"/>
+                                <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                            </svg>
+                            <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div id="dashboard" class="dashboard">
+                    <div id="chilla-activity-status" class="activity-card">
+                        <div class="activity-status status-disconnected">
+                            <div class="status-header">
+                                <div class="status-title">Not Connected</div>
+                                <div class="status-indicator"></div>
+                            </div>
+                            <div class="status-details">
+                                <div class="status-info">
+                                    <span>Connect a broker to start monitoring</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="balance-card">
+                        <h2>Account Balance</h2>
+                        <div class="balance-amount" id="account-balance">$0.00</div>
+                    </div>
+
+                    <div class="positions-card">
+                        <h2>Open Positions</h2>
+                        <div class="positions-list" id="positions-list">
+                            <div class="position-item">
+                                <span>Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Dashboard Disclaimer -->
+            <div class="dashboard-disclaimer">
+                <svg class="disclaimer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4"/>
+                    <path d="M12 8h.01"/>
+                </svg>
+                <p class="disclaimer-text">
+                    You chill. Chilla works.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Broker Selection Modal -->
+        <div id="broker-modal" class="broker-modal hidden">
+            <div class="broker-modal-content">
+                <h3>Connect to Broker</h3>
+                <select id="broker-dropdown" class="broker-dropdown">
+                    <option value="">Select a broker</option>
+                    <option value="deriv">Deriv</option>
+                    <option value="other">Other brokers (coming soon)</option>
+                </select>
+                <button id="broker-oauth-btn" class="broker-oauth-btn" disabled>Connect to OAuth</button>
+                <button id="modal-close-btn" class="modal-close-btn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Disconnect Warning Modal -->
+        <div id="disconnect-modal" class="broker-modal hidden">
+            <div class="broker-modal-content">
+                <h3>⚠️ Disconnect Chilla</h3>
+                <p>Warning: Disconnecting Chilla will stop all trading activities for your account. Are you sure you want to continue?</p>
+                <button id="confirm-disconnect-btn" class="broker-oauth-btn danger">Yes, Disconnect</button>
+                <button id="cancel-disconnect-btn" class="modal-close-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+
+    <!-- Contact functionality implemented via secure backend API -->
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-229WRH1KTN');
+    </script>
+</body>
+</html>
