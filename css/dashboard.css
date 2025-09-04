@@ -517,6 +517,32 @@
     margin: 0 auto;
 }
 
+/* Loading screen controls */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-screen.hidden {
+    display: none !important;
+}
+
+#main-app {
+    display: none;
+}
+
+#main-app.show {
+    display: block;
+}
+
 /* Desktop layout */
 @media (min-width: 768px) {
     .dashboard {
