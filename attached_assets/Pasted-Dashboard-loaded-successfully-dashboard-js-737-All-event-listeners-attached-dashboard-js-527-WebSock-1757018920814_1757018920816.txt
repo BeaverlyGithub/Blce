@@ -1,0 +1,34 @@
+Dashboard loaded successfully
+dashboard.js:737 All event listeners attached
+dashboard.js:527 WebSocket connection to 'wss://cook.beaverlyai.com/ws?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZWF2ZXJseXRlY2hub2xvZ2llc0BnbWFpbC5jb20iLCJlbWFpbCI6ImJlYXZlcmx5dGVjaG5vbG9naWVzQGdtYWlsLmNvbSIsImV4cCI6MTc1NzAzNjgzMX0.-uHCXO9DTq2K0-SKIPWCT6IkRScBCC6aFt2Jva0qriA' failed: 
+connectWebSocket @ dashboard.js:527
+initializeWebSocket @ dashboard.js:515Understand this error
+dashboard.js:549 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+wsConnection.onerror @ dashboard.js:549Understand this error
+dashboard.js:544 📡 WebSocket disconnected
+dashboard.js:557 WebSocket connection to 'wss://cook.beaverlyai.com/activity-ws?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZWF2ZXJseXRlY2hub2xvZ2llc0BnbWFpbC5jb20iLCJlbWFpbCI6ImJlYXZlcmx5dGVjaG5vbG9naWVzQGdtYWlsLmNvbSIsImV4cCI6MTc1NzAzNjgzMX0.-uHCXO9DTq2K0-SKIPWCT6IkRScBCC6aFt2Jva0qriA' failed: 
+setupActivityWebSocket @ dashboard.js:557
+initializeWebSocket @ dashboard.js:516Understand this error
+dashboard.js:586 Activity WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+activityWs.onerror @ dashboard.js:586Understand this error
+dashboard.js:574 📊 Activity WebSocket disconnected 1006 
+dashboard.js:580 📊 Will reconnect Activity WebSocket in 5s (attempt 1)
+dashboard.js:530 📡 WebSocket connected
+dashboard.js:557 WebSocket connection to 'wss://cook.beaverlyai.com/activity-ws?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZWF2ZXJseXRlY2hub2xvZ2llc0BnbWFpbC5jb20iLCJlbWFpbCI6ImJlYXZlcmx5dGVjaG5vbG9naWVzQGdtYWlsLmNvbSIsImV4cCI6MTc1NzAzNjgzOH0.8pyYAAwdqdxjKudjzZ7pyTKBZDKbMIdINatn3F0XH7w' failed: 
+setupActivityWebSocket @ dashboard.js:557
+initializeWebSocket @ dashboard.js:516Understand this error
+dashboard.js:586 Activity WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+activityWs.onerror @ dashboard.js:586Understand this error
+dashboard.js:574 📊 Activity WebSocket disconnected 1006 
+dashboard.js:580 📊 Will reconnect Activity WebSocket in 10s (attempt 2)
+dashboard.js:544 📡 WebSocket disconnected
+dashboard.js:530 📡 WebSocket connected
+dashboard.js:557 WebSocket connection to 'wss://cook.beaverlyai.com/activity-ws?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZWF2ZXJseXRlY2hub2xvZ2llc0BnbWFpbC5jb20iLCJlbWFpbCI6ImJlYXZlcmx5dGVjaG5vbG9naWVzQGdtYWlsLmNvbSIsImV4cCI6MTc1NzAzNjgzOX0.tvrXtsSPjQFG9w7zrDBTirgZKQJELgxZ67djH6Wnj6k' failed: 
+setupActivityWebSocket @ dashboard.js:557
+initializeWebSocket @ dashboard.js:516Understand this error
+dashboard.js:586 Activity WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+activityWs.onerror @ dashboard.js:586Understand this error
+dashboard.js:574 📊 Activity WebSocket disconnected 1006 
+dashboard.js:580 📊 Will reconnect Activity WebSocket in 20s (attempt 3)
+dashboard.js:530 📡 WebSocket connected
+dashboard.js:544 📡 WebSocket disconnected
