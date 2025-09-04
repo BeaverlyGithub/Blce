@@ -1,0 +1,140 @@
+X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.Understand this error
+dashboard.html:1 Refused to load the stylesheet 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap' because it violates the following Content Security Policy directive: "style-src 'self' 'unsafe-inline'". Note that 'style-src-elem' was not explicitly set, so 'style-src' is used as a fallback.
+Understand this error
+js?id=G-229WRH1KTN:230 Refused to connect to 'https://analytics.google.com/g/collect?v=2&tid=G-229WRH1KTN&gtm=45je5930v9223629271za200zd9223629271&_p=1757010936827&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=1309894013.1751130920&ecid=1843526982&ul=en-us&sr=1366x768&uaa=x86&uab=64&uafvl=Not%253BA%253DBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B139.0.7258.154%7CChromium%3B139.0.7258.154&uamb=0&uam=&uap=Windows&uapv=10.0.0&uaw=0&are=1&frm=0&pscdl=&ec_mode=a&_eu=AAAAAAQ&_s=1&tag_exp=101509157~103116026~103200004~103233427~104527906~104528501~104684208~104684211~104948811~104948813&sid=1757009687&sct=111&seg=1&dl=https%3A%2F%2Fchilla.beaverlyai.com%2Fdashboard.html&dr=https%3A%2F%2Faccounts.google.com%2F&dt=Dashboard%20-%20Chilla%20by%20Beaverly&en=page_view&_ee=1&tfd=2086' because it violates the following Content Security Policy directive: "connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com".
+
+ad @ js?id=G-229WRH1KTN:230
+Wm @ js?id=G-229WRH1KTN:417
+hN @ js?id=G-229WRH1KTN:851
+k.Lb @ js?id=G-229WRH1KTN:856
+k.wr @ js?id=G-229WRH1KTN:860
+k.add @ js?id=G-229WRH1KTN:858
+k.Dm @ js?id=G-229WRH1KTN:873
+k.er @ js?id=G-229WRH1KTN:873
+(anonymous) @ js?id=G-229WRH1KTN:870
+rn @ js?id=G-229WRH1KTN:427
+yp @ js?id=G-229WRH1KTN:447
+(anonymous) @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:809
+xJ @ js?id=G-229WRH1KTN:809
+k.ar @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:884
+v @ js?id=G-229WRH1KTN:483
+An @ js?id=G-229WRH1KTN:429
+jr @ js?id=G-229WRH1KTN:483
+ir.flush @ js?id=G-229WRH1KTN:487
+ir.push @ js?id=G-229WRH1KTN:485
+config @ js?id=G-229WRH1KTN:689
+nD @ js?id=G-229WRH1KTN:697
+pD @ js?id=G-229WRH1KTN:700
+setTimeout
+Tc @ js?id=G-229WRH1KTN:227
+qD @ js?id=G-229WRH1KTN:703
+ro @ js?id=G-229WRH1KTN:963
+(anonymous) @ js?id=G-229WRH1KTN:967
+c @ js?id=G-229WRH1KTN:965
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:969Understand this error
+js?id=G-229WRH1KTN:230 Fetch API cannot load https://analytics.google.com/g/collect?v=2&tid=G-229WRH1KTN&gtm=45je5930v9223629271za200zd9223629271&_p=1757010936827&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=1309894013.1751130920&ecid=1843526982&ul=en-us&sr=1366x768&uaa=x86&uab=64&uafvl=Not%253BA%253DBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B139.0.7258.154%7CChromium%3B139.0.7258.154&uamb=0&uam=&uap=Windows&uapv=10.0.0&uaw=0&are=1&frm=0&pscdl=&ec_mode=a&_eu=AAAAAAQ&_s=1&tag_exp=101509157~103116026~103200004~103233427~104527906~104528501~104684208~104684211~104948811~104948813&sid=1757009687&sct=111&seg=1&dl=https%3A%2F%2Fchilla.beaverlyai.com%2Fdashboard.html&dr=https%3A%2F%2Faccounts.google.com%2F&dt=Dashboard%20-%20Chilla%20by%20Beaverly&en=page_view&_ee=1&tfd=2086. Refused to connect because it violates the document's Content Security Policy.
+ad @ js?id=G-229WRH1KTN:230
+Wm @ js?id=G-229WRH1KTN:417
+hN @ js?id=G-229WRH1KTN:851
+k.Lb @ js?id=G-229WRH1KTN:856
+k.wr @ js?id=G-229WRH1KTN:860
+k.add @ js?id=G-229WRH1KTN:858
+k.Dm @ js?id=G-229WRH1KTN:873
+k.er @ js?id=G-229WRH1KTN:873
+(anonymous) @ js?id=G-229WRH1KTN:870
+rn @ js?id=G-229WRH1KTN:427
+yp @ js?id=G-229WRH1KTN:447
+(anonymous) @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:809
+xJ @ js?id=G-229WRH1KTN:809
+k.ar @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:884
+v @ js?id=G-229WRH1KTN:483
+An @ js?id=G-229WRH1KTN:429
+jr @ js?id=G-229WRH1KTN:483
+ir.flush @ js?id=G-229WRH1KTN:487
+ir.push @ js?id=G-229WRH1KTN:485
+config @ js?id=G-229WRH1KTN:689
+nD @ js?id=G-229WRH1KTN:697
+pD @ js?id=G-229WRH1KTN:700
+setTimeout
+Tc @ js?id=G-229WRH1KTN:227
+qD @ js?id=G-229WRH1KTN:703
+ro @ js?id=G-229WRH1KTN:963
+(anonymous) @ js?id=G-229WRH1KTN:967
+c @ js?id=G-229WRH1KTN:965
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:969Understand this error
+dashboard.js:322 WebSocket connected securely
+js?id=G-229WRH1KTN:230 Refused to connect to 'https://analytics.google.com/g/collect?v=2&tid=G-229WRH1KTN&gtm=45je5930v9223629271za200zd9223629271&_p=1757010936827&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=1309894013.1751130920&ecid=1843526982&ul=en-us&sr=1366x768&uaa=x86&uab=64&uafvl=Not%253BA%253DBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B139.0.7258.154%7CChromium%3B139.0.7258.154&uamb=0&uam=&uap=Windows&uapv=10.0.0&uaw=0&are=1&frm=0&pscdl=&_eu=AEAAAAQ&_s=2&tag_exp=101509157~103116026~103200004~103233427~104527906~104528501~104684208~104684211~104948811~104948813&sid=1757009687&sct=111&seg=1&dl=https%3A%2F%2Fchilla.beaverlyai.com%2Fdashboard.html&dr=https%3A%2F%2Faccounts.google.com%2F&dt=Dashboard%20-%20Chilla%20by%20Beaverly&en=scroll&epn.percent_scrolled=90&_et=31&tfd=7156' because it violates the following Content Security Policy directive: "connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com".
+
+ad @ js?id=G-229WRH1KTN:230
+Wm @ js?id=G-229WRH1KTN:417
+hN @ js?id=G-229WRH1KTN:851
+k.flush @ js?id=G-229WRH1KTN:858
+(anonymous) @ js?id=G-229WRH1KTN:856
+setTimeout
+k.Lb @ js?id=G-229WRH1KTN:856
+k.add @ js?id=G-229WRH1KTN:858
+k.Dm @ js?id=G-229WRH1KTN:873
+k.er @ js?id=G-229WRH1KTN:873
+(anonymous) @ js?id=G-229WRH1KTN:870
+rn @ js?id=G-229WRH1KTN:427
+yp @ js?id=G-229WRH1KTN:447
+(anonymous) @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:809
+xJ @ js?id=G-229WRH1KTN:809
+k.ar @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:884
+v @ js?id=G-229WRH1KTN:483
+An @ js?id=G-229WRH1KTN:429
+jr @ js?id=G-229WRH1KTN:483
+ir.flush @ js?id=G-229WRH1KTN:487
+ir.push @ js?id=G-229WRH1KTN:485
+ar @ js?id=G-229WRH1KTN:480
+event @ js?id=G-229WRH1KTN:691
+nD @ js?id=G-229WRH1KTN:697
+b.push @ js?id=G-229WRH1KTN:703
+jD @ js?id=G-229WRH1KTN:703
+rD @ js?id=G-229WRH1KTN:703
+OI @ js?id=G-229WRH1KTN:790
+JI @ js?id=G-229WRH1KTN:789
+(anonymous) @ js?id=G-229WRH1KTN:793
+setTimeout
+Tc @ js?id=G-229WRH1KTN:227
+RI @ js?id=G-229WRH1KTN:793
+(anonymous) @ js?id=G-229WRH1KTN:334
+k.invoke @ js?id=G-229WRH1KTN:242
+bb @ js?id=G-229WRH1KTN:206
+Ad.evaluate @ js?id=G-229WRH1KTN:244
+Vd @ js?id=G-229WRH1KTN:259
+k.invoke @ js?id=G-229WRH1KTN:242
+bb @ js?id=G-229WRH1KTN:206
+ab @ js?id=G-229WRH1KTN:205
+(anonymous) @ js?id=G-229WRH1KTN:266
+k.invoke @ js?id=G-229WRH1KTN:242
+bb @ js?id=G-229WRH1KTN:206
+k.Zo @ js?id=G-229WRH1KTN:208
+ef @ js?id=G-229WRH1KTN:277
+(anonymous) @ js?id=G-229WRH1KTN:722
+cg @ js?id=G-229WRH1KTN:292
+e @ js?id=G-229WRH1KTN:673
+pC @ js?id=G-229WRH1KTN:674
+tC @ js?id=G-229WRH1KTN:679
+nD @ js?id=G-229WRH1KTN:698
+pD @ js?id=G-229WRH1KTN:700
+setTimeout
+Tc @ js?id=G-229WRH1KTN:227
+qD @ js?id=G-229WRH1KTN:703
+ro @ js?id=G-229WRH1KTN:963
+(anonymous) @ js?id=G-229WRH1KTN:967
+c @ js?id=G-229WRH1KTN:965
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:969Understand this error
+js?id=G-229WRH1KTN:230 Fetch API cannot load https://analytics.google.com/g/collect?v=2&tid=G-229WRH1KTN&gtm=45je5930v9223629271za200zd9223629271&_p=1757010936827&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=1309894013.1751130920&ecid=1843526982&ul=en-us&sr=1366x768&uaa=x86&uab=64&uafvl=Not%253BA%253DBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B139.0.7258.154%7CChromium%3B139.0.7258.154&uamb=0&uam=&uap=Windows&uapv=10.0.0&uaw=0&are=1&frm=0&pscdl=&_eu=AEAAAAQ&_s=2&tag_exp=101509157~103116026~103200004~103233427~104527906~104528501~104684208~104684211~104948811~104948813&sid=1757009687&sct=111&seg=1&dl=https%3A%2F%2Fchilla.beaverlyai.com%2Fdashboard.html&dr=https%3A%2F%2Faccounts.google.com%2F&dt=Dashboard%20-%20Chilla%20by%20Beaverly&en=scroll&epn.percent_scrolled=90&_et=31&tfd=7156. Refused to connect because it violates the document's Content Security Policy.
