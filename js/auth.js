@@ -194,6 +194,9 @@ class ChillaAuth {
                 console.log('🔄 CSRF token invalid, refreshing...');
                 await this.loadCSRFToken(true);
                 this.showError('Security token expired. Please try logging in again.');
+            } else if (data.detail?.includes('verify your email') || data.detail?.includes('email address before logging')) {
+                // Show verification modal for unverified users
+                this.showLoginVerificationModal(email);
             } else {
                 this.showError(data.detail || 'Login failed');
             }
@@ -606,6 +609,146 @@ class ChillaAuth {
         } catch (error) {
             console.error('Verification email error:', error);
             this.showError('Network error. Please try again.');
+        }
+    }
+
+    showLoginVerificationModal(email) {
+        // Create and show verification modal for login flow
+        const modal = document.createElement('div');
+        modal.id = 'login-verification-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📧</div>
+                <h3 style="margin: 0 0 1rem 0; color: #333;">Email Verification Required</h3>
+                <p style="margin-bottom: 1rem; color: #666;">
+                    Please verify your email address before logging in.
+                </p>
+                <p style="margin-bottom: 1rem; color: #666;">
+                    We'll send a verification email to <strong>${email}</strong>.
+                </p>
+                <p style="margin-bottom: 2rem; color: #666; font-size: 14px;">
+                    After clicking the verification link in your email, you can return here and try logging in again.
+                </p>
+                <button id="send-login-verification-btn" style="
+                    background: #007bff;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin-right: 12px;
+                ">Send Verification Email</button>
+                <button id="close-login-verification-btn" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">Close</button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        document.getElementById('send-login-verification-btn')?.addEventListener('click', async () => {
+            await this.sendLoginVerificationEmail(email);
+        });
+
+        document.getElementById('close-login-verification-btn')?.addEventListener('click', () => {
+            this.closeLoginVerificationModal();
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeLoginVerificationModal();
+            }
+        });
+    }
+
+    async sendLoginVerificationEmail(email) {
+        try {
+            const csrfToken = await this.ensureCSRFToken();
+            const response = await fetch('https://cook.beaverlyai.com/api/send_verification_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                // Update modal content to show success
+                const modal = document.getElementById('login-verification-modal');
+                if (modal) {
+                    const content = modal.querySelector('div');
+                    content.innerHTML = `
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                        <h3 style="margin: 0 0 1rem 0; color: #333;">Verification Email Sent!</h3>
+                        <p style="margin-bottom: 1rem; color: #666;">
+                            We've sent a verification email to <strong>${email}</strong>.
+                        </p>
+                        <p style="margin-bottom: 2rem; color: #666;">
+                            Please check your inbox and click the verification link. After verifying, you can close this dialog and try logging in again.
+                        </p>
+                        <button id="close-success-verification-btn" style="
+                            background: #28a745;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        ">Close</button>
+                    `;
+                    
+                    document.getElementById('close-success-verification-btn')?.addEventListener('click', () => {
+                        this.closeLoginVerificationModal();
+                    });
+                }
+            } else {
+                this.showError(result.error || 'Failed to send verification email');
+            }
+        } catch (error) {
+            console.error('Verification email error:', error);
+            this.showError('Network error. Please try again.');
+        }
+    }
+
+    closeLoginVerificationModal() {
+        const modal = document.getElementById('login-verification-modal');
+        if (modal) {
+            modal.remove();
         }
     }
 
