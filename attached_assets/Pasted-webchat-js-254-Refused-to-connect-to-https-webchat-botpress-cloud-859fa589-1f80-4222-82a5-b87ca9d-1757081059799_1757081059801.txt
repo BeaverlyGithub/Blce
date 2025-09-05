@@ -1,0 +1,85 @@
+webchat.js:254 Refused to connect to 'https://webchat.botpress.cloud/859fa589-1f80-4222-82a5-b87ca9de6e85/users/me' because it violates the following Content Security Policy directive: "connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com".
+
+o @ webchat.js:254
+put @ webchat.js:254
+Qae @ webchat.js:254
+updateUser @ webchat.js:258
+v @ webchat.js:302
+(anonymous) @ webchat.js:302
+Tu @ webchat.js:41
+Oo @ webchat.js:41
+(anonymous) @ webchat.js:41
+E @ webchat.js:26
+z @ webchat.js:26Understand this error
+webchat.js:254 Fetch API cannot load https://webchat.botpress.cloud/859fa589-1f80-4222-82a5-b87ca9de6e85/users/me. Refused to connect because it violates the document's Content Security Policy.
+o @ webchat.js:254
+put @ webchat.js:254
+Qae @ webchat.js:254
+updateUser @ webchat.js:258
+v @ webchat.js:302
+(anonymous) @ webchat.js:302
+Tu @ webchat.js:41
+Oo @ webchat.js:41
+(anonymous) @ webchat.js:41
+E @ webchat.js:26
+z @ webchat.js:26Understand this error
+webchat.js:254 Uncaught (in promise) TypeError: Failed to fetch. Refused to connect because it violates the document's Content Security Policy.
+    at o (webchat.js:254:47913)
+    at Object.put (webchat.js:254:48813)
+    at Qae (webchat.js:254:50467)
+    at Object.updateUser (webchat.js:258:7199)
+    at v (webchat.js:302:15600)
+    at webchat.js:302:16049
+    at Tu (webchat.js:41:24259)
+    at Oo (webchat.js:41:42369)
+    at webchat.js:41:40687
+    at E (webchat.js:26:1544)
+o @ webchat.js:254
+put @ webchat.js:254
+Qae @ webchat.js:254
+updateUser @ webchat.js:258
+v @ webchat.js:302
+(anonymous) @ webchat.js:302
+Tu @ webchat.js:41
+Oo @ webchat.js:41
+(anonymous) @ webchat.js:41
+E @ webchat.js:26
+z @ webchat.js:26Understand this error
+js?id=G-229WRH1KTN:230 Refused to connect to 'https://analytics.google.com/g/collect?v=2&tid=G-229WRH1KTN&gtm=45je5931v9223629271za200zd9223629271&_p=1757081023220&em=tv.1~em.DWwwINhSR2TKTwa1VhpXimb7VPgz2R4RbfwF8sQHP8Q&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=1309894013.1751130920&ecid=834009750&ul=en-us&sr=1366x768&uaa=x86&uab=64&uafvl=Not%253BA%253DBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B139.0.7258.155%7CChromium%3B139.0.7258.155&uamb=0&uam=&uap=Windows&uapv=10.0.0&uaw=0&are=1&frm=0&pscdl=&ec_mode=a&_eu=AAAAAAQ&_s=1&tag_exp=101509157~103116026~103200004~103233427~104527906~104528500~104684208~104684211~104948811~104948813~105478657~105478659~115489982&sid=1757072808&sct=113&seg=1&dl=https%3A%2F%2Fchilla.beaverlyai.com%2Fcontact.html&dr=https%3A%2F%2Fchilla.beaverlyai.com%2Fdashboard%3Fconnected%3D1&dt=Contact%20Support%20-%20Chilla%20by%20Beaverly&en=page_view&_ee=1&tfd=2148' because it violates the following Content Security Policy directive: "connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com".
+
+ad @ js?id=G-229WRH1KTN:230
+Wm @ js?id=G-229WRH1KTN:417
+hN @ js?id=G-229WRH1KTN:851
+k.Lb @ js?id=G-229WRH1KTN:856
+(anonymous) @ js?id=G-229WRH1KTN:859
+Promise.then
+k.wr @ js?id=G-229WRH1KTN:859
+k.add @ js?id=G-229WRH1KTN:858
+k.Dm @ js?id=G-229WRH1KTN:873
+k.er @ js?id=G-229WRH1KTN:873
+(anonymous) @ js?id=G-229WRH1KTN:870
+rn @ js?id=G-229WRH1KTN:427
+yp @ js?id=G-229WRH1KTN:447
+(anonymous) @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:809
+xJ @ js?id=G-229WRH1KTN:809
+k.ar @ js?id=G-229WRH1KTN:870
+c @ js?id=G-229WRH1KTN:884
+v @ js?id=G-229WRH1KTN:483
+An @ js?id=G-229WRH1KTN:429
+jr @ js?id=G-229WRH1KTN:483
+ir.flush @ js?id=G-229WRH1KTN:487
+ir.push @ js?id=G-229WRH1KTN:485
+config @ js?id=G-229WRH1KTN:689
+nD @ js?id=G-229WRH1KTN:697
+pD @ js?id=G-229WRH1KTN:700
+setTimeout
+Tc @ js?id=G-229WRH1KTN:227
+qD @ js?id=G-229WRH1KTN:703
+ro @ js?id=G-229WRH1KTN:963
+(anonymous) @ js?id=G-229WRH1KTN:967
+c @ js?id=G-229WRH1KTN:965
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:967
+(anonymous) @ js?id=G-229WRH1KTN:969Understand this error
+js?id=G-229WRH1KTN:230 Fetch API cannot load https://analytics.google.com/g/collect?v=2&tid=G-229WRH1KTN&gtm=45je5931v9223629271za200zd9223629271&_p=1757081023220&em=tv.1~em.DWwwINhSR2TKTwa1VhpXimb7VPgz2R4RbfwF8sQHP8Q&gcd=13l3l3l3l1l1&npa=0&dma=0&cid=1309894013.1751130920&ecid=834009750&ul=en-us&sr=1366x768&uaa=x86&uab=64&uafvl=Not%253BA%253DBrand%3B99.0.0.0%7CGoogle%2520Chrome%3B139.0.7258.155%7CChromium%3B139.0.7258.155&uamb=0&uam=&uap=Windows&uapv=10.0.0&uaw=0&are=1&frm=0&pscdl=&ec_mode=a&_eu=AAAAAAQ&_s=1&tag_exp=101509157~103116026~103200004~103233427~104527906~104528500~104684208~104684211~104948811~104948813~105478657~105478659~115489982&sid=1757072808&sct=113&seg=1&dl=https%3A%2F%2Fchilla.beaverlyai.com%2Fcontact.html&dr=https%3A%2F%2Fchilla.beaverlyai.com%2Fdashboard%3Fconnected%3D1&dt=Contact%20Support%20-%20Chilla%20by%20Beaverly&en=page_view&_ee=1&tfd=2148. Refused to connect because it violates the document's Content Security Policy.
