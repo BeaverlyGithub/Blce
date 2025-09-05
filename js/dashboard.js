@@ -200,14 +200,14 @@ class ChillaDashboard {
                             localStorage.setItem('chilla_user_email', this.currentUser.email);
                         }
 
+                        await this.loadCSRFToken();
+                        this.showMainApp();
+                        
                         const isGmailUser = this.currentUser.auth_provider === 'gmail';
                         if (!this.currentUser.email_verified && !isGmailUser) {
                             this.showVerificationRequiredModal();
                             return;
                         }
-
-                        await this.loadCSRFToken();
-                        this.showMainApp();
                         this.setupEventListeners();
                         this.loadDashboardData();
                         this.setupPeriodicRefresh();
@@ -1158,15 +1158,16 @@ class ChillaDashboard {
     showVerificationRequiredModal() {
         const modal = document.createElement('div');
         modal.id = 'verification-modal';
-        modal.className = 'modal-overlay';
+        modal.className = 'broker-modal';
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 2rem;';
         modal.innerHTML = `
-            <div class="modal-content">
-                <h2>Verify Your Email</h2>
-                <p>Please verify your email address to continue.</p>
-                <p>A verification email has been sent to ${this.currentUser.email}.</p>
+            <div class="broker-modal-content">
+                <h3>📧 Verify Your Email</h3>
+                <p>Please verify your email address to continue using Chilla.</p>
+                <p>A verification email has been sent to <strong>${this.currentUser.email}</strong>.</p>
                 <p>If you haven't received it, please check your spam folder or click the button below to resend.</p>
-                <button id="resend-verification-btn">Resend Email</button>
-                <button id="close-verification-modal-btn">Close</button>
+                <button id="resend-verification-btn" class="broker-oauth-btn">Resend Verification Email</button>
+                <button id="logout-from-verification-btn" class="modal-close-btn">Logout</button>
             </div>
         `;
         document.body.appendChild(modal);
@@ -1175,8 +1176,8 @@ class ChillaDashboard {
             this.verifyEmail();
         });
 
-        document.getElementById('close-verification-modal-btn')?.addEventListener('click', () => {
-            this.closeVerificationModal();
+        document.getElementById('logout-from-verification-btn')?.addEventListener('click', () => {
+            this.handleLogout();
         });
     }
 
