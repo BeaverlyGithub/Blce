@@ -1,4 +1,3 @@
-
 // Enhanced Authentication with Server-Side Validation
 class ChillaAuth {
     constructor() {
@@ -75,6 +74,11 @@ class ChillaAuth {
                     window.location.href = 'dashboard.html';
                     return;
                 }
+            } else if (response.status === 401) {
+                console.error('Session validation failed: 401 Unauthorized');
+                this.sessionValidated = false;
+                this.showAuthScreen();
+                return;
             }
 
             this.sessionValidated = false;
