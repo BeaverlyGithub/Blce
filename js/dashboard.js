@@ -190,7 +190,9 @@ class ChillaDashboard {
                         this.currentUser = data.users || data.user || {
                             email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
                             email_verified: data.email_verified || false,
-                            full_name: data.full_name || 'User',
+                            first_name: data.first_name || '',
+                            middle_name: data.middle_name || '',
+                            last_name: data.last_name || '',
                             plan: data.plan || "Chilla's Gift",
                             auth_provider: data.auth_provider || null,
                             broker_connected: data.broker_connected || false
@@ -202,7 +204,7 @@ class ChillaDashboard {
 
                         await this.loadCSRFToken();
                         this.showMainApp();
-                        
+
                         const isGmailUser = this.currentUser.auth_provider === 'gmail';
                         if (!this.currentUser.email_verified && !isGmailUser) {
                             this.showVerificationRequiredModal();
@@ -310,7 +312,14 @@ class ChillaDashboard {
         document.getElementById('main-app').classList.remove('hidden');
 
         if (this.currentUser) {
-            document.getElementById('user-display-name').textContent = this.currentUser.full_name || 'User';
+            // Construct full name from separate fields
+            const fullName = [
+                this.currentUser.first_name || '',
+                this.currentUser.middle_name || '',
+                this.currentUser.last_name || ''
+            ].filter(name => name.trim()).join(' ') || 'User';
+
+            document.getElementById('user-display-name').textContent = fullName;
             document.getElementById('user-display-email').textContent = this.currentUser.email;
 
             const verificationStatus = document.getElementById('verification-status');
@@ -1083,7 +1092,9 @@ class ChillaDashboard {
                     this.currentUser = data.users || data.user || {
                         email: data.email,
                         email_verified: data.email_verified,
-                        full_name: data.full_name,
+                        first_name: data.first_name,
+                        middle_name: data.middle_name,
+                        last_name: data.last_name,
                         auth_provider: data.auth_provider
                     };
 
