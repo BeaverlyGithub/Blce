@@ -797,12 +797,7 @@ class ChillaDashboard {
         addListener('confirm-disconnect-btn', 'click', boundMethods.confirmDisconnect);
         addListener('cancel-disconnect-btn', 'click', boundMethods.closeDisconnectModal);
 
-        // Handle sidebar overlay click
-        const sidebarOverlay = document.querySelector('.sidebar-overlay');
-        if (sidebarOverlay) {
-            sidebarOverlay.removeEventListener('click', boundMethods.closeSidebar);
-            sidebarOverlay.addEventListener('click', boundMethods.closeSidebar);
-        }
+        addListenerByQuery('.sidebar-overlay', 'click', boundMethods.closeSidebar);
 
         console.log('All event listeners attached');
     }
