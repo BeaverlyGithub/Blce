@@ -1,18 +1,33 @@
+
 // Enhanced Authentication with Server-Side Validation
 class ChillaAuth {
     constructor() {
         this.csrfToken = null;
         this.sessionValidated = false;
+        this.csrfTokenLoading = false;
         this.initAuth();
     }
 
     async initAuth() {
         await this.validateSession();
         this.setupEventListeners();
-        await this.loadCSRFToken();
+        // Load CSRF token after session validation
+        if (!this.sessionValidated) {
+            await this.loadCSRFToken();
+        }
     }
 
-    async loadCSRFToken() {
+    async loadCSRFToken(forceRefresh = false) {
+        if (this.csrfTokenLoading && !forceRefresh) {
+            // Wait for existing request to complete
+            while (this.csrfTokenLoading) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return this.csrfToken;
+        }
+
+        this.csrfTokenLoading = true;
+
         try {
             const response = await fetch('https://cook.beaverlyai.com/api/csrf_token', {
                 method: 'GET',
@@ -26,10 +41,20 @@ class ChillaAuth {
             if (response.ok) {
                 const data = await response.json();
                 this.csrfToken = data.csrf_token;
+                console.log('✅ CSRF token loaded successfully');
+                return this.csrfToken;
+            } else {
+                console.error('❌ Failed to load CSRF token:', response.status);
+                this.csrfToken = null;
             }
         } catch (error) {
-            console.error('Failed to load CSRF token:', error);
+            console.error('❌ CSRF token request error:', error);
+            this.csrfToken = null;
+        } finally {
+            this.csrfTokenLoading = false;
         }
+
+        return this.csrfToken;
     }
 
     async validateSession() {
@@ -56,6 +81,7 @@ class ChillaAuth {
             this.showAuthScreen();
         } catch (error) {
             console.error('Session validation error:', error);
+            this.sessionValidated = false;
             this.showAuthScreen();
         }
     }
@@ -109,11 +135,31 @@ class ChillaAuth {
         this.setupFormNavigation();
     }
 
+    async ensureCSRFToken() {
+        if (!this.csrfToken) {
+            await this.loadCSRFToken();
+        }
+
+        // If still no token, try one more time
+        if (!this.csrfToken) {
+            await this.loadCSRFToken(true);
+        }
+
+        return this.csrfToken;
+    }
+
     async handleLogin() {
         const email = this.sanitizeInput(document.getElementById('login-email')?.value);
         const password = document.getElementById('login-password')?.value;
 
         if (!this.validateLoginInput(email, password)) {
+            return;
+        }
+
+        // Ensure we have a valid CSRF token
+        const csrfToken = await this.ensureCSRFToken();
+        if (!csrfToken) {
+            this.showError('Security token unavailable. Please refresh the page and try again.');
             return;
         }
 
@@ -124,7 +170,7 @@ class ChillaAuth {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
+                    'X-CSRF-Token': csrfToken
                 },
                 body: JSON.stringify({ email, password })
             });
@@ -134,6 +180,11 @@ class ChillaAuth {
             if (response.ok && data.status === 'success') {
                 // Server sets secure HTTP-only cookie
                 window.location.href = 'dashboard.html';
+            } else if (response.status === 403 && data.detail?.includes('CSRF')) {
+                // CSRF token invalid - refresh and retry once
+                console.log('🔄 CSRF token invalid, refreshing...');
+                await this.loadCSRFToken(true);
+                this.showError('Security token expired. Please try logging in again.');
             } else {
                 this.showError(data.detail || 'Login failed');
             }
@@ -150,6 +201,13 @@ class ChillaAuth {
             return;
         }
 
+        // Ensure we have a valid CSRF token
+        const csrfToken = await this.ensureCSRFToken();
+        if (!csrfToken) {
+            this.showError('Security token unavailable. Please refresh the page and try again.');
+            return;
+        }
+
         try {
             const response = await fetch('https://cook.beaverlyai.com/api/register', {
                 method: 'POST',
@@ -157,7 +215,7 @@ class ChillaAuth {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
+                    'X-CSRF-Token': csrfToken
                 },
                 body: JSON.stringify(formData)
             });
@@ -167,6 +225,11 @@ class ChillaAuth {
             if (response.ok) {
                 this.showSuccess('Registration successful! Please check your email for verification.');
                 this.showLoginScreen();
+            } else if (response.status === 403 && data.detail?.includes('CSRF')) {
+                // CSRF token invalid - refresh and retry once
+                console.log('🔄 CSRF token invalid, refreshing...');
+                await this.loadCSRFToken(true);
+                this.showError('Security token expired. Please try registering again.');
             } else {
                 this.showError(data.detail || 'Registration failed');
             }
@@ -209,6 +272,13 @@ class ChillaAuth {
             return;
         }
 
+        // Ensure we have a valid CSRF token
+        const csrfToken = await this.ensureCSRFToken();
+        if (!csrfToken) {
+            this.showError('Security token unavailable. Please refresh the page and try again.');
+            return;
+        }
+
         try {
             const response = await fetch('https://cook.beaverlyai.com/api/forgot_password', {
                 method: 'POST',
@@ -216,13 +286,23 @@ class ChillaAuth {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': this.csrfToken || ''
+                    'X-CSRF-Token': csrfToken
                 },
                 body: JSON.stringify({ email })
             });
 
             const data = await response.json();
-            this.showSuccess(data.message || 'Reset link sent if account exists');
+
+            if (response.ok) {
+                this.showSuccess(data.message || 'Reset link sent if account exists');
+            } else if (response.status === 403 && data.detail?.includes('CSRF')) {
+                // CSRF token invalid - refresh and retry once
+                console.log('🔄 CSRF token invalid, refreshing...');
+                await this.loadCSRFToken(true);
+                this.showError('Security token expired. Please try again.');
+            } else {
+                this.showError(data.detail || 'Password reset failed');
+            }
         } catch (error) {
             console.error('Password reset error:', error);
             this.showError('Network error. Please try again.');
@@ -328,65 +408,91 @@ class ChillaAuth {
         document.getElementById('login-screen')?.classList.remove('hidden');
         document.getElementById('signup-screen')?.classList.add('hidden');
         document.getElementById('forgot-password-screen')?.classList.add('hidden');
+        this.clearMessages();
     }
 
     showSignupScreen() {
         document.getElementById('login-screen')?.classList.add('hidden');
         document.getElementById('signup-screen')?.classList.remove('hidden');
         document.getElementById('forgot-password-screen')?.classList.add('hidden');
+        this.clearMessages();
     }
 
     showForgotPasswordScreen() {
         document.getElementById('login-screen')?.classList.add('hidden');
         document.getElementById('signup-screen')?.classList.add('hidden');
         document.getElementById('forgot-password-screen')?.classList.remove('hidden');
+        this.clearMessages();
+    }
+
+    clearMessages() {
+        // Clear any existing error or success messages when switching screens
+        const errorDiv = document.querySelector('.auth-error');
+        const successDiv = document.querySelector('.auth-success');
+        if (errorDiv) errorDiv.remove();
+        if (successDiv) successDiv.remove();
     }
 
     showError(message) {
-        // Create or update error display
-        let errorDiv = document.querySelector('.auth-error');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.className = 'auth-error';
-            const currentScreenElement = document.querySelector('.screen:not(.hidden)');
-            const authForm = currentScreenElement?.querySelector('.auth-form');
-            if(authForm) {
-                authForm.prepend(errorDiv);
-            } else {
-                document.body.prepend(errorDiv); // Fallback if .auth-form not found
-            }
+        this.clearMessages();
+
+        let errorDiv = document.createElement('div');
+        errorDiv.className = 'auth-error';
+
+        const currentScreenElement = document.querySelector('.screen:not(.hidden)');
+        const authForm = currentScreenElement?.querySelector('.auth-form') || currentScreenElement?.querySelector('form');
+
+        if (authForm) {
+            authForm.prepend(errorDiv);
+        } else {
+            // Fallback - try to find any visible container
+            const container = currentScreenElement || document.body;
+            container.prepend(errorDiv);
         }
+
         errorDiv.textContent = message;
-        errorDiv.style.color = '#ff4444';
-        errorDiv.style.padding = '10px';
-        errorDiv.style.marginBottom = '10px';
-        errorDiv.style.border = '1px solid #ff4444';
-        errorDiv.style.backgroundColor = '#ffebeb';
-        errorDiv.style.borderRadius = '8px';
-        errorDiv.style.textAlign = 'center';
+        errorDiv.style.cssText = `
+            color: #ff4444;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ff4444;
+            background-color: #ffebeb;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(255, 68, 68, 0.1);
+        `;
     }
 
     showSuccess(message) {
-        let successDiv = document.querySelector('.auth-success');
-        if (!successDiv) {
-            successDiv = document.createElement('div');
-            successDiv.className = 'auth-success';
-            const currentScreenElement = document.querySelector('.screen:not(.hidden)');
-            const authForm = currentScreenElement?.querySelector('.auth-form');
-            if(authForm) {
-                authForm.prepend(successDiv);
-            } else {
-                document.body.prepend(successDiv); // Fallback if .auth-form not found
-            }
+        this.clearMessages();
+
+        let successDiv = document.createElement('div');
+        successDiv.className = 'auth-success';
+
+        const currentScreenElement = document.querySelector('.screen:not(.hidden)');
+        const authForm = currentScreenElement?.querySelector('.auth-form') || currentScreenElement?.querySelector('form');
+
+        if (authForm) {
+            authForm.prepend(successDiv);
+        } else {
+            // Fallback - try to find any visible container
+            const container = currentScreenElement || document.body;
+            container.prepend(successDiv);
         }
+
         successDiv.textContent = message;
-        successDiv.style.color = '#44ff44';
-        successDiv.style.padding = '10px';
-        successDiv.style.marginBottom = '10px';
-        successDiv.style.border = '1px solid #4CAF50';
-        successDiv.style.backgroundColor = '#e8f5e9';
-        successDiv.style.borderRadius = '8px';
-        successDiv.style.textAlign = 'center';
+        successDiv.style.cssText = `
+            color: #4CAF50;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #4CAF50;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(76, 175, 80, 0.1);
+        `;
     }
 }
 
