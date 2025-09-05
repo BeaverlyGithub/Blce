@@ -71,6 +71,11 @@ class ChillaAuth {
                 const data = await response.json();
                 if (data.status === 'valid') {
                     this.sessionValidated = true;
+                    // Check if email is verified before redirecting to dashboard
+                    if (data.users && !data.users.email_verified && data.users.auth_provider !== 'gmail') {
+                        this.showEmailVerificationModal(data.users.email);
+                        return;
+                    }
                     window.location.href = 'dashboard.html';
                     return;
                 }
@@ -497,6 +502,133 @@ class ChillaAuth {
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(76, 175, 80, 0.1);
         `;
+    }
+
+    showEmailVerificationModal(email) {
+        // Hide auth screens
+        const loadingScreen = document.getElementById('loading-screen');
+        const authContainer = document.getElementById('auth-container');
+        if (loadingScreen) loadingScreen.classList.add('hidden');
+        if (authContainer) authContainer.classList.add('hidden');
+
+        // Create and show verification modal
+        const modal = document.createElement('div');
+        modal.id = 'email-verification-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📧</div>
+                <h3 style="margin: 0 0 1rem 0; color: #333;">Verify Your Email</h3>
+                <p style="margin-bottom: 1rem; color: #666;">
+                    Please verify your email address to continue using Chilla.
+                </p>
+                <p style="margin-bottom: 1rem; color: #666;">
+                    A verification email has been sent to <strong>${email}</strong>.
+                </p>
+                <p style="margin-bottom: 2rem; color: #666;">
+                    If you haven't received it, please check your spam folder or click the button below to resend.
+                </p>
+                <button id="resend-verification-btn" style="
+                    background: #007bff;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin-right: 12px;
+                ">Resend Verification Email</button>
+                <button id="logout-from-verification-btn" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">Logout</button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        document.getElementById('resend-verification-btn')?.addEventListener('click', async () => {
+            await this.sendVerificationEmail(email);
+        });
+
+        document.getElementById('logout-from-verification-btn')?.addEventListener('click', async () => {
+            await this.handleLogoutFromModal();
+        });
+    }
+
+    async sendVerificationEmail(email) {
+        try {
+            const csrfToken = await this.ensureCSRFToken();
+            const response = await fetch('https://cook.beaverlyai.com/api/send_verification_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                this.showSuccess('Verification email sent! Please check your inbox.');
+            } else {
+                this.showError(result.error || 'Failed to send verification email');
+            }
+        } catch (error) {
+            console.error('Verification email error:', error);
+            this.showError('Network error. Please try again.');
+        }
+    }
+
+    async handleLogoutFromModal() {
+        try {
+            await fetch('https://cook.beaverlyai.com/api/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+        } catch (error) {
+            console.warn('Logout failed silently:', error);
+        }
+
+        // Remove modal and show auth screen
+        const modal = document.getElementById('email-verification-modal');
+        if (modal) modal.remove();
+        
+        this.sessionValidated = false;
+        this.showAuthScreen();
     }
 }
 
