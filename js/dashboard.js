@@ -799,6 +799,17 @@ class ChillaDashboard {
 
         addListenerByQuery('.sidebar-overlay', 'click', boundMethods.closeSidebar);
 
+        // Additional click handler for main content area when sidebar is open
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.addEventListener('click', (e) => {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar && sidebar.classList.contains('active')) {
+                    this.closeSidebar();
+                }
+            });
+        }
+
         console.log('All event listeners attached');
     }
 
