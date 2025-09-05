@@ -187,11 +187,6 @@ class ChillaAuth {
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
-                // Check if email is verified before redirecting to dashboard
-                if (data.user && !data.user.email_verified && data.user.auth_provider !== 'gmail') {
-                    this.showEmailVerificationModal(data.user.email);
-                    return;
-                }
                 // Server sets secure HTTP-only cookie
                 window.location.href = 'dashboard.html';
             } else if (response.status === 403 && data.detail?.includes('CSRF')) {
@@ -604,13 +599,13 @@ class ChillaAuth {
 
             const result = await response.json();
             if (response.ok) {
-                this.showModalSuccess('Verification email sent! Please check your inbox.');
+                this.showSuccess('Verification email sent! Please check your inbox.');
             } else {
-                this.showModalError(result.error || 'Failed to send verification email');
+                this.showError(result.error || 'Failed to send verification email');
             }
         } catch (error) {
             console.error('Verification email error:', error);
-            this.showModalError('Network error. Please try again.');
+            this.showError('Network error. Please try again.');
         }
     }
 
@@ -634,62 +629,6 @@ class ChillaAuth {
         
         this.sessionValidated = false;
         this.showAuthScreen();
-    }
-
-    showModalSuccess(message) {
-        // Find any existing message in the modal
-        const existingMessage = document.querySelector('#email-verification-modal .modal-message');
-        if (existingMessage) existingMessage.remove();
-
-        // Create new success message
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'modal-message';
-        messageDiv.textContent = message;
-        messageDiv.style.cssText = `
-            color: #4CAF50;
-            padding: 12px;
-            margin: 1rem 0;
-            border: 1px solid #4CAF50;
-            background-color: #e8f5e9;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
-        `;
-
-        // Insert the message into the modal
-        const modalContent = document.querySelector('#email-verification-modal > div');
-        if (modalContent) {
-            const buttonsContainer = modalContent.querySelector('button').parentNode;
-            modalContent.insertBefore(messageDiv, buttonsContainer);
-        }
-    }
-
-    showModalError(message) {
-        // Find any existing message in the modal
-        const existingMessage = document.querySelector('#email-verification-modal .modal-message');
-        if (existingMessage) existingMessage.remove();
-
-        // Create new error message
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'modal-message';
-        messageDiv.textContent = message;
-        messageDiv.style.cssText = `
-            color: #ff4444;
-            padding: 12px;
-            margin: 1rem 0;
-            border: 1px solid #ff4444;
-            background-color: #ffebeb;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
-        `;
-
-        // Insert the message into the modal
-        const modalContent = document.querySelector('#email-verification-modal > div');
-        if (modalContent) {
-            const buttonsContainer = modalContent.querySelector('button').parentNode;
-            modalContent.insertBefore(messageDiv, buttonsContainer);
-        }
     }
 }
 
