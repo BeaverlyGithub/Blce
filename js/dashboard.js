@@ -272,8 +272,34 @@ class ChillaDashboard {
     }
 
     getAuthToken() {
-        // Get token from localStorage, sessionStorage, or wherever you store it
-        return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || this.authToken;
+        // Token is stored in HTTP-only cookie, need to get it from the server response
+        // or use the token from the current session if available
+        return this.authToken;
+    }
+
+    async getValidAuthToken() {
+        // Get a fresh token from the server since we can't access HTTP-only cookies directly
+        try {
+            const response = await fetch(`${API_BASE}/api/verify_token`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ token: null })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.status === 'valid' && data.token) {
+                    return data.token;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to get valid auth token:', error);
+        }
+        return null;
     }
 
     redirectToLogin() {
@@ -925,17 +951,13 @@ class ChillaDashboard {
                     throw new Error('Authentication required. Please log in first.');
                 }
 
-                // Now generate OAuth state with proper authentication
-                const token = this.getAuthToken();
-                if (!token) {
-                    throw new Error('No authentication token found');
-                }
-
+                // Now generate OAuth state with proper authentication using credentials
                 const stateResponse = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
 
