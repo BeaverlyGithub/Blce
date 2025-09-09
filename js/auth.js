@@ -674,4 +674,12 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePasswordMeter(this.value);
         });
     }
+
+    // Add password toggle event listener
+    const passwordToggle = document.getElementById('signup-password-toggle');
+    if (passwordToggle) {
+        passwordToggle.addEventListener('click', function() {
+            togglePassword('signup-password');
+        });
+    }
 });
