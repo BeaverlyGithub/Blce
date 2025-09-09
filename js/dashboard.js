@@ -134,18 +134,76 @@ class ChillaDashboard {
         });
     }
 
-    handleDerivCallback() {
+    async handleDerivCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
+        const state = urlParams.get('state');
         const isPending = localStorage.getItem('deriv_oauth_pending') === 'true';
+        const storedState = localStorage.getItem('oauth_state_token');
 
-        if (code && isPending) {
-            localStorage.setItem('deriv_connected', 'true');
-            localStorage.setItem('deriv_auth_code', code);
-            localStorage.removeItem('deriv_oauth_pending');
-            window.history.replaceState({}, document.title, window.location.pathname);
-            this.showNotification('Successfully connected to Deriv!', 'success');
-            this.updateConnectionStatus(true);
+        if (code && isPending && state) {
+            try {
+                // Validate state token matches
+                if (state !== storedState) {
+                    throw new Error('OAuth state mismatch - possible security issue');
+                }
+
+                // Process OAuth callback with backend
+                const callbackResponse = await fetch(`${API_BASE}/api/connect_oauth/callback`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        ...(this.csrfToken && {'X-CSRF-Token': this.csrfToken})
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        state: state,
+                        broker: 'deriv'
+                    })
+                });
+
+                if (callbackResponse.ok) {
+                    const result = await callbackResponse.json();
+
+                    // Clear OAuth state
+                    localStorage.removeItem('deriv_oauth_pending');
+                    localStorage.removeItem('oauth_state_token');
+
+                    // Set connection status
+                    localStorage.setItem('deriv_connected', 'true');
+
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    this.showNotification('Successfully connected to Deriv!', 'success');
+                    this.updateConnectionStatus(true);
+
+                    // Refresh dashboard data
+                    await this.loadDashboardData();
+
+                    // Reinitialize WebSocket with new connection
+                    this.initializeWebSocket();
+                } else {
+                    const error = await callbackResponse.json();
+                    throw new Error(error.detail || error.message || 'OAuth callback processing failed');
+                }
+            } catch (error) {
+                console.error('OAuth callback error:', error);
+
+                // Clear OAuth state on error
+                localStorage.removeItem('deriv_oauth_pending');
+                localStorage.removeItem('oauth_state_token');
+                localStorage.removeItem('deriv_connected');
+
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                this.showNotification(`Connection failed: ${error.message}`, 'error');
+                this.updateConnectionStatus(false);
+            }
         }
     }
 
@@ -447,10 +505,42 @@ class ChillaDashboard {
 
     async checkConnectionStatus() {
         try {
+            // Check broker connection status from server
+            const connectionResponse = await fetch(`${API_BASE}/api/broker_status`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    ...(this.csrfToken && {'X-CSRF-Token': this.csrfToken})
+                }
+            });
+
+            if (connectionResponse.ok) {
+                const connectionData = await connectionResponse.json();
+                this.updateConnectionStatus(connectionData.connected || false);
+                return;
+            } else if (connectionResponse.status === 404) {
+                // No broker connection found
+                this.updateConnectionStatus(false);
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking broker connection status:', error);
+        }
+
+        // Fallback to token verification
+        try {
             const response = await fetch(`${API_BASE}/api/verify_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: this.getSecureHeaders(),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    ...(this.csrfToken && {'X-CSRF-Token': this.csrfToken})
+                },
                 body: JSON.stringify({ token: null })
             });
 
@@ -464,9 +554,10 @@ class ChillaDashboard {
                 }
             }
         } catch (error) {
-            console.error('Error checking connection status:', error);
+            console.error('Error checking connection status via token:', error);
         }
 
+        // Final fallback to localStorage (not recommended for production)
         const derivConnected = localStorage.getItem('deriv_connected') === 'true';
         this.updateConnectionStatus(derivConnected);
     }
@@ -523,10 +614,26 @@ class ChillaDashboard {
 
         // Server decides if WebSocket should be initialized based on verification status
         try {
+            // Get fresh auth token first
+            const authToken = await this.getValidAuthToken();
+            if (!authToken) {
+                console.error('No valid auth token for WebSocket');
+                return;
+            }
+
             const wsTokenResponse = await fetch(`${API_BASE}/api/ws_token`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: this.getSecureHeaders()
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    ...(this.csrfToken && {'X-CSRF-Token': this.csrfToken})
+                },
+                body: JSON.stringify({
+                    email: this.currentUser.email,
+                    auth_token: authToken
+                })
             });
 
             if (wsTokenResponse.ok) {
@@ -534,9 +641,12 @@ class ChillaDashboard {
                 if (tokenData.ws_token) {
                     this.connectWebSocket(tokenData.ws_token);
                     this.setupActivityWebSocket(tokenData.ws_token);
+                } else {
+                    console.error('No WebSocket token in response');
                 }
             } else {
-                console.error('Failed to get WebSocket token:', wsTokenResponse.status);
+                const errorText = await wsTokenResponse.text();
+                console.error('Failed to get WebSocket token:', wsTokenResponse.status, errorText);
             }
         } catch (error) {
             console.error('WebSocket token error:', error);
@@ -932,14 +1042,17 @@ class ChillaDashboard {
 
         if (selectedBroker === 'deriv') {
             try {
-                // First verify we're authenticated
-                const authCheck = await fetch('https://cook.beaverlyai.com/api/verify_token', {
+                // First verify we're authenticated with fresh token check
+                const authCheck = await fetch(`${API_BASE}/api/verify_token`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        ...(this.csrfToken && {'X-CSRF-Token': this.csrfToken})
+                    },
+                    body: JSON.stringify({ token: null })
                 });
 
                 if (!authCheck.ok) {
@@ -947,36 +1060,59 @@ class ChillaDashboard {
                 }
 
                 const authData = await authCheck.json();
-                if (authData.status !== 'valid') {
+                if (authData.status !== 'valid' || !authData.users) {
                     throw new Error('Authentication required. Please log in first.');
                 }
 
-                // Now generate OAuth state with proper authentication using credentials
-                const stateResponse = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
+                // Get fresh CSRF token before OAuth state generation
+                await this.loadCSRFToken();
+
+                // Now generate OAuth state with proper authentication
+                const stateResponse = await fetch(`${API_BASE}/api/generate_oauth_state`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        ...(this.csrfToken && {'X-CSRF-Token': this.csrfToken})
+                    },
+                    body: JSON.stringify({
+                        broker: 'deriv',
+                        user_email: this.currentUser?.email || authData.users?.email
+                    })
                 });
 
                 if (!stateResponse.ok) {
                     const errorText = await stateResponse.text();
-                    throw new Error(`Backend returned error: ${stateResponse.status} - ${errorText}`);
+                    let errorMsg = `Backend returned error: ${stateResponse.status}`;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMsg = errorJson.detail || errorJson.message || errorMsg;
+                    } catch (e) {
+                        errorMsg += ` - ${errorText}`;
+                    }
+                    throw new Error(errorMsg);
                 }
 
-                const { state_token } = await stateResponse.json();
+                const stateData = await stateResponse.json();
+                if (!stateData.state_token) {
+                    throw new Error('No state token received from server');
+                }
 
                 const appId = '85950';
                 const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
-                const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
+                const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${stateData.state_token}`;
 
+                // Store OAuth state for validation
                 localStorage.setItem('deriv_oauth_pending', 'true');
+                localStorage.setItem('oauth_state_token', stateData.state_token);
+
+                // Redirect to Deriv OAuth
                 window.location.href = derivOAuthUrl;
             } catch (error) {
                 console.error("OAuth error:", error);
-                this.showNotification('Could not start Deriv connection. Please try again.', 'error');
+                this.showNotification(`OAuth connection failed: ${error.message}`, 'error');
             }
         } else {
             this.showNotification('Other brokers coming soon!', 'info');
