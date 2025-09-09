@@ -253,7 +253,7 @@ class ChillaAuth {
             }
 
             const config = await response.json();
-            
+
             // Validate config before using
             if (!config.client_id || !config.redirect_uri) {
                 throw new Error('Invalid OAuth configuration');
@@ -598,7 +598,80 @@ class ChillaAuth {
     }
 }
 
+// Password visibility toggle
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eyeIcon = field.nextElementSibling;
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        eyeIcon.innerHTML = '👁️';
+    } else {
+        field.type = 'password';
+        eyeIcon.innerHTML = '👁️';
+    }
+}
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    const checks = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    const passedChecks = Object.values(checks).filter(Boolean).length;
+    let strength = 'weak';
+    let color = '#ff4444';
+
+    if (passedChecks >= 5) {
+        strength = 'strong';
+        color = '#00c851';
+    } else if (passedChecks >= 3) {
+        strength = 'medium';
+        color = '#ffbb33';
+    }
+
+    return { checks, strength, color, score: passedChecks };
+}
+
+// Update password strength meter
+function updatePasswordMeter(password) {
+    const result = checkPasswordStrength(password);
+    const meter = document.getElementById('passwordMeter');
+    const requirements = document.getElementById('passwordRequirements');
+
+    if (!meter || !requirements) return;
+
+    // Update meter bar
+    const percentage = (result.score / 5) * 100;
+    meter.style.width = percentage + '%';
+    meter.style.backgroundColor = result.color;
+
+    // Update requirements list
+    const reqItems = requirements.querySelectorAll('li');
+    reqItems[0].className = result.checks.length ? 'req-met' : 'req-unmet';
+    reqItems[1].className = result.checks.uppercase ? 'req-met' : 'req-unmet';
+    reqItems[2].className = result.checks.lowercase ? 'req-met' : 'req-unmet';
+    reqItems[3].className = result.checks.number ? 'req-met' : 'req-unmet';
+    reqItems[4].className = result.checks.special ? 'req-met' : 'req-unmet';
+
+    // Show/hide requirements
+    requirements.style.display = password ? 'block' : 'none';
+}
+
+
 // Initialize authentication when DOM loads
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaAuth();
+
+    // Add password strength meter event listener
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            updatePasswordMeter(this.value);
+        });
+    }
 });
