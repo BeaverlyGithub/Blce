@@ -271,6 +271,13 @@ class ChillaDashboard {
         };
     }
 
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
     getAuthToken() {
         // Try to get token from cookie first
         let token = this.getCookie('chilla_token');
@@ -928,22 +935,23 @@ class ChillaDashboard {
         }
     }
 
-    async handleBrokerOAuth(broker) {
+    async handleBrokerOAuth() {
         try {
-            console.log(`🔗 Starting ${broker} OAuth flow`);
-
-            // Get the current auth token
-            const token = this.getAuthToken();
-            if (!token) {
-                throw new Error('Authentication required. Please login first.');
+            // Get selected broker from dropdown
+            const dropdown = document.getElementById('broker-dropdown');
+            if (!dropdown || !dropdown.value) {
+                throw new Error('Please select a broker first.');
             }
 
-            // Generate state token
-            const stateResponse = await fetch('/api/generate_oauth_state', {
+            const broker = dropdown.value;
+            console.log(`🔗 Starting ${broker} OAuth flow`);
+
+            // Generate state token with proper API endpoint
+            const stateResponse = await fetch(`${API_BASE}/api/generate_oauth_state`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 credentials: 'include'
             });
