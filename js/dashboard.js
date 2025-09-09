@@ -932,15 +932,22 @@ class ChillaDashboard {
                 }
 
                 // Now generate OAuth state with proper authentication
-                const response = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
+                const token = this.getAuthToken();
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const stateResponse = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
                     method: 'POST',
-                    credentials: 'include',
-                    headers: this.getSecureHeaders()
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Backend returned error: ${response.status} - ${errorText}`);
+                if (!stateResponse.ok) {
+                    const errorText = await stateResponse.text();
+                    throw new Error(`Backend returned error: ${stateResponse.status} - ${errorText}`);
                 }
 
                 const { state_token } = await response.json();
