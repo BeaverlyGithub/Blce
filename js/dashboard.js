@@ -912,6 +912,26 @@ class ChillaDashboard {
 
         if (selectedBroker === 'deriv') {
             try {
+                // First verify we're authenticated
+                const authCheck = await fetch('https://cook.beaverlyai.com/api/verify_token', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!authCheck.ok) {
+                    throw new Error('Authentication required. Please log in first.');
+                }
+
+                const authData = await authCheck.json();
+                if (authData.status !== 'valid') {
+                    throw new Error('Authentication required. Please log in first.');
+                }
+
+                // Now generate OAuth state with proper authentication
                 const response = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
                     method: 'POST',
                     credentials: 'include',
