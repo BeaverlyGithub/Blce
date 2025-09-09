@@ -265,21 +265,15 @@ class ChillaDashboard {
     }
 
     getSecureHeaders() {
-        const headers = {
+        return {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
+            'X-CSRF-Token': this.csrfToken || ''
         };
+    }
 
-        if (this.csrfToken) {
-            headers['X-CSRF-Token'] = this.csrfToken;
-        }
-
-        if (this.authToken) {
-            headers['Authorization'] = `Bearer ${this.authToken}`;
-        }
-
-        return headers;
+    getAuthToken() {
+        // Get token from localStorage, sessionStorage, or wherever you store it
+        return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || this.authToken;
     }
 
     redirectToLogin() {
@@ -950,7 +944,7 @@ class ChillaDashboard {
                     throw new Error(`Backend returned error: ${stateResponse.status} - ${errorText}`);
                 }
 
-                const { state_token } = await response.json();
+                const { state_token } = await stateResponse.json();
 
                 const appId = '85950';
                 const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
