@@ -53,6 +53,43 @@ class ChillaAuth {
         return this.csrfToken;
     }
 
+    async loadCSRFTokenForEmail(email) {
+        this.csrfTokenLoading = true;
+
+        try {
+            const url = new URL('https://cook.beaverlyai.com/api/csrf_token');
+            if (email) {
+                url.searchParams.append('email', email);
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.csrfToken = data.csrf_token;
+                console.log('✅ CSRF token loaded successfully for email');
+                return this.csrfToken;
+            } else {
+                console.error('❌ Failed to load CSRF token:', response.status);
+                this.csrfToken = null;
+            }
+        } catch (error) {
+            console.error('❌ CSRF token request error:', error);
+            this.csrfToken = null;
+        } finally {
+            this.csrfTokenLoading = false;
+        }
+
+        return this.csrfToken;
+    }
+
     async validateSession() {
         try {
             const response = await fetch('https://cook.beaverlyai.com/api/verify_token', {
@@ -200,8 +237,8 @@ class ChillaAuth {
         // Collect form data without client-side validation
         const formData = this.collectSignupData();
 
-        // Force refresh CSRF token for registration to ensure it's valid for anonymous users
-        const csrfToken = await this.loadCSRFToken(true);
+        // Get CSRF token with email parameter for consistent validation
+        const csrfToken = await this.loadCSRFTokenForEmail(formData.email);
         if (!csrfToken) {
             this.showError('Security token unavailable. Please refresh the page and try again.');
             return;
