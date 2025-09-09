@@ -1,5 +1,3 @@
-
-
 const API_BASE = 'https://cook.beaverlyai.com';
 
 // Secure contact form handler
@@ -75,8 +73,8 @@ class ContactFormHandler {
             margin: 1rem 0;
             border-radius: 4px;
             text-align: center;
-            ${type === 'error' ? 
-                'background: #fee; color: #c33; border: 1px solid #fcc;' : 
+            ${type === 'error' ?
+                'background: #fee; color: #c33; border: 1px solid #fcc;' :
                 'background: #efe; color: #363; border: 1px solid #cfc;'
             }
         `;
@@ -601,7 +599,7 @@ class ChillaDashboard {
                     const reconnectDelay = Math.min(5000 * Math.pow(2, this.activityWsReconnectAttempts), 30000);
                     this.activityWsReconnectAttempts++;
 
-                    console.log(`📊 Will reconnect Activity WebSocket in ${reconnectDelay/1000}s (attempt ${this.activityWsReconnectAttempts})`);
+                    console.log(`📊 Will reconnect Activity WebSocket in ${reconnectDelay / 1000}s (attempt ${this.activityWsReconnectAttempts})`);
                     setTimeout(() => this.initializeWebSocket(), reconnectDelay);
                 }
             };
@@ -642,7 +640,7 @@ class ChillaDashboard {
         const { status, broker, account_id, watching_markets, last_activity, monitoring_active } = activityData;
 
         const displayAccountId = account_id || activityData.accountId || activityData.account ||
-                                (activityData.broker_data && activityData.broker_data.account_id);
+            (activityData.broker_data && activityData.broker_data.account_id);
 
         let statusHtml = '';
         let statusClass = '';
@@ -914,18 +912,21 @@ class ChillaDashboard {
 
         if (selectedBroker === 'deriv') {
             try {
-                const res = await fetch(`${API_BASE}/api/generate_oauth_state`, {
-                    method: "POST",
-                    headers: this.getSecureHeaders(),
-                    credentials: "include"
+                const response = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
 
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(`Backend returned error: ${res.status} - ${errorText}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Backend returned error: ${response.status} - ${errorText}`);
                 }
 
-                const { state_token } = await res.json();
+                const { state_token } = await response.json();
 
                 const appId = '85950';
                 const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
@@ -1185,4 +1186,3 @@ class ChillaDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaDashboard();
 });
-
