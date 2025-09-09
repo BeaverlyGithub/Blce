@@ -935,10 +935,7 @@ class ChillaDashboard {
                 const response = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
                     method: 'POST',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: this.getSecureHeaders()
                 });
 
                 if (!response.ok) {
