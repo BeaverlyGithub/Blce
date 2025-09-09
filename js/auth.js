@@ -200,8 +200,8 @@ class ChillaAuth {
         // Collect form data without client-side validation
         const formData = this.collectSignupData();
 
-        // Ensure we have a valid CSRF token
-        const csrfToken = await this.ensureCSRFToken();
+        // Force refresh CSRF token for registration to ensure it's valid for anonymous users
+        const csrfToken = await this.loadCSRFToken(true);
         if (!csrfToken) {
             this.showError('Security token unavailable. Please refresh the page and try again.');
             return;
@@ -224,11 +224,38 @@ class ChillaAuth {
             if (response.ok) {
                 this.showSuccess(data.message || 'Registration successful! Please check your email for verification.');
                 this.showLoginScreen();
-            } else if (response.status === 403 && data.detail?.includes('CSRF')) {
-                // CSRF token invalid - refresh and retry once
-                console.log('🔄 CSRF token invalid, refreshing...');
-                await this.loadCSRFToken(true);
-                this.showError('Security token expired. Please try registering again.');
+            } else if (response.status === 403 && (data.detail?.includes('CSRF') || data.detail?.includes('Invalid CSRF'))) {
+                // CSRF token invalid - refresh and retry once automatically
+                console.log('🔄 CSRF token invalid, refreshing and retrying...');
+                const newCsrfToken = await this.loadCSRFToken(true);
+                if (newCsrfToken) {
+                    // Retry the registration with new token
+                    try {
+                        const retryResponse = await fetch('https://cook.beaverlyai.com/api/register', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-Token': newCsrfToken
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const retryData = await retryResponse.json();
+                        if (retryResponse.ok) {
+                            this.showSuccess(retryData.message || 'Registration successful! Please check your email for verification.');
+                            this.showLoginScreen();
+                            return;
+                        } else {
+                            this.showError(retryData.detail || retryData.message || 'Registration failed');
+                            return;
+                        }
+                    } catch (retryError) {
+                        console.error('Registration retry error:', retryError);
+                    }
+                }
+                this.showError('Security token issue. Please try again.');
             } else {
                 this.showError(data.detail || data.message || 'Registration failed');
             }
