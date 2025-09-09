@@ -135,28 +135,6 @@ class ChillaAuth {
 
         // Navigation between forms
         this.setupFormNavigation();
-        
-        // Password toggle functionality
-        this.setupPasswordToggle();
-    }
-
-    setupPasswordToggle() {
-        document.querySelectorAll('.password-toggle').forEach(toggle => {
-            toggle.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordField = document.getElementById(targetId);
-                
-                if (passwordField) {
-                    if (passwordField.type === 'password') {
-                        passwordField.type = 'text';
-                        this.textContent = '🙈';
-                    } else {
-                        passwordField.type = 'password';
-                        this.textContent = '👁️';
-                    }
-                }
-            });
-        });
     }
 
     async ensureCSRFToken() {
