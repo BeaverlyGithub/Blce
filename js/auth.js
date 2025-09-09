@@ -1,8 +1,7 @@
-// Enhanced Authentication with Server-Side Validation
+// Enhanced Authentication with Pure Server-Side Validation
 class ChillaAuth {
     constructor() {
         this.csrfToken = null;
-        this.sessionValidated = false;
         this.csrfTokenLoading = false;
         this.initAuth();
     }
@@ -11,9 +10,7 @@ class ChillaAuth {
         await this.validateSession();
         this.setupEventListeners();
         // Load CSRF token after session validation
-        if (!this.sessionValidated) {
-            await this.loadCSRFToken();
-        }
+        await this.loadCSRFToken();
     }
 
     async loadCSRFToken(forceRefresh = false) {
@@ -70,10 +67,9 @@ class ChillaAuth {
             if (response.ok) {
                 const data = await response.json();
                 if (data.status === 'valid') {
-                    this.sessionValidated = true;
-                    // Check if email is verified before redirecting to dashboard
-                    if (data.users && !data.users.email_verified && data.users.auth_provider !== 'gmail') {
-                        this.showEmailVerificationModal(data.users.email);
+                    // Server decides where user goes - no client-side decision making
+                    if (data.redirect_to) {
+                        window.location.href = data.redirect_to;
                         return;
                     }
                     window.location.href = 'dashboard.html';
@@ -81,16 +77,13 @@ class ChillaAuth {
                 }
             } else if (response.status === 401) {
                 console.error('Session validation failed: 401 Unauthorized');
-                this.sessionValidated = false;
                 this.showAuthScreen();
                 return;
             }
 
-            this.sessionValidated = false;
             this.showAuthScreen();
         } catch (error) {
             console.error('Session validation error:', error);
-            this.sessionValidated = false;
             this.showAuthScreen();
         }
     }
@@ -158,12 +151,9 @@ class ChillaAuth {
     }
 
     async handleLogin() {
+        // Get form data without validation
         const email = this.sanitizeInput(document.getElementById('login-email')?.value);
         const password = document.getElementById('login-password')?.value;
-
-        if (!this.validateLoginInput(email, password)) {
-            return;
-        }
 
         // Ensure we have a valid CSRF token
         const csrfToken = await this.ensureCSRFToken();
@@ -187,18 +177,18 @@ class ChillaAuth {
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
-                // Server sets secure HTTP-only cookie
-                window.location.href = 'dashboard.html';
+                // Server handles all logic - just redirect to server-specified location
+                window.location.href = data.redirect_to || 'dashboard.html';
             } else if (response.status === 403 && data.detail?.includes('CSRF')) {
                 // CSRF token invalid - refresh and retry once
                 console.log('🔄 CSRF token invalid, refreshing...');
                 await this.loadCSRFToken(true);
                 this.showError('Security token expired. Please try logging in again.');
-            } else if (data.detail?.includes('verify your email') || data.detail?.includes('email address before logging')) {
-                // Show verification modal for unverified users
+            } else if (data.show_verification_modal) {
+                // Server tells us to show verification modal
                 this.showLoginVerificationModal(email);
             } else {
-                this.showError(data.detail || 'Login failed');
+                this.showError(data.detail || data.message || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -207,11 +197,8 @@ class ChillaAuth {
     }
 
     async handleSignup() {
+        // Collect form data without client-side validation
         const formData = this.collectSignupData();
-
-        if (!this.validateSignupInput(formData)) {
-            return;
-        }
 
         // Ensure we have a valid CSRF token
         const csrfToken = await this.ensureCSRFToken();
@@ -235,7 +222,7 @@ class ChillaAuth {
             const data = await response.json();
 
             if (response.ok) {
-                this.showSuccess('Registration successful! Please check your email for verification.');
+                this.showSuccess(data.message || 'Registration successful! Please check your email for verification.');
                 this.showLoginScreen();
             } else if (response.status === 403 && data.detail?.includes('CSRF')) {
                 // CSRF token invalid - refresh and retry once
@@ -243,7 +230,7 @@ class ChillaAuth {
                 await this.loadCSRFToken(true);
                 this.showError('Security token expired. Please try registering again.');
             } else {
-                this.showError(data.detail || 'Registration failed');
+                this.showError(data.detail || data.message || 'Registration failed');
             }
         } catch (error) {
             console.error('Signup error:', error);
@@ -277,12 +264,8 @@ class ChillaAuth {
     }
 
     async handlePasswordReset() {
+        // Get email without client-side validation
         const email = this.sanitizeInput(document.getElementById('reset-email')?.value);
-
-        if (!this.validateEmail(email)) {
-            this.showError('Please enter a valid email address');
-            return;
-        }
 
         // Ensure we have a valid CSRF token
         const csrfToken = await this.ensureCSRFToken();
@@ -313,7 +296,7 @@ class ChillaAuth {
                 await this.loadCSRFToken(true);
                 this.showError('Security token expired. Please try again.');
             } else {
-                this.showError(data.detail || 'Password reset failed');
+                this.showError(data.detail || data.message || 'Password reset failed');
             }
         } catch (error) {
             console.error('Password reset error:', error);
@@ -331,49 +314,6 @@ class ChillaAuth {
             last_name: this.sanitizeInput(document.getElementById('last-name')?.value),
             date_of_birth: document.getElementById('date-of-birth')?.value
         };
-    }
-
-    validateLoginInput(email, password) {
-        if (!email || !password) {
-            this.showError('Email and password are required');
-            return false;
-        }
-
-        if (!this.validateEmail(email)) {
-            this.showError('Please enter a valid email address');
-            return false;
-        }
-
-        return true;
-    }
-
-    validateSignupInput(data) {
-        if (!data.email || !data.password || !data.confirm_password || !data.first_name || !data.last_name) {
-            this.showError('Please fill in all required fields');
-            return false;
-        }
-
-        if (!this.validateEmail(data.email)) {
-            this.showError('Please enter a valid email address');
-            return false;
-        }
-
-        if (data.password !== data.confirm_password) {
-            this.showError('Passwords do not match');
-            return false;
-        }
-
-        if (data.password.length < 8) {
-            this.showError('Password must be at least 8 characters long');
-            return false;
-        }
-
-        return true;
-    }
-
-    validateEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
     }
 
     sanitizeInput(input) {
@@ -507,111 +447,6 @@ class ChillaAuth {
         `;
     }
 
-    showEmailVerificationModal(email) {
-        // Hide auth screens
-        const loadingScreen = document.getElementById('loading-screen');
-        const authContainer = document.getElementById('auth-container');
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        if (authContainer) authContainer.classList.add('hidden');
-
-        // Create and show verification modal
-        const modal = document.createElement('div');
-        modal.id = 'email-verification-modal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        `;
-        
-        modal.innerHTML = `
-            <div style="
-                background: white;
-                border-radius: 12px;
-                padding: 2rem;
-                max-width: 500px;
-                width: 100%;
-                text-align: center;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            ">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📧</div>
-                <h3 style="margin: 0 0 1rem 0; color: #333;">Verify Your Email</h3>
-                <p style="margin-bottom: 1rem; color: #666;">
-                    Please verify your email address to continue using Chilla.
-                </p>
-                <p style="margin-bottom: 1rem; color: #666;">
-                    A verification email has been sent to <strong>${email}</strong>.
-                </p>
-                <p style="margin-bottom: 2rem; color: #666;">
-                    If you haven't received it, please check your spam folder or click the button below to resend.
-                </p>
-                <button id="resend-verification-btn" style="
-                    background: #007bff;
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 16px;
-                    margin-right: 12px;
-                ">Resend Verification Email</button>
-                <button id="logout-from-verification-btn" style="
-                    background: #6c757d;
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 16px;
-                ">Logout</button>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-
-        // Add event listeners
-        document.getElementById('resend-verification-btn')?.addEventListener('click', async () => {
-            await this.sendVerificationEmail(email);
-        });
-
-        document.getElementById('logout-from-verification-btn')?.addEventListener('click', async () => {
-            await this.handleLogoutFromModal();
-        });
-    }
-
-    async sendVerificationEmail(email) {
-        try {
-            const csrfToken = await this.ensureCSRFToken();
-            const response = await fetch('https://cook.beaverlyai.com/api/send_verification_email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': csrfToken
-                },
-                credentials: 'include',
-                body: JSON.stringify({ email })
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                this.showSuccess('Verification email sent! Please check your inbox.');
-            } else {
-                this.showError(result.error || 'Failed to send verification email');
-            }
-        } catch (error) {
-            console.error('Verification email error:', error);
-            this.showError('Network error. Please try again.');
-        }
-    }
-
     showLoginVerificationModal(email) {
         // Create and show verification modal for login flow
         const modal = document.createElement('div');
@@ -629,7 +464,7 @@ class ChillaAuth {
             justify-content: center;
             padding: 2rem;
         `;
-        
+
         modal.innerHTML = `
             <div style="
                 background: white;
@@ -672,7 +507,7 @@ class ChillaAuth {
                 ">Close</button>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
 
         // Add event listeners
@@ -731,13 +566,13 @@ class ChillaAuth {
                             font-size: 16px;
                         ">Close</button>
                     `;
-                    
+
                     document.getElementById('close-success-verification-btn')?.addEventListener('click', () => {
                         this.closeLoginVerificationModal();
                     });
                 }
             } else {
-                this.showError(result.error || 'Failed to send verification email');
+                this.showError(result.error || result.message || 'Failed to send verification email');
             }
         } catch (error) {
             console.error('Verification email error:', error);
@@ -750,28 +585,6 @@ class ChillaAuth {
         if (modal) {
             modal.remove();
         }
-    }
-
-    async handleLogoutFromModal() {
-        try {
-            await fetch('https://cook.beaverlyai.com/api/logout', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-        } catch (error) {
-            console.warn('Logout failed silently:', error);
-        }
-
-        // Remove modal and show auth screen
-        const modal = document.getElementById('email-verification-modal');
-        if (modal) modal.remove();
-        
-        this.sessionValidated = false;
-        this.showAuthScreen();
     }
 }
 

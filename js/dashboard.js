@@ -1,4 +1,5 @@
 
+
 const API_BASE = 'https://cook.beaverlyai.com';
 
 // Secure contact form handler
@@ -26,12 +27,6 @@ class ContactFormHandler {
             message: this.sanitizeInput(formData.get('message'))
         };
 
-        // Validate inputs
-        if (!this.validateContactData(contactData)) {
-            this.showError('Please fill in all required fields with valid data.');
-            return;
-        }
-
         try {
             const response = await fetch(`${this.API_BASE}/api/contact`, {
                 method: 'POST',
@@ -58,11 +53,6 @@ class ContactFormHandler {
     sanitizeInput(input) {
         if (!input) return '';
         return input.toString().trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    }
-
-    validateContactData(data) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return data.name && data.email && emailRegex.test(data.email) && data.subject && data.message;
     }
 
     showError(message) {
@@ -104,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new ContactFormHandler();
 });
 
-// Secure Dashboard with Server-Side Validation
+// Secure Dashboard with Pure Server-Side Control
 class ChillaDashboard {
     constructor() {
         this.currentUser = null;
@@ -114,7 +104,6 @@ class ChillaDashboard {
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
         this.activityWsReconnectAttempts = 0;
-        this.isAuthenticated = false;
         this.currentTheme = 'light';
         this.isConnected = false;
         this.verificationPollingInterval = null;
@@ -141,7 +130,7 @@ class ChillaDashboard {
 
     setupPageVisibilityHandler() {
         document.addEventListener('visibilitychange', async () => {
-            if (!document.hidden && this.isAuthenticated && this.currentUser && !this.currentUser.email_verified) {
+            if (!document.hidden) {
                 await this.refreshUserData();
             }
         });
@@ -185,31 +174,23 @@ class ChillaDashboard {
                 if (response.ok) {
                     const data = await response.json();
                     if (data && data.status === 'valid') {
-                        this.isAuthenticated = true;
+                        // Server provides all user data and security decisions
                         this.authToken = data.token || null;
-                        this.currentUser = data.users || data.user || {
-                            email: data.email || localStorage.getItem('chilla_user_email') || 'user@example.com',
-                            email_verified: data.email_verified || false,
-                            first_name: data.first_name || '',
-                            middle_name: data.middle_name || '',
-                            last_name: data.last_name || '',
-                            plan: data.plan || "Chilla's Gift",
-                            auth_provider: data.auth_provider || null,
-                            broker_connected: data.broker_connected || false
-                        };
+                        this.currentUser = data.users || data.user;
 
-                        if (this.currentUser.email) {
+                        if (this.currentUser?.email) {
                             localStorage.setItem('chilla_user_email', this.currentUser.email);
                         }
 
                         await this.loadCSRFToken();
                         this.showMainApp();
 
-                        const isGmailUser = this.currentUser.auth_provider === 'gmail';
-                        if (!this.currentUser.email_verified && !isGmailUser) {
+                        // Server decides if verification modal should be shown
+                        if (data.show_verification_modal) {
                             this.showVerificationRequiredModal();
                             return;
                         }
+
                         this.setupEventListeners();
                         this.loadDashboardData();
                         this.setupPeriodicRefresh();
@@ -312,7 +293,7 @@ class ChillaDashboard {
         document.getElementById('main-app').classList.remove('hidden');
 
         if (this.currentUser) {
-            // Construct full name from separate fields
+            // Construct full name from server-provided data
             const fullName = [
                 this.currentUser.first_name || '',
                 this.currentUser.middle_name || '',
@@ -322,10 +303,9 @@ class ChillaDashboard {
             document.getElementById('user-display-name').textContent = fullName;
             document.getElementById('user-display-email').textContent = this.currentUser.email;
 
+            // Server provides verification status - no client-side logic
             const verificationStatus = document.getElementById('verification-status');
-            const isGmailUser = this.currentUser.auth_provider === 'gmail';
-
-            if (this.currentUser.email_verified || isGmailUser) {
+            if (this.currentUser.email_verified) {
                 verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
             } else {
                 verificationStatus.innerHTML = '<span class="status-dot unverified"></span><span>Unverified</span>';
@@ -459,6 +439,7 @@ class ChillaDashboard {
             if (response.ok) {
                 const data = await response.json();
                 if (data && data.status === 'valid' && data.users) {
+                    // Server provides connection status - no client logic
                     const hasConnection = data.users.broker_connected || false;
                     this.updateConnectionStatus(hasConnection);
                     return;
@@ -522,12 +503,7 @@ class ChillaDashboard {
             return;
         }
 
-        const isGmailUser = this.currentUser.auth_provider === 'gmail';
-        if (!this.currentUser.email_verified && !isGmailUser) {
-            console.log('WebSocket initialization skipped - email not verified');
-            return;
-        }
-
+        // Server decides if WebSocket should be initialized based on verification status
         try {
             const wsTokenResponse = await fetch(`${API_BASE}/api/ws_token`, {
                 method: 'POST',
@@ -752,7 +728,7 @@ class ChillaDashboard {
         const addListener = (id, event, handler) => {
             const element = document.getElementById(id);
             if (element) {
-                element.removeEventListener(event, handler); // Remove existing listener
+                element.removeEventListener(event, handler);
                 element.addEventListener(event, handler);
             }
         };
@@ -760,12 +736,11 @@ class ChillaDashboard {
         const addListenerByQuery = (selector, event, handler) => {
             const element = document.querySelector(selector);
             if (element) {
-                element.removeEventListener(event, handler); // Remove existing listener
+                element.removeEventListener(event, handler);
                 element.addEventListener(event, handler);
             }
         };
 
-        // Bind methods to maintain context
         const boundMethods = {
             toggleSidebar: this.toggleSidebar.bind(this),
             toggleTheme: this.toggleTheme.bind(this),
@@ -808,7 +783,6 @@ class ChillaDashboard {
 
         addListenerByQuery('.sidebar-overlay', 'click', boundMethods.closeSidebar);
 
-        // Additional click handler for main content area when sidebar is open
         const mainContent = document.querySelector('.main-content');
         if (mainContent) {
             mainContent.addEventListener('click', (e) => {
@@ -1035,7 +1009,7 @@ class ChillaDashboard {
                 this.showNotification('Verification email sent! Please check your inbox and click the verification link.', 'success');
                 this.startVerificationPolling();
             } else {
-                this.showNotification(result.error || 'Failed to send verification email', 'error');
+                this.showNotification(result.error || result.message || 'Failed to send verification email', 'error');
             }
         } catch (error) {
             console.error('Verification error:', error);
@@ -1089,20 +1063,13 @@ class ChillaDashboard {
             if (response.ok) {
                 const data = await response.json();
                 if (data && data.status === 'valid') {
-                    this.currentUser = data.users || data.user || {
-                        email: data.email,
-                        email_verified: data.email_verified,
-                        first_name: data.first_name,
-                        middle_name: data.middle_name,
-                        last_name: data.last_name,
-                        auth_provider: data.auth_provider
-                    };
+                    this.currentUser = data.users || data.user;
 
                     const verificationStatus = document.getElementById('verification-status');
-                    const isGmailUser = this.currentUser.auth_provider === 'gmail';
 
                     if (verificationStatus) {
-                        if (this.currentUser.email_verified || isGmailUser) {
+                        // Server provides verification status - no client-side logic
+                        if (this.currentUser?.email_verified) {
                             verificationStatus.innerHTML = '<span class="status-dot verified"></span><span>Verified</span>';
                         } else {
                             verificationStatus.innerHTML = '<span class="status-dot unverified"></span><span>Unverified</span>';
@@ -1218,3 +1185,4 @@ class ChillaDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaDashboard();
 });
+
