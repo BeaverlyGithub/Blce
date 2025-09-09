@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new ChillaAuth();
 
     // Add password strength meter event listener
-    const passwordInput = document.getElementById('password');
+    const passwordInput = document.getElementById('signup-password');
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
             updatePasswordMeter(this.value);
