@@ -272,9 +272,15 @@ class ChillaDashboard {
     }
 
     getAuthToken() {
-        // Token is stored in HTTP-only cookie, need to get it from the server response
-        // or use the token from the current session if available
-        return this.authToken;
+        // Try to get token from cookie first
+        let token = this.getCookie('chilla_token');
+
+        // If not in cookie, try localStorage as fallback
+        if (!token) {
+            token = localStorage.getItem('chilla_token');
+        }
+
+        return token;
     }
 
     async getValidAuthToken() {
@@ -922,64 +928,42 @@ class ChillaDashboard {
         }
     }
 
-    async handleBrokerOAuth() {
-        const selectedBroker = document.getElementById('broker-dropdown')?.value;
+    async handleBrokerOAuth(broker) {
+        try {
+            console.log(`🔗 Starting ${broker} OAuth flow`);
 
-        if (!selectedBroker) {
-            this.showNotification('Please select a broker', 'error');
-            return;
-        }
-
-        if (selectedBroker === 'deriv') {
-            try {
-                // First verify we're authenticated
-                const authCheck = await fetch('https://cook.beaverlyai.com/api/verify_token', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                if (!authCheck.ok) {
-                    throw new Error('Authentication required. Please log in first.');
-                }
-
-                const authData = await authCheck.json();
-                if (authData.status !== 'valid') {
-                    throw new Error('Authentication required. Please log in first.');
-                }
-
-                // Now generate OAuth state with proper authentication using credentials
-                const stateResponse = await fetch('https://cook.beaverlyai.com/api/generate_oauth_state', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                if (!stateResponse.ok) {
-                    const errorText = await stateResponse.text();
-                    throw new Error(`Backend returned error: ${stateResponse.status} - ${errorText}`);
-                }
-
-                const { state_token } = await stateResponse.json();
-
-                const appId = '85950';
-                const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
-                const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
-
-                localStorage.setItem('deriv_oauth_pending', 'true');
-                window.location.href = derivOAuthUrl;
-            } catch (error) {
-                console.error("OAuth error:", error);
-                this.showNotification('Could not start Deriv connection. Please try again.', 'error');
+            // Get the current auth token
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Authentication required. Please login first.');
             }
-        } else {
-            this.showNotification('Other brokers coming soon!', 'info');
+
+            // Generate state token
+            const stateResponse = await fetch('/api/generate_oauth_state', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                credentials: 'include'
+            });
+
+            if (!stateResponse.ok) {
+                const errorText = await stateResponse.text();
+                throw new Error(`Backend returned error: ${stateResponse.status} - ${errorText}`);
+            }
+
+            const { state_token } = await stateResponse.json();
+
+            const appId = '85950';
+            const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
+            const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
+
+            localStorage.setItem('deriv_oauth_pending', 'true');
+            window.location.href = derivOAuthUrl;
+        } catch (error) {
+            console.error("OAuth error:", error);
+            this.showNotification('Could not start Deriv connection. Please try again.', 'error');
         }
 
         this.closeBrokerModal();
