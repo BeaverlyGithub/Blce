@@ -248,13 +248,23 @@ class ChillaAuth {
                 }
             });
 
+            if (!response.ok) {
+                throw new Error('Failed to get OAuth configuration');
+            }
+
             const config = await response.json();
+            
+            // Validate config before using
+            if (!config.client_id || !config.redirect_uri) {
+                throw new Error('Invalid OAuth configuration');
+            }
+
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-                `client_id=${config.client_id}&` +
+                `client_id=${encodeURIComponent(config.client_id)}&` +
                 `redirect_uri=${encodeURIComponent(config.redirect_uri)}&` +
                 `scope=${encodeURIComponent(config.scope)}&` +
                 `response_type=code&` +
-                `state=${config.state}`;
+                `state=${encodeURIComponent(config.state)}`;
 
             window.location.href = authUrl;
         } catch (error) {
