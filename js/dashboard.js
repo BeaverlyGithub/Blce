@@ -779,7 +779,7 @@ class ChillaDashboard {
             handleLogout: this.handleLogout.bind(this),
             changeEmail: this.changeEmail.bind(this),
             changePassword: this.changePassword.bind(this),
-            verifyEmail: this.verifyEmail.bind(this),
+            
             showContact: this.showContact.bind(this),
             showFAQ: this.showFAQ.bind(this),
             showPrivacy: this.showPrivacy.bind(this),
@@ -800,7 +800,7 @@ class ChillaDashboard {
         addListener('connect-chilla-btn', 'click', boundMethods.handleConnectChilla);
         addListener('change-email-btn', 'click', boundMethods.changeEmail);
         addListener('change-password-btn', 'click', boundMethods.changePassword);
-        addListener('verify-email-btn', 'click', boundMethods.verifyEmail);
+        
         addListener('contact-btn', 'click', boundMethods.showContact);
         addListener('faq-btn', 'click', boundMethods.showFAQ);
         addListener('privacy-btn', 'click', boundMethods.showPrivacy);
@@ -1022,34 +1022,7 @@ class ChillaDashboard {
         this.closeSidebar();
     }
 
-    async verifyEmail() {
-        const email = this.currentUser?.email || localStorage.getItem('chilla_user_email');
-        if (!email) {
-            this.showNotification('No email found. Please log in again.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE}/api/send_verification_email`, {
-                method: 'POST',
-                headers: this.getSecureHeaders(),
-                credentials: 'include',
-                body: JSON.stringify({ email })
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                this.showNotification('Verification email sent! Please check your inbox and click the verification link.', 'success');
-                this.startVerificationPolling();
-            } else {
-                this.showNotification(result.error || result.message || 'Failed to send verification email', 'error');
-            }
-        } catch (error) {
-            console.error('Verification error:', error);
-            this.showNotification('Network error', 'error');
-        }
-        this.closeSidebar();
-    }
+    
 
     startVerificationPolling() {
         if (this.verificationPollingInterval) {
