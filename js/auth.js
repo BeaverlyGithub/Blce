@@ -669,10 +669,10 @@ function togglePassword(fieldId) {
 
     if (field.type === 'password') {
         field.type = 'text';
-        eyeIcon.innerHTML = '👁️';
+        eyeIcon.innerHTML = '🙈'; // Hidden/closed eye
     } else {
         field.type = 'password';
-        eyeIcon.innerHTML = '👁️';
+        eyeIcon.innerHTML = '👁️'; // Open eye
     }
 }
 
