@@ -699,22 +699,22 @@ class ChillaDashboard {
                     </div>
                 </div>
             `;
-        } else if (status === 'connected') {
+        } else if (status === 'connected' || status === 'idle') {
             statusClass = 'status-idle';
             statusHtml = `
                 <div class="activity-status ${statusClass}">
                     <div class="status-header">
-                        <div class="status-title">Connected - Idle</div>
+                        <div class="status-title">Connected - Waiting for Chilla</div>
                         <div class="status-indicator"></div>
                     </div>
                     <div class="status-details">
                         ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
-                            <span>Status: Idle</span>
+                            <span>Status: ${status === 'idle' ? 'Chilla will start monitoring shortly' : 'Waiting for monitoring to begin'}</span>
                         </div>
                         <div class="watching-markets">
-                            Configured: ${watching_markets.map(m => m.name).join(', ') || 'No markets'}
+                            ${watching_markets && watching_markets.length > 0 ? `Markets ready: ${watching_markets.map(m => m.name).join(', ')}` : 'No markets configured yet'}
                         </div>
                     </div>
                 </div>
