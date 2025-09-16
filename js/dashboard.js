@@ -750,6 +750,20 @@ class ChillaDashboard {
     }
 
     setupEventListeners() {
+        // Attach logout button immediately since it's critical
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('🔓 Logout button clicked');
+                this.handleLogout();
+            });
+            console.log('✅ Logout button listener attached immediately');
+        } else {
+            console.warn('⚠️ Logout button not found in DOM');
+        }
+
+        // Attach other listeners with delay
         setTimeout(() => {
             this.attachAllEventListeners();
         }, 100);
@@ -776,10 +790,18 @@ class ChillaDashboard {
             toggleSidebar: this.toggleSidebar.bind(this),
             toggleTheme: this.toggleTheme.bind(this),
             handleConnectChilla: this.handleConnectChilla.bind(this),
-            handleLogout: this.handleLogout.bind(this),
+            handleLogout: (e) => {
+                e.preventDefault();
+                console.log('🔓 Logout method called via boundMethods');
+                this.handleLogout().catch(err => {
+                    console.error('Logout error:', err);
+                    // Force redirect even on error
+                    window.location.href = 'index.html';
+                });
+            },
             changeEmail: this.changeEmail.bind(this),
             changePassword: this.changePassword.bind(this),
-            
+
             showContact: this.showContact.bind(this),
             showFAQ: this.showFAQ.bind(this),
             showPrivacy: this.showPrivacy.bind(this),
@@ -795,12 +817,18 @@ class ChillaDashboard {
         addListener('menu-btn', 'click', boundMethods.toggleSidebar);
         addListener('theme-toggle', 'click', boundMethods.toggleTheme);
         addListener('nav-connect-btn', 'click', boundMethods.handleConnectChilla);
-        addListener('logout-btn', 'click', boundMethods.handleLogout);
+        // Skip logout button since we attached it immediately in setupEventListeners
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            console.log('✅ Logout button found and already has listener');
+        } else {
+            console.warn('⚠️ Logout button not found during attachAllEventListeners');
+        }
 
         addListener('connect-chilla-btn', 'click', boundMethods.handleConnectChilla);
         addListener('change-email-btn', 'click', boundMethods.changeEmail);
         addListener('change-password-btn', 'click', boundMethods.changePassword);
-        
+
         addListener('contact-btn', 'click', boundMethods.showContact);
         addListener('faq-btn', 'click', boundMethods.showFAQ);
         addListener('privacy-btn', 'click', boundMethods.showPrivacy);
@@ -848,8 +876,13 @@ class ChillaDashboard {
     }
 
     async handleLogout() {
-        localStorage.clear();
+        console.log('🔓 Logout initiated');
 
+        // Clear all local data first
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Clear intervals
         if (this.verificationPollingInterval) {
             clearInterval(this.verificationPollingInterval);
             this.verificationPollingInterval = null;
@@ -860,24 +893,44 @@ class ChillaDashboard {
             this.refreshInterval = null;
         }
 
+        // Close WebSocket connections
         if (this.wsConnection) {
             this.wsConnection.close();
+            this.wsConnection = null;
         }
 
         if (this.activityWs) {
             this.activityWs.close();
+            this.activityWs = null;
         }
 
+        // Clear cookies manually as fallback
+        document.cookie = 'chilla_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.beaverlyai.com; secure; samesite=none';
+        document.cookie = 'chilla_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+        // Call logout API
         try {
-            await fetch(`${API_BASE}/api/logout`, {
+            const response = await fetch(`${API_BASE}/api/logout`, {
                 method: 'POST',
                 credentials: 'include',
-                headers: this.getSecureHeaders()
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfToken || '',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
+
+            if (!response.ok) {
+                console.warn('Logout API call failed:', response.status);
+            } else {
+                console.log('✅ Logout API call successful');
+            }
         } catch (error) {
-            console.warn('Logout failed silently:', error);
+            console.warn('Logout API error:', error);
         }
 
+        // Force redirect regardless of API response
+        console.log('🔄 Redirecting to login page');
         window.location.href = 'index.html';
     }
 
@@ -1022,7 +1075,7 @@ class ChillaDashboard {
         this.closeSidebar();
     }
 
-    
+
 
     startVerificationPolling() {
         if (this.verificationPollingInterval) {
