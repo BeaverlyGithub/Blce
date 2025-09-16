@@ -152,10 +152,19 @@ class ChillaAuth {
             });
         }
 
-        // Google OAuth
+        // Google OAuth - Login
         const googleLoginBtn = document.getElementById('google-login-btn');
         if (googleLoginBtn) {
             googleLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleGoogleAuth();
+            });
+        }
+
+        // Google OAuth - Signup
+        const googleSignupBtn = document.getElementById('google-signup-btn');
+        if (googleSignupBtn) {
+            googleSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.handleGoogleAuth();
             });
@@ -313,27 +322,33 @@ class ChillaAuth {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to get OAuth configuration');
+                throw new Error(`OAuth config request failed: ${response.status}`);
             }
 
             const config = await response.json();
 
             // Validate config before using
-            if (!config.client_id || !config.redirect_uri) {
-                throw new Error('Invalid OAuth configuration');
+            if (!config.client_id || !config.redirect_uri || !config.scope) {
+                throw new Error('Invalid OAuth configuration received');
             }
+
+            // Generate a random state for security
+            const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
                 `client_id=${encodeURIComponent(config.client_id)}&` +
                 `redirect_uri=${encodeURIComponent(config.redirect_uri)}&` +
                 `scope=${encodeURIComponent(config.scope)}&` +
                 `response_type=code&` +
-                `state=${encodeURIComponent(config.state)}`;
+                `state=${encodeURIComponent(state)}&` +
+                `access_type=online&` +
+                `prompt=select_account`;
 
+            console.log('🔄 Redirecting to Google OAuth...');
             window.location.href = authUrl;
         } catch (error) {
             console.error('Google auth error:', error);
-            this.showError('Authentication service unavailable');
+            this.showError(`Authentication service unavailable: ${error.message}`);
         }
     }
 
