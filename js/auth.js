@@ -197,9 +197,22 @@ class ChillaAuth {
     }
 
     async handleLogin() {
-        // Get form data without validation
-        const email = this.sanitizeInput(document.getElementById('login-email')?.value);
-        const password = document.getElementById('login-password')?.value;
+        // Get and validate form data
+        const rawEmail = document.getElementById('login-email')?.value;
+        const rawPassword = document.getElementById('login-password')?.value;
+
+        try {
+            const loginData = this.validateInputTypes({
+                email: rawEmail,
+                password: rawPassword
+            });
+
+            const email = loginData.email;
+            const password = loginData.password;
+        } catch (error) {
+            this.showError('Invalid input format detected');
+            return;
+        }
 
         // Ensure we have a valid CSRF token
         const csrfToken = await this.ensureCSRFToken();
@@ -243,8 +256,15 @@ class ChillaAuth {
     }
 
     async handleSignup() {
-        // Collect form data without client-side validation
-        const formData = this.collectSignupData();
+        // Collect and validate form data
+        const rawFormData = this.collectSignupData();
+
+        try {
+            const formData = this.validateInputTypes(rawFormData);
+        } catch (error) {
+            this.showError('Invalid input format detected');
+            return;
+        }
 
         // Get CSRF token with email parameter for consistent validation
         const csrfToken = await this.loadCSRFTokenForEmail(formData.email);
@@ -407,7 +427,30 @@ class ChillaAuth {
 
     sanitizeInput(input) {
         if (!input) return '';
-        return input.trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+        // Basic XSS protection
+        let sanitized = input.toString().trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+        // NoSQL injection protection - remove MongoDB operators
+        const nosqlPatterns = ['$ne', '$gt', '$lt', '$gte', '$lte', '$in', '$nin', '$exists', '$or', '$and', '$nor', '$not', 'ObjectId'];
+        nosqlPatterns.forEach(pattern => {
+            sanitized = sanitized.replace(new RegExp(pattern, 'gi'), '');
+        });
+
+        return sanitized;
+    }
+
+    validateInputTypes(data) {
+        // Ensure all values are proper types
+        const validated = {};
+        for (const [key, value] of Object.entries(data)) {
+            if (typeof value === 'object' && value !== null) {
+                console.error('⚠️ Object values not allowed:', key);
+                throw new Error('Invalid input type detected');
+            }
+            validated[key] = typeof value === 'string' ? this.sanitizeInput(value) : value;
+        }
+        return validated;
     }
 
     setupFormNavigation() {
