@@ -645,27 +645,31 @@ class ChillaAuth {
         let errorDiv = document.createElement('div');
         errorDiv.className = 'auth-error';
 
-        // Find the current visible screen or auth container
-        const currentScreenElement = document.querySelector('.screen:not(.hidden)') || 
-                                   document.querySelector('#login-screen:not(.hidden)') ||
-                                   document.querySelector('#signup-screen:not(.hidden)') ||
-                                   document.querySelector('#forgot-password-screen:not(.hidden)') ||
-                                   document.querySelector('#auth-container:not(.hidden)');
+        // Find the currently visible auth form more reliably
+        let targetForm = null;
         
-        const authForm = currentScreenElement?.querySelector('.auth-form') || 
-                        currentScreenElement?.querySelector('form') ||
-                        document.querySelector('.auth-form');
-
-        if (authForm) {
-            authForm.insertBefore(errorDiv, authForm.firstChild);
-        } else if (currentScreenElement) {
-            currentScreenElement.insertBefore(errorDiv, currentScreenElement.firstChild);
+        // Check each screen specifically
+        const loginScreen = document.getElementById('login-screen');
+        const signupScreen = document.getElementById('signup-screen');
+        const forgotScreen = document.getElementById('forgot-password-screen');
+        
+        if (signupScreen && !signupScreen.classList.contains('hidden')) {
+            targetForm = signupScreen.querySelector('.auth-form');
+        } else if (loginScreen && !loginScreen.classList.contains('hidden')) {
+            targetForm = loginScreen.querySelector('.auth-form');
+        } else if (forgotScreen && !forgotScreen.classList.contains('hidden')) {
+            targetForm = forgotScreen.querySelector('.auth-form');
         } else {
-            // Last resort - add to any visible auth container
-            const fallbackContainer = document.querySelector('#auth-container') || 
-                                    document.querySelector('.auth-screen') ||
-                                    document.body;
-            fallbackContainer.prepend(errorDiv);
+            // Fallback - find any visible auth form
+            targetForm = document.querySelector('.auth-form');
+        }
+
+        if (targetForm) {
+            targetForm.insertBefore(errorDiv, targetForm.firstChild);
+        } else {
+            // Last resort fallback
+            const authContainer = document.getElementById('auth-container') || document.body;
+            authContainer.prepend(errorDiv);
         }
 
         errorDiv.textContent = message;
@@ -681,6 +685,8 @@ class ChillaAuth {
             box-shadow: 0 2px 4px rgba(255, 68, 68, 0.1);
             z-index: 1000;
             position: relative;
+            width: 100%;
+            box-sizing: border-box;
         `;
 
         // Auto-hide error after 8 seconds
@@ -697,15 +703,31 @@ class ChillaAuth {
         let successDiv = document.createElement('div');
         successDiv.className = 'auth-success';
 
-        const currentScreenElement = document.querySelector('.screen:not(.hidden)');
-        const authForm = currentScreenElement?.querySelector('.auth-form') || currentScreenElement?.querySelector('form');
-
-        if (authForm) {
-            authForm.prepend(successDiv);
+        // Find the currently visible auth form more reliably
+        let targetForm = null;
+        
+        // Check each screen specifically
+        const loginScreen = document.getElementById('login-screen');
+        const signupScreen = document.getElementById('signup-screen');
+        const forgotScreen = document.getElementById('forgot-password-screen');
+        
+        if (signupScreen && !signupScreen.classList.contains('hidden')) {
+            targetForm = signupScreen.querySelector('.auth-form');
+        } else if (loginScreen && !loginScreen.classList.contains('hidden')) {
+            targetForm = loginScreen.querySelector('.auth-form');
+        } else if (forgotScreen && !forgotScreen.classList.contains('hidden')) {
+            targetForm = forgotScreen.querySelector('.auth-form');
         } else {
-            // Fallback - try to find any visible container
-            const container = currentScreenElement || document.body;
-            container.prepend(successDiv);
+            // Fallback - find any visible auth form
+            targetForm = document.querySelector('.auth-form');
+        }
+
+        if (targetForm) {
+            targetForm.insertBefore(successDiv, targetForm.firstChild);
+        } else {
+            // Last resort fallback
+            const authContainer = document.getElementById('auth-container') || document.body;
+            authContainer.prepend(successDiv);
         }
 
         successDiv.textContent = message;
@@ -719,6 +741,8 @@ class ChillaAuth {
             text-align: center;
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(76, 175, 80, 0.1);
+            width: 100%;
+            box-sizing: border-box;
         `;
     }
 
