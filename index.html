@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta name="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
     <title>Chilla by Beaverly</title>
@@ -63,7 +62,7 @@
                         <input type="password" id="signup-password" placeholder="Password" class="input-field">
                         <span class="password-toggle" id="signup-password-toggle">👁️</span>
                     </div>
-                    
+
                     <!-- Password Strength Meter -->
                     <div class="password-strength-container">
                         <div class="password-strength-bar">
@@ -77,7 +76,7 @@
                             <li class="req-unmet">One special character (!@#$%^&*)</li>
                         </ul>
                     </div>
-                    
+
                     <input type="password" id="confirm-password" placeholder="Confirm Password" class="input-field">
                     <input type="text" id="first-name" placeholder="First Name" class="input-field">
                     <input type="text" id="middle-name" placeholder="Middle Name (Optional)" class="input-field">
@@ -86,7 +85,7 @@
                     <button id="signup-btn" class="primary-btn">Create Account</button>
                     <button id="google-signup-btn" class="secondary-btn">Continue with Google</button>
                     <div class="auth-links">
-                        <a href="#" id="show-login">Already have an account? Sign in</a>
+                        <a href="#" id="back-to-login">Back to Sign In</a>
                     </div>
                 </div>
             </div>
