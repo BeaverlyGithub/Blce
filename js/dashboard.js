@@ -999,6 +999,21 @@ class ChillaDashboard {
             const broker = dropdown.value;
             console.log(`🔗 Starting ${broker} OAuth flow`);
 
+            // Fetch OAuth configuration from server
+            const configResponse = await fetch(`${API_BASE}/api/oauth_config`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'include'
+            });
+
+            if (!configResponse.ok) {
+                throw new Error('Failed to get OAuth configuration');
+            }
+
+            const config = await configResponse.json();
+
             // Generate state token with proper API endpoint
             const stateResponse = await fetch(`${API_BASE}/api/generate_oauth_state`, {
                 method: 'POST',
@@ -1016,8 +1031,9 @@ class ChillaDashboard {
 
             const { state_token } = await stateResponse.json();
 
-            const appId = '85950';
-            const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
+            // Use server-provided Deriv app ID
+            const appId = config.deriv.app_id;
+            const redirectUri = encodeURIComponent(config.deriv.redirect_uri);
             const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
 
             localStorage.setItem('deriv_oauth_pending', 'true');
