@@ -382,8 +382,9 @@ class ChillaAuth {
             const data = await response.json();
 
             if (response.ok) {
-                this.showSuccess(data.message || 'Registration successful! Please check your email for verification.');
-                this.showLoginScreen();
+                this.showRegistrationSuccess(data.message || 'Registration successful! Please check your email for verification.');
+                // Don't immediately switch to login screen
+                return;
             } else if (response.status === 403 && (data.detail?.includes('CSRF') || data.detail?.includes('Invalid CSRF'))) {
                 // CSRF token invalid - refresh and retry once automatically
                 console.log('🔄 CSRF token invalid, refreshing and retrying...');
@@ -410,8 +411,7 @@ class ChillaAuth {
 
                         const retryData = await retryResponse.json();
                         if (retryResponse.ok) {
-                            this.showSuccess(retryData.message || 'Registration successful! Please check your email for verification.');
-                            this.showLoginScreen();
+                            this.showRegistrationSuccess(retryData.message || 'Registration successful! Please check your email for verification.');
                             return;
                         } else {
                             let errorMessage = 'Registration failed';
@@ -720,6 +720,94 @@ class ChillaAuth {
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(76, 175, 80, 0.1);
         `;
+    }
+
+    showRegistrationSuccess(message) {
+        // Create and show registration success modal
+        const modal = document.createElement('div');
+        modal.id = 'registration-success-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+                <h3 style="margin: 0 0 1rem 0; color: #28a745;">Registration Successful!</h3>
+                <p style="margin-bottom: 1rem; color: #666; font-size: 16px;">
+                    ${message}
+                </p>
+                <p style="margin-bottom: 1rem; color: #666; font-size: 16px;">
+                    <strong>Important:</strong> You must verify your email address before you can log in.
+                </p>
+                <p style="margin-bottom: 2rem; color: #666; font-size: 14px;">
+                    Please check your inbox (and spam folder) for a verification email. Click the verification link, then return here to log in.
+                </p>
+                <button id="goto-login-btn" style="
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin-right: 12px;
+                ">Go to Login</button>
+                <button id="close-success-modal-btn" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">Stay Here</button>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        document.getElementById('goto-login-btn')?.addEventListener('click', () => {
+            this.closeRegistrationSuccessModal();
+            this.showLoginScreen();
+        });
+
+        document.getElementById('close-success-modal-btn')?.addEventListener('click', () => {
+            this.closeRegistrationSuccessModal();
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeRegistrationSuccessModal();
+            }
+        });
+    }
+
+    closeRegistrationSuccessModal() {
+        const modal = document.getElementById('registration-success-modal');
+        if (modal) {
+            modal.remove();
+        }
     }
 
     showLoginVerificationModal(email) {
