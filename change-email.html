@@ -3,11 +3,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cook.beaverlyai.com;">
-    <title>Change Email - Chilla</title>
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+    <title>Change Email - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/auth.css">
 </head>
@@ -87,6 +90,34 @@
 
         initializePage();
 
+        function sanitizeInput(input) {
+            if (!input) return '';
+            
+            // Basic XSS protection
+            let sanitized = input.toString().trim().replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+            
+            // NoSQL injection protection - remove MongoDB operators
+            const nosqlPatterns = ['$ne', '$gt', '$lt', '$gte', '$lte', '$in', '$nin', '$exists', '$or', '$and', '$nor', '$not', 'ObjectId'];
+            nosqlPatterns.forEach(pattern => {
+                sanitized = sanitized.replace(new RegExp(pattern, 'gi'), '');
+            });
+            
+            return sanitized;
+        }
+
+        function validateInputTypes(data) {
+            // Ensure all values are proper types
+            const validated = {};
+            for (const [key, value] of Object.entries(data)) {
+                if (typeof value === 'object' && value !== null) {
+                    console.error('⚠️ Object values not allowed:', key);
+                    throw new Error('Invalid input type detected');
+                }
+                validated[key] = typeof value === 'string' ? sanitizeInput(value) : value;
+            }
+            return validated;
+        }
+
         function showError(message) {
             clearMessages();
             const errorDiv = document.createElement('div');
@@ -131,16 +162,31 @@
         }
 
         document.getElementById('change-email-btn').addEventListener('click', async () => {
-            const currentEmail = document.getElementById('current-email').value;
-            const newEmail = document.getElementById('new-email').value.trim();
+            const rawCurrentEmail = document.getElementById('current-email').value;
+            const rawNewEmail = document.getElementById('new-email').value;
 
-            if (!newEmail) {
+            if (!rawNewEmail || !rawNewEmail.trim()) {
                 showError('Please enter a new email');
                 return;
             }
 
-            if (!newEmail.includes('@') || !newEmail.includes('.')) {
+            if (!rawNewEmail.includes('@') || !rawNewEmail.includes('.')) {
                 showError('Please enter a valid email address');
+                return;
+            }
+
+            let currentEmail, newEmail;
+
+            try {
+                const emailData = validateInputTypes({
+                    current_email: rawCurrentEmail,
+                    new_email: rawNewEmail
+                });
+                
+                currentEmail = emailData.current_email;
+                newEmail = emailData.new_email;
+            } catch (error) {
+                showError('Invalid input format detected');
                 return;
             }
 
@@ -170,6 +216,9 @@
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
                     }, 3000);
+                } else if (response.status === 403 && data.detail?.includes('CSRF')) {
+                    await loadCSRFToken();
+                    showError('Security token expired. Please try again.');
                 } else {
                     showError(data.detail || data.message || 'Error updating email');
                 }

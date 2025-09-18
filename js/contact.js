@@ -1,4 +1,3 @@
-
 // Production-grade Contact Form Handler
 // Secure, CSP-compliant, with proper error handling and validation
 
@@ -11,7 +10,7 @@ class ContactFormHandler {
         this.submitBtn = null;
         this.messageDiv = null;
         this.isSubmitting = false;
-        
+
         this.init();
     }
 
@@ -27,12 +26,12 @@ class ContactFormHandler {
     setup() {
         // Initialize theme
         this.initializeTheme();
-        
+
         // Get DOM elements
         this.form = document.getElementById('contact-form');
         this.submitBtn = document.getElementById('submit-btn');
         this.messageDiv = document.getElementById('form-message');
-        
+
         if (!this.form) {
             console.error('Contact form not found');
             return;
@@ -50,7 +49,7 @@ class ContactFormHandler {
     bindEvents() {
         // Form submission
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        
+
         // Back button
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
@@ -69,7 +68,7 @@ class ContactFormHandler {
 
     async handleSubmit(event) {
         event.preventDefault();
-        
+
         if (this.isSubmitting) return;
 
         const formData = new FormData(this.form);
@@ -95,7 +94,28 @@ class ContactFormHandler {
 
     sanitizeInput(input) {
         if (!input) return '';
-        return input.toString().trim();
+
+        // Basic XSS protection - more comprehensive
+        let sanitized = input.toString().trim()
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+            .replace(/javascript:/gi, '')
+            .replace(/on\w+\s*=/gi, '');
+
+        // NoSQL injection protection - remove MongoDB operators
+        const nosqlPatterns = ['$ne', '$gt', '$lt', '$gte', '$lte', '$in', '$nin', '$exists', '$or', '$and', '$nor', '$not', 'ObjectId', '$regex', '$where'];
+        nosqlPatterns.forEach(pattern => {
+            sanitized = sanitized.replace(new RegExp(pattern, 'gi'), '');
+        });
+
+        // SQL injection basic protection
+        const sqlPatterns = ['union', 'select', 'insert', 'delete', 'update', 'drop', 'create', 'alter', 'exec', 'execute'];
+        sqlPatterns.forEach(pattern => {
+            const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
+            sanitized = sanitized.replace(regex, '');
+        });
+
+        return sanitized;
     }
 
     validateFormData(data) {
@@ -152,14 +172,14 @@ class ContactFormHandler {
     validateField(field) {
         const value = this.sanitizeInput(field.value);
         const fieldName = field.name;
-        
+
         this.clearFieldError(field);
 
         if (!value) return; // Don't validate empty fields on blur
 
         const data = { [fieldName]: value };
         const validation = this.validateFormData(data);
-        
+
         if (validation.errors[fieldName]) {
             this.showFieldError(field, validation.errors[fieldName]);
         }
@@ -170,7 +190,7 @@ class ContactFormHandler {
 
         try {
             const response = await this.makeSecureRequest(data);
-            
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
@@ -186,15 +206,15 @@ class ContactFormHandler {
 
         } catch (error) {
             console.error('Form submission error:', error);
-            
+
             let errorMessage = 'Failed to send message. Please try again or contact us directly at support@beaverlyai.com';
-            
+
             if (error.message.includes('Network')) {
                 errorMessage = 'Network error. Please check your connection and try again.';
             } else if (error.message.includes('timeout')) {
                 errorMessage = 'Request timed out. Please try again.';
             }
-            
+
             this.showMessage(errorMessage, 'error');
         } finally {
             this.setSubmitState(false);
