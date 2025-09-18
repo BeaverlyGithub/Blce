@@ -3,6 +3,7 @@
 class ChillaAuth {
     constructor() {
         this.csrfToken = null;
+        this.sessionId = null;
         this.csrfTokenLoading = false;
         this.initAuth();
     }
@@ -38,15 +39,18 @@ class ChillaAuth {
             if (response.ok) {
                 const data = await response.json();
                 this.csrfToken = data.csrf_token;
+                this.sessionId = data.session_id; // Store session ID for validation
                 console.log('✅ CSRF token loaded successfully');
                 return this.csrfToken;
             } else {
                 console.error('❌ Failed to load CSRF token:', response.status);
                 this.csrfToken = null;
+                this.sessionId = null;
             }
         } catch (error) {
             console.error('❌ CSRF token request error:', error);
             this.csrfToken = null;
+            this.sessionId = null;
         } finally {
             this.csrfTokenLoading = false;
         }
@@ -75,15 +79,18 @@ class ChillaAuth {
             if (response.ok) {
                 const data = await response.json();
                 this.csrfToken = data.csrf_token;
+                this.sessionId = data.session_id; // Store session ID for validation
                 console.log('✅ CSRF token loaded successfully for email');
                 return this.csrfToken;
             } else {
                 console.error('❌ Failed to load CSRF token:', response.status);
                 this.csrfToken = null;
+                this.sessionId = null;
             }
         } catch (error) {
             console.error('❌ CSRF token request error:', error);
             this.csrfToken = null;
+            this.sessionId = null;
         } finally {
             this.csrfTokenLoading = false;
         }
@@ -225,15 +232,21 @@ class ChillaAuth {
         }
 
         try {
+            const requestBody = { email, password };
+            if (this.sessionId) {
+                requestBody.session_id = this.sessionId;
+            }
+
             const response = await fetch('https://cook.beaverlyai.com/api/login', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': csrfToken
+                    'X-CSRF-Token': csrfToken,
+                    'X-Session-ID': this.sessionId || ''
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify(requestBody)
             });
 
             const data = await response.json();
@@ -279,15 +292,21 @@ class ChillaAuth {
         }
 
         try {
+            const requestBody = { ...formData };
+            if (this.sessionId) {
+                requestBody.session_id = this.sessionId;
+            }
+
             const response = await fetch('https://cook.beaverlyai.com/api/register', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-Token': csrfToken
+                    'X-CSRF-Token': csrfToken,
+                    'X-Session-ID': this.sessionId || ''
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(requestBody)
             });
 
             const data = await response.json();
@@ -302,15 +321,21 @@ class ChillaAuth {
                 if (newCsrfToken) {
                     // Retry the registration with new token
                     try {
+                        const retryRequestBody = { ...formData };
+                        if (this.sessionId) {
+                            retryRequestBody.session_id = this.sessionId;
+                        }
+
                         const retryResponse = await fetch('https://cook.beaverlyai.com/api/register', {
                             method: 'POST',
                             credentials: 'include',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-Token': newCsrfToken
+                                'X-CSRF-Token': newCsrfToken,
+                                'X-Session-ID': this.sessionId || ''
                             },
-                            body: JSON.stringify(formData)
+                            body: JSON.stringify(retryRequestBody)
                         });
 
                         const retryData = await retryResponse.json();
