@@ -1,3 +1,4 @@
+
 // Enhanced Authentication with Pure Server-Side Validation
 class ChillaAuth {
     constructor() {
@@ -201,14 +202,16 @@ class ChillaAuth {
         const rawEmail = document.getElementById('login-email')?.value;
         const rawPassword = document.getElementById('login-password')?.value;
 
+        let email, password;
+
         try {
             const loginData = this.validateInputTypes({
                 email: rawEmail,
                 password: rawPassword
             });
 
-            const email = loginData.email;
-            const password = loginData.password;
+            email = loginData.email;
+            password = loginData.password;
         } catch (error) {
             this.showError('Invalid input format detected');
             return;
@@ -259,8 +262,10 @@ class ChillaAuth {
         // Collect and validate form data
         const rawFormData = this.collectSignupData();
 
+        let formData;
+
         try {
-            const formData = this.validateInputTypes(rawFormData);
+            formData = this.validateInputTypes(rawFormData);
         } catch (error) {
             this.showError('Invalid input format detected');
             return;
