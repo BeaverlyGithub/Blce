@@ -137,15 +137,40 @@ class ChillaDashboard {
     handleDerivCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
-        const isPending = localStorage.getItem('deriv_oauth_pending') === 'true';
+        const state = urlParams.get('state');
 
-        if (code && isPending) {
-            localStorage.setItem('deriv_connected', 'true');
-            localStorage.setItem('deriv_auth_code', code);
-            localStorage.removeItem('deriv_oauth_pending');
+        if (code && state) {
+            // Send OAuth code to server immediately - never store locally
+            this.processOAuthCallback(code, state);
             window.history.replaceState({}, document.title, window.location.pathname);
-            this.showNotification('Successfully connected to Deriv!', 'success');
-            this.updateConnectionStatus(true);
+        }
+    }
+
+    async processOAuthCallback(code, state) {
+        try {
+            const response = await fetch(`${API_BASE}/api/oauth_callback`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfToken || '',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ code, state })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                this.showNotification('Successfully connected to broker!', 'success');
+                this.updateConnectionStatus(true);
+                await this.loadDashboardData();
+            } else {
+                const error = await response.json();
+                this.showNotification(error.detail || 'Connection failed', 'error');
+            }
+        } catch (error) {
+            console.error('OAuth callback processing error:', error);
+            this.showNotification('Connection error. Please try again.', 'error');
         }
     }
 
@@ -480,8 +505,8 @@ class ChillaDashboard {
             console.error('Error checking connection status:', error);
         }
 
-        const derivConnected = localStorage.getItem('deriv_connected') === 'true';
-        this.updateConnectionStatus(derivConnected);
+        // Connection status now determined by server-side verification only
+        this.updateConnectionStatus(false);
     }
 
     updateConnectionStatus(connected) {
@@ -1020,7 +1045,7 @@ class ChillaDashboard {
             const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
             const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
 
-            localStorage.setItem('deriv_oauth_pending', 'true');
+            // OAuth state now managed server-side via state tokens
             window.location.href = derivOAuthUrl;
         } catch (error) {
             console.error("OAuth error:", error);
@@ -1040,9 +1065,7 @@ class ChillaDashboard {
 
             if (response.ok) {
                 const result = await response.json();
-                localStorage.removeItem('deriv_connected');
-                localStorage.removeItem('deriv_auth_code');
-                localStorage.removeItem('deriv_oauth_pending');
+                // OAuth data now managed server-side only
 
                 this.updateConnectionStatus(false);
                 this.closeDisconnectModal();
@@ -1054,9 +1077,7 @@ class ChillaDashboard {
             }
         } catch (error) {
             console.error('Error disconnecting:', error);
-            localStorage.removeItem('deriv_connected');
-            localStorage.removeItem('deriv_auth_code');
-            localStorage.removeItem('deriv_oauth_pending');
+            // Fallback: clear connection status locally
 
             this.updateConnectionStatus(false);
             this.closeDisconnectModal();
