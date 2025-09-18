@@ -87,22 +87,65 @@
 
         initializePage();
 
+        function showError(message) {
+            clearMessages();
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'auth-error';
+            errorDiv.textContent = message;
+            errorDiv.style.cssText = `
+                color: #ff4444;
+                padding: 12px;
+                margin-bottom: 15px;
+                border: 1px solid #ff4444;
+                background-color: #ffebeb;
+                border-radius: 8px;
+                text-align: center;
+                font-size: 14px;
+                box-shadow: 0 2px 4px rgba(255, 68, 68, 0.1);
+            `;
+            document.querySelector('.auth-form').prepend(errorDiv);
+        }
+
+        function showSuccess(message) {
+            clearMessages();
+            const successDiv = document.createElement('div');
+            successDiv.className = 'auth-success';
+            successDiv.textContent = message;
+            successDiv.style.cssText = `
+                color: #4CAF50;
+                padding: 12px;
+                margin-bottom: 15px;
+                border: 1px solid #4CAF50;
+                background-color: #e8f5e9;
+                border-radius: 8px;
+                text-align: center;
+                font-size: 14px;
+                box-shadow: 0 2px 4px rgba(76, 175, 80, 0.1);
+            `;
+            document.querySelector('.auth-form').prepend(successDiv);
+        }
+
+        function clearMessages() {
+            const existingMessages = document.querySelectorAll('.auth-error, .auth-success');
+            existingMessages.forEach(msg => msg.remove());
+        }
+
         document.getElementById('change-email-btn').addEventListener('click', async () => {
             const currentEmail = document.getElementById('current-email').value;
             const newEmail = document.getElementById('new-email').value.trim();
 
             if (!newEmail) {
-                alert('Please enter a new email');
+                showError('Please enter a new email');
                 return;
             }
 
             if (!newEmail.includes('@') || !newEmail.includes('.')) {
-                alert('Please enter a valid email address');
+                showError('Please enter a valid email address');
                 return;
             }
 
             if (currentEmail === newEmail) {
-                alert('New email must be different from current email');
+                showError('New email must be different from current email');
                 return;
             }
 
@@ -123,14 +166,16 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert('Email updated successfully. Please check your new email for verification.');
-                    window.location.href = 'dashboard.html';
+                    showSuccess('Email updated successfully! Please check your new email for verification. Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 3000);
                 } else {
-                    alert(data.detail || 'Error updating email');
+                    showError(data.detail || data.message || 'Error updating email');
                 }
             } catch (error) {
                 console.error('Network error:', error);
-                alert('Network error. Please try again.');
+                showError('Network error. Please try again.');
             }
         });
     </script>

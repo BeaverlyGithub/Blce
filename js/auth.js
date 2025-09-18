@@ -209,6 +209,22 @@ class ChillaAuth {
         const rawEmail = document.getElementById('login-email')?.value;
         const rawPassword = document.getElementById('login-password')?.value;
 
+        // Client-side validation
+        if (!rawEmail || !rawEmail.trim()) {
+            this.showError('Please enter your email address');
+            return;
+        }
+
+        if (!rawPassword) {
+            this.showError('Please enter your password');
+            return;
+        }
+
+        if (!rawEmail.includes('@') || !rawEmail.includes('.')) {
+            this.showError('Please enter a valid email address');
+            return;
+        }
+
         let email, password;
 
         try {
@@ -263,7 +279,20 @@ class ChillaAuth {
                 // Server tells us to show verification modal
                 this.showLoginVerificationModal(email);
             } else {
-                this.showError(data.detail || data.message || 'Login failed');
+                // Show specific error messages from server
+                let errorMessage = 'Login failed';
+                if (data.detail) {
+                    errorMessage = data.detail;
+                } else if (data.message) {
+                    errorMessage = data.message;
+                } else if (response.status === 401) {
+                    errorMessage = 'Invalid email or password. Please try again.';
+                } else if (response.status === 422) {
+                    errorMessage = 'Please check your email and password format.';
+                } else if (response.status >= 500) {
+                    errorMessage = 'Server error. Please try again later.';
+                }
+                this.showError(errorMessage);
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -274,6 +303,47 @@ class ChillaAuth {
     async handleSignup() {
         // Collect and validate form data
         const rawFormData = this.collectSignupData();
+
+        // Client-side validation
+        if (!rawFormData.email || !rawFormData.email.trim()) {
+            this.showError('Please enter your email address');
+            return;
+        }
+
+        if (!rawFormData.email.includes('@') || !rawFormData.email.includes('.')) {
+            this.showError('Please enter a valid email address');
+            return;
+        }
+
+        if (!rawFormData.password) {
+            this.showError('Please enter a password');
+            return;
+        }
+
+        if (rawFormData.password.length < 8) {
+            this.showError('Password must be at least 8 characters long');
+            return;
+        }
+
+        if (rawFormData.password !== rawFormData.confirm_password) {
+            this.showError('Passwords do not match');
+            return;
+        }
+
+        if (!rawFormData.first_name || !rawFormData.first_name.trim()) {
+            this.showError('Please enter your first name');
+            return;
+        }
+
+        if (!rawFormData.last_name || !rawFormData.last_name.trim()) {
+            this.showError('Please enter your last name');
+            return;
+        }
+
+        if (!rawFormData.date_of_birth) {
+            this.showError('Please enter your date of birth');
+            return;
+        }
 
         let formData;
 
@@ -344,7 +414,17 @@ class ChillaAuth {
                             this.showLoginScreen();
                             return;
                         } else {
-                            this.showError(retryData.detail || retryData.message || 'Registration failed');
+                            let errorMessage = 'Registration failed';
+                            if (retryData.detail) {
+                                errorMessage = retryData.detail;
+                            } else if (retryData.message) {
+                                errorMessage = retryData.message;
+                            } else if (retryResponse.status === 409) {
+                                errorMessage = 'An account with this email already exists.';
+                            } else if (retryResponse.status === 422) {
+                                errorMessage = 'Please check your input and try again.';
+                            }
+                            this.showError(errorMessage);
                             return;
                         }
                     } catch (retryError) {
@@ -403,8 +483,20 @@ class ChillaAuth {
     }
 
     async handlePasswordReset() {
-        // Get email without client-side validation
-        const email = this.sanitizeInput(document.getElementById('reset-email')?.value);
+        // Get and validate email
+        const rawEmail = document.getElementById('reset-email')?.value;
+
+        if (!rawEmail || !rawEmail.trim()) {
+            this.showError('Please enter your email address');
+            return;
+        }
+
+        if (!rawEmail.includes('@') || !rawEmail.includes('.')) {
+            this.showError('Please enter a valid email address');
+            return;
+        }
+
+        const email = this.sanitizeInput(rawEmail);
 
         // Ensure we have a valid CSRF token
         const csrfToken = await this.ensureCSRFToken();
@@ -553,15 +645,27 @@ class ChillaAuth {
         let errorDiv = document.createElement('div');
         errorDiv.className = 'auth-error';
 
-        const currentScreenElement = document.querySelector('.screen:not(.hidden)');
-        const authForm = currentScreenElement?.querySelector('.auth-form') || currentScreenElement?.querySelector('form');
+        // Find the current visible screen or auth container
+        const currentScreenElement = document.querySelector('.screen:not(.hidden)') || 
+                                   document.querySelector('#login-screen:not(.hidden)') ||
+                                   document.querySelector('#signup-screen:not(.hidden)') ||
+                                   document.querySelector('#forgot-password-screen:not(.hidden)') ||
+                                   document.querySelector('#auth-container:not(.hidden)');
+        
+        const authForm = currentScreenElement?.querySelector('.auth-form') || 
+                        currentScreenElement?.querySelector('form') ||
+                        document.querySelector('.auth-form');
 
         if (authForm) {
-            authForm.prepend(errorDiv);
+            authForm.insertBefore(errorDiv, authForm.firstChild);
+        } else if (currentScreenElement) {
+            currentScreenElement.insertBefore(errorDiv, currentScreenElement.firstChild);
         } else {
-            // Fallback - try to find any visible container
-            const container = currentScreenElement || document.body;
-            container.prepend(errorDiv);
+            // Last resort - add to any visible auth container
+            const fallbackContainer = document.querySelector('#auth-container') || 
+                                    document.querySelector('.auth-screen') ||
+                                    document.body;
+            fallbackContainer.prepend(errorDiv);
         }
 
         errorDiv.textContent = message;
@@ -575,7 +679,16 @@ class ChillaAuth {
             text-align: center;
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(255, 68, 68, 0.1);
+            z-index: 1000;
+            position: relative;
         `;
+
+        // Auto-hide error after 8 seconds
+        setTimeout(() => {
+            if (errorDiv && errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 8000);
     }
 
     showSuccess(message) {
