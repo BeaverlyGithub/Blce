@@ -1,4 +1,3 @@
-
 // Enhanced Authentication with Pure Server-Side Validation
 class ChillaAuth {
     constructor() {
@@ -288,7 +287,7 @@ class ChillaAuth {
                     this.showPasswordComplianceModal(email);
                     return;
                 }
-                
+
                 // Show specific error messages from server
                 let errorMessage = 'Login failed';
                 if (data.detail) {
@@ -657,12 +656,12 @@ class ChillaAuth {
 
         // Find the currently visible auth form more reliably
         let targetForm = null;
-        
+
         // Check each screen specifically
         const loginScreen = document.getElementById('login-screen');
         const signupScreen = document.getElementById('signup-screen');
         const forgotScreen = document.getElementById('forgot-password-screen');
-        
+
         if (signupScreen && !signupScreen.classList.contains('hidden')) {
             targetForm = signupScreen.querySelector('.auth-form');
         } else if (loginScreen && !loginScreen.classList.contains('hidden')) {
@@ -715,12 +714,12 @@ class ChillaAuth {
 
         // Find the currently visible auth form more reliably
         let targetForm = null;
-        
+
         // Check each screen specifically
         const loginScreen = document.getElementById('login-screen');
         const signupScreen = document.getElementById('signup-screen');
         const forgotScreen = document.getElementById('forgot-password-screen');
-        
+
         if (signupScreen && !signupScreen.classList.contains('hidden')) {
             targetForm = signupScreen.querySelector('.auth-form');
         } else if (loginScreen && !loginScreen.classList.contains('hidden')) {
@@ -881,10 +880,10 @@ class ChillaAuth {
                     We'll send a verification email to <strong>${email}</strong>.
                 </p>
                 <p style="margin-bottom: 2rem; color: #666; font-size: 14px;">
-                    After clicking the verification link in your email, you can return here and try logging in again.
+                    After clicking the verification link in your email, you can close this dialog and try logging in again.
                 </p>
                 <button id="send-login-verification-btn" style="
-                    background: #007bff;
+                    background: black;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -1211,7 +1210,7 @@ function checkPasswordMatch() {
     }
 
     indicator.style.display = 'block';
-    
+
     if (password === confirmPassword) {
         indicator.className = 'password-match-indicator match';
         text.textContent = 'Passwords match ✓';
