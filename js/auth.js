@@ -785,7 +785,7 @@ class ChillaAuth {
                 box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             ">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
-                <h3 style="margin: 0 0 1rem 0; color: #28a745;">Registration Successful!</h3>
+                <h3 style="margin: 0 0 1rem 0; color: black;">Registration Successful!</h3>
                 <p style="margin-bottom: 1rem; color: #666; font-size: 16px;">
                     ${message}
                 </p>
@@ -796,7 +796,7 @@ class ChillaAuth {
                     Please check your inbox (and spam folder) for a verification email. Click the verification link, then return here to log in.
                 </p>
                 <button id="goto-login-btn" style="
-                    background: #28a745;
+                    background: black;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -954,7 +954,7 @@ class ChillaAuth {
                             Please check your inbox and click the verification link. After verifying, you can close this dialog and try logging in again.
                         </p>
                         <button id="close-success-verification-btn" style="
-                            background: #28a745;
+                            background: black;
                             color: white;
                             border: none;
                             padding: 12px 24px;
@@ -1024,7 +1024,7 @@ class ChillaAuth {
                     We'll send a secure password reset link to <strong>${email}</strong> so you can create a new, compliant password.
                 </p>
                 <button id="send-compliance-reset-btn" style="
-                    background: #dc3545;
+                    background: black;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -1100,7 +1100,7 @@ class ChillaAuth {
                             Once you've updated your password, you can return here and log in normally.
                         </p>
                         <button id="close-success-compliance-btn" style="
-                            background: #28a745;
+                            background: black;
                             color: white;
                             border: none;
                             padding: 12px 24px;
