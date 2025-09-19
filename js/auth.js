@@ -1040,6 +1040,31 @@ function updatePasswordMeter(password) {
 }
 
 
+// Password match validation
+function checkPasswordMatch() {
+    const password = document.getElementById('signup-password')?.value;
+    const confirmPassword = document.getElementById('confirm-password')?.value;
+    const indicator = document.getElementById('password-match-indicator');
+    const text = document.getElementById('password-match-text');
+
+    if (!indicator || !text) return;
+
+    if (!confirmPassword) {
+        indicator.style.display = 'none';
+        return;
+    }
+
+    indicator.style.display = 'block';
+    
+    if (password === confirmPassword) {
+        indicator.className = 'password-match-indicator match';
+        text.textContent = 'Passwords match ✓';
+    } else {
+        indicator.className = 'password-match-indicator no-match';
+        text.textContent = 'Passwords don\'t match';
+    }
+}
+
 // Initialize authentication when DOM loads
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaAuth();
@@ -1049,6 +1074,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
             updatePasswordMeter(this.value);
+            checkPasswordMatch();
+        });
+    }
+
+    // Add confirm password event listener
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            checkPasswordMatch();
         });
     }
 
