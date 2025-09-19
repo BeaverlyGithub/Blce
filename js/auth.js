@@ -279,6 +279,16 @@ class ChillaAuth {
                 // Server tells us to show verification modal
                 this.showLoginVerificationModal(email);
             } else {
+                // Check for password compliance issues
+                if (data.detail && (data.detail.includes('password does not meet') || 
+                    data.detail.includes('password compliance') || 
+                    data.detail.includes('password standards') ||
+                    data.detail.includes('update your password'))) {
+                    // Show password compliance modal
+                    this.showPasswordComplianceModal(email);
+                    return;
+                }
+                
                 // Show specific error messages from server
                 let errorMessage = 'Login failed';
                 if (data.detail) {
@@ -969,6 +979,152 @@ class ChillaAuth {
 
     closeLoginVerificationModal() {
         const modal = document.getElementById('login-verification-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    showPasswordComplianceModal(email) {
+        // Create and show password compliance modal
+        const modal = document.createElement('div');
+        modal.id = 'password-compliance-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                <h3 style="margin: 0 0 1rem 0; color: #333;">Password Update Required</h3>
+                <p style="margin-bottom: 1rem; color: #666;">
+                    Your current password doesn't meet our updated security standards.
+                </p>
+                <p style="margin-bottom: 1rem; color: #666;">
+                    For your account security, please update your password to continue.
+                </p>
+                <p style="margin-bottom: 2rem; color: #666; font-size: 14px;">
+                    We'll send a secure password reset link to <strong>${email}</strong> so you can create a new, compliant password.
+                </p>
+                <button id="send-compliance-reset-btn" style="
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin-right: 12px;
+                ">Send Password Reset</button>
+                <button id="close-compliance-modal-btn" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">Cancel</button>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        document.getElementById('send-compliance-reset-btn')?.addEventListener('click', async () => {
+            await this.sendCompliancePasswordReset(email);
+        });
+
+        document.getElementById('close-compliance-modal-btn')?.addEventListener('click', () => {
+            this.closePasswordComplianceModal();
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closePasswordComplianceModal();
+            }
+        });
+    }
+
+    async sendCompliancePasswordReset(email) {
+        try {
+            const csrfToken = await this.ensureCSRFToken();
+            const response = await fetch('https://cook.beaverlyai.com/api/forgot_password', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ 
+                    email,
+                    reason: 'password_compliance' // Let backend know this is for compliance
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                // Update modal content to show success
+                const modal = document.getElementById('password-compliance-modal');
+                if (modal) {
+                    const content = modal.querySelector('div');
+                    content.innerHTML = `
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                        <h3 style="margin: 0 0 1rem 0; color: #333;">Password Reset Sent!</h3>
+                        <p style="margin-bottom: 1rem; color: #666;">
+                            We've sent a password reset email to <strong>${email}</strong>.
+                        </p>
+                        <p style="margin-bottom: 1rem; color: #666;">
+                            Please check your inbox and follow the instructions to create a new, secure password.
+                        </p>
+                        <p style="margin-bottom: 2rem; color: #666; font-size: 14px;">
+                            Once you've updated your password, you can return here and log in normally.
+                        </p>
+                        <button id="close-success-compliance-btn" style="
+                            background: #28a745;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        ">Got It</button>
+                    `;
+
+                    document.getElementById('close-success-compliance-btn')?.addEventListener('click', () => {
+                        this.closePasswordComplianceModal();
+                    });
+                }
+            } else {
+                this.showError(result.detail || result.message || 'Failed to send password reset email');
+            }
+        } catch (error) {
+            console.error('Password reset error:', error);
+            this.showError('Network error. Please try again.');
+        }
+    }
+
+    closePasswordComplianceModal() {
+        const modal = document.getElementById('password-compliance-modal');
         if (modal) {
             modal.remove();
         }
