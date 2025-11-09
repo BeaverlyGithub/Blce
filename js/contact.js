@@ -5,7 +5,7 @@
 
 class ContactFormHandler {
     constructor() {
-        this.API_ENDPOINT = 'https://cook.beaverlyai.com/api/contact';
+        this.API_ENDPOINT = (window.APP_CONFIG && typeof window.APP_CONFIG.apiUrl === 'function') ? window.APP_CONFIG.apiUrl('/api/contact') : 'https://cook.beaverlyai.com/api/contact';
         this.form = null;
         this.submitBtn = null;
         this.messageDiv = null;

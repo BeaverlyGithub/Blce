@@ -1,4 +1,15 @@
 // Enhanced Authentication with Pure Server-Side Validation
+
+// small local helper that uses APP_CONFIG when available
+function _apiUrl(path) {
+    try {
+        if (window.APP_CONFIG && typeof window.APP_CONFIG.apiUrl === 'function') return window.APP_CONFIG.apiUrl(path);
+    } catch (e) {
+        /* ignore */
+    }
+    // fallback: assume absolute path provided
+    return path;
+}
 class ChillaAuth {
     constructor() {
         this.csrfToken = null;
@@ -26,7 +37,7 @@ class ChillaAuth {
         this.csrfTokenLoading = true;
 
         try {
-            const response = await fetch('https://cook.beaverlyai.com/api/csrf_token', {
+            const response = await fetch(_apiUrl('/api/csrf_token'), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -61,7 +72,7 @@ class ChillaAuth {
         this.csrfTokenLoading = true;
 
         try {
-            const url = new URL('https://cook.beaverlyai.com/api/csrf_token');
+            const url = new URL(_apiUrl('/api/csrf_token'));
             if (email) {
                 url.searchParams.append('email', email);
             }
@@ -99,7 +110,7 @@ class ChillaAuth {
 
     async validateSession() {
         try {
-            const response = await fetch('https://cook.beaverlyai.com/api/verify_token', {
+            const response = await fetch(_apiUrl('/api/verify_token'), {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -252,7 +263,7 @@ class ChillaAuth {
                 requestBody.session_id = this.sessionId;
             }
 
-            const response = await fetch('https://cook.beaverlyai.com/api/login', {
+            const response = await fetch(_apiUrl('/api/login'), {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -376,7 +387,7 @@ class ChillaAuth {
                 requestBody.session_id = this.sessionId;
             }
 
-            const response = await fetch('https://cook.beaverlyai.com/api/register', {
+            const response = await fetch(_apiUrl('/api/register'), {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -406,7 +417,7 @@ class ChillaAuth {
                             retryRequestBody.session_id = this.sessionId;
                         }
 
-                        const retryResponse = await fetch('https://cook.beaverlyai.com/api/register', {
+                        const retryResponse = await fetch(_apiUrl('/api/register'), {
                             method: 'POST',
                             credentials: 'include',
                             headers: {
@@ -452,7 +463,7 @@ class ChillaAuth {
 
     async handleGoogleAuth() {
         try {
-            const response = await fetch('https://cook.beaverlyai.com/api/oauth_config', {
+            const response = await fetch(_apiUrl('/api/oauth_config'), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -515,7 +526,7 @@ class ChillaAuth {
         }
 
         try {
-            const response = await fetch('https://cook.beaverlyai.com/api/forgot_password', {
+            const response = await fetch(_apiUrl('/api/forgot_password'), {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -926,7 +937,7 @@ class ChillaAuth {
     async sendLoginVerificationEmail(email) {
         try {
             const csrfToken = await this.ensureCSRFToken();
-            const response = await fetch('https://cook.beaverlyai.com/api/send_verification_email', {
+            const response = await fetch(_apiUrl('/api/send_verification_email'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1066,7 +1077,7 @@ class ChillaAuth {
     async sendCompliancePasswordReset(email) {
         try {
             const csrfToken = await this.ensureCSRFToken();
-            const response = await fetch('https://cook.beaverlyai.com/api/forgot_password', {
+            const response = await fetch(_apiUrl('/api/forgot_password'), {
                 method: 'POST',
                 credentials: 'include',
                 headers: {

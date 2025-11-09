@@ -1,4 +1,4 @@
-const API_BASE = 'https://cook.beaverlyai.com';
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) ? window.APP_CONFIG.API_BASE : 'https://cook.beaverlyai.com';
 
 // Secure contact form handler
 class ContactFormHandler {
@@ -587,8 +587,13 @@ class ChillaDashboard {
             return;
         }
 
-        const wsHost = API_BASE.replace('https://', '').replace('http://', '');
-        const wsUrl = `wss://${wsHost}/ws?token=${wsToken}`;
+        let wsUrl;
+        if (window.APP_CONFIG && typeof window.APP_CONFIG.wsUrl === 'function') {
+            wsUrl = window.APP_CONFIG.wsUrl(`/ws?token=${wsToken}`);
+        } else {
+            const wsHost = API_BASE.replace('https://', '').replace('http://', '');
+            wsUrl = `wss://${wsHost}/ws?token=${wsToken}`;
+        }
 
         try {
             this.wsConnection = new WebSocket(wsUrl);
@@ -630,8 +635,13 @@ class ChillaDashboard {
             return;
         }
 
-        const wsHost = API_BASE.replace('https://', '').replace('http://', '');
-        const activityWsUrl = `wss://${wsHost}/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`;
+        let activityWsUrl;
+        if (window.APP_CONFIG && typeof window.APP_CONFIG.wsUrl === 'function') {
+            activityWsUrl = window.APP_CONFIG.wsUrl(`/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`);
+        } else {
+            const wsHost = API_BASE.replace('https://', '').replace('http://', '');
+            activityWsUrl = `wss://${wsHost}/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`;
+        }
 
         try {
             this.activityWs = new WebSocket(activityWsUrl);
