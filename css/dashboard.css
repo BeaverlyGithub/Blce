@@ -724,10 +724,442 @@
     background: var(--bg-secondary);
 }
 
+/* ==================== Mandate Status Card ==================== */
+.mandate-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.mandate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.mandate-header h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.active {
+    background: rgba(0, 200, 83, 0.1);
+    color: #00c853;
+}
+
+.status-badge.unauthorized {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+.status-badge.paused {
+    background: rgba(158, 158, 158, 0.1);
+    color: #9e9e9e;
+}
+
+.mandate-message {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.mandate-message p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.setup-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.setup-link:hover {
+    text-decoration: underline;
+}
+
+.mandate-active-view {
+    display: block;
+}
+
+.mandate-active-view.hidden {
+    display: none;
+}
+
+.mandate-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.mandate-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.omega-usage-container {
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.omega-usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.omega-percent {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.omega-progress-ring {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle-bg {
+    fill: none;
+    stroke: var(--bg-secondary);
+    stroke-width: 8;
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 339.292;
+    stroke-dashoffset: 339.292;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-ring-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.percent-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.mandate-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.mandate-action-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pause-btn {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+.pause-btn:hover {
+    background: rgba(255, 152, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.revoke-btn {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.revoke-btn:hover {
+    background: rgba(244, 67, 54, 0.2);
+    transform: translateY(-1px);
+}
+
+/* ==================== Decision Feed (Enhanced) ==================== */
+.decisions-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.decisions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.decisions-header h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.decision-count {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.decision-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.decision-feed::-webkit-scrollbar {
+    width: 6px;
+}
+
+.decision-feed::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+}
+
+.decision-feed::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.decision-feed::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+.decision-placeholder {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.placeholder-icon + p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.decision-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    animation: slideIn 0.3s ease;
+    transition: all 0.2s ease;
+}
+
+.decision-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.decision-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.decision-action {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.decision-timestamp {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+}
+
+.decision-reason {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.decision-metadata {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+}
+
+.decision-tag {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    color: var(--text-tertiary);
+}
+
+/* Decision type badges */
+.decision-item.enter .decision-action {
+    color: #00c853;
+}
+
+.decision-item.skip .decision-action {
+    color: #ff9800;
+}
+
+.decision-item.deny .decision-action {
+    color: #f44336;
+}
+
+.decision-item.exit .decision-action {
+    color: #2196f3;
+}
+
+.decision-item.modify .decision-action {
+    color: #9c27b0;
+}
+
+/* Decision risk and outcome */
+.decision-risk {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+}
+
+.decision-outcome {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.decision-outcome.profit {
+    background: rgba(0, 200, 83, 0.1);
+    color: #00c853;
+}
+
+.decision-outcome.loss {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+/* Slide-in animation for new decisions */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.decision-item.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
 /* Responsive Dashboard */
 @media (min-width: 768px) {
     .sidebar-content {
         width: 320px;
+    }
+
+    .dashboard {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .mandate-card {
+        grid-column: 1 / -1;
+    }
+
+    .decisions-card {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .mandate-info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .mandate-actions {
+        flex-direction: column;
+    }
+
+    .omega-usage-container {
+        padding: 1rem;
+    }
+
+    .decision-feed {
+        max-height: 400px;
     }
 }
 

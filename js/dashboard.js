@@ -1,4 +1,5 @@
-const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) ? window.APP_CONFIG.API_BASE : 'https://cook.beaverlyai.com';
+// Prefer APP_CONFIG helpers when available (apiUrl/wsUrl). Fallback to a reasonable default.
+const API_BASE = (window.APP_CONFIG && typeof window.APP_CONFIG.apiUrl === 'function') ? window.APP_CONFIG.apiUrl('') : ((window.APP_CONFIG && window.APP_CONFIG.API_BASE) ? window.APP_CONFIG.API_BASE : 'https://cook.beaverlyai.com');
 
 // Secure contact form handler
 class ContactFormHandler {
@@ -118,6 +119,7 @@ class ChillaDashboard {
         // Small delay to ensure DOM is ready
         setTimeout(async () => {
             await this.validateSession();
+            await this.loadMandateStatus(); // NEW: Load mandate on init
         }, 100);
     }
 
@@ -376,11 +378,149 @@ class ChillaDashboard {
             await Promise.all([
                 this.loadBalance(),
                 this.loadPositions(),
-                this.checkConnectionStatus()
+                this.checkConnectionStatus(),
+                this.loadMandateStatus() // NEW: Include mandate status
             ]);
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             this.loadFallbackData();
+        }
+    }
+
+    // ==================== NEW: Mandate Management ====================
+    
+    async loadMandateStatus() {
+        try {
+            const mandate = await window.chillaAPI.getCurrentMandate();
+            
+            if (mandate && mandate.status === 'active') {
+                this.displayActiveMandate(mandate);
+            } else {
+                this.displayUnauthorizedMandate();
+            }
+        } catch (error) {
+            console.error('Failed to load mandate:', error);
+            this.displayUnauthorizedMandate();
+        }
+    }
+
+    displayActiveMandate(mandate) {
+        // Update status badge
+        const badge = document.getElementById('mandate-status-badge');
+        if (badge) {
+            badge.textContent = 'Active';
+            badge.className = 'status-badge active';
+        }
+
+        // Show active view, hide unauthorized message
+        const activeView = document.getElementById('mandate-active-view');
+        const mandateDetails = document.getElementById('mandate-details');
+        if (activeView) activeView.classList.remove('hidden');
+        if (mandateDetails) mandateDetails.style.display = 'none';
+
+        // Populate mandate details
+        document.getElementById('mandate-strategy').textContent = 
+            mandate.strategy_id || '—';
+        
+        const riskCap = mandate.omega_max_bps 
+            ? `${(mandate.omega_max_bps / 100).toFixed(1)}% (${mandate.omega_max_bps} bps)` 
+            : '—';
+        document.getElementById('mandate-risk-cap').textContent = riskCap;
+
+        // Update omega usage (will be updated via WebSocket)
+        this.updateOmegaUsageDisplay(mandate.omega_cap_usage_percent || 0);
+
+        // Setup mandate action buttons
+        this.setupMandateActions(mandate.id || mandate.mandate_id);
+    }
+
+    displayUnauthorizedMandate() {
+        const badge = document.getElementById('mandate-status-badge');
+        if (badge) {
+            badge.textContent = 'Unauthorized';
+            badge.className = 'status-badge unauthorized';
+        }
+
+        const activeView = document.getElementById('mandate-active-view');
+        const mandateDetails = document.getElementById('mandate-details');
+        if (activeView) activeView.classList.add('hidden');
+        if (mandateDetails) mandateDetails.style.display = 'block';
+    }
+
+    updateOmegaUsageDisplay(percent) {
+        if (typeof percent !== 'number' || isNaN(percent)) percent = 0;
+        const clamped = Math.max(0, Math.min(100, percent));
+
+        // Update percentage text
+        const percentEl = document.getElementById('omega-usage-percent');
+        const centerPercentEl = document.getElementById('omega-percent-center');
+        if (percentEl) percentEl.textContent = `${clamped.toFixed(1)}%`;
+        if (centerPercentEl) centerPercentEl.textContent = `${clamped.toFixed(0)}%`;
+
+        // Update circular progress ring
+        const circle = document.getElementById('progress-ring-circle');
+        if (circle) {
+            const circumference = 2 * Math.PI * 54; // r=54
+            const offset = circumference - (clamped / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+    }
+
+    setupMandateActions(mandateId) {
+        const pauseBtn = document.getElementById('pause-mandate-btn');
+        const revokeBtn = document.getElementById('revoke-mandate-btn');
+
+        if (pauseBtn) {
+            pauseBtn.onclick = () => this.handlePauseMandate(mandateId);
+        }
+
+        if (revokeBtn) {
+            revokeBtn.onclick = () => this.handleRevokeMandate(mandateId);
+        }
+    }
+
+    async handlePauseMandate(mandateId) {
+        if (!confirm('Pause trading? Chilla will stop monitoring markets until you reactivate.')) {
+            return;
+        }
+
+        try {
+            // Backend requires: POST /api/mandates/{mandate_id}/update
+            // Body: { mandate_id, changes: {...}, reason }
+            await window.chillaAPI.updateMandate(mandateId, {
+                mandate_id: mandateId,
+                changes: {
+                    status: 'paused'
+                },
+                reason: 'User requested pause'
+            });
+
+            this.showNotification('Mandate paused successfully', 'success');
+            await this.loadMandateStatus();
+        } catch (error) {
+            console.error('Failed to pause mandate:', error);
+            this.showNotification('Could not pause mandate. Please try again.', 'error');
+        }
+    }
+
+    async handleRevokeMandate(mandateId) {
+        if (!confirm('Revoke mandate? This will permanently stop all trading. You can create a new mandate later.')) {
+            return;
+        }
+
+        try {
+            // Backend requires: POST /api/mandates/{mandate_id}/revoke
+            // Body: { mandate_id, reason }
+            await window.chillaAPI.revokeMandate(mandateId, {
+                mandate_id: mandateId,
+                reason: 'User requested revocation'
+            });
+
+            this.showNotification('Mandate revoked successfully', 'success');
+            await this.loadMandateStatus();
+        } catch (error) {
+            console.error('Failed to revoke mandate:', error);
+            this.showNotification('Could not revoke mandate. Please try again.', 'error');
         }
     }
 
@@ -572,6 +712,7 @@ class ChillaDashboard {
                 if (tokenData.ws_token) {
                     this.connectWebSocket(tokenData.ws_token);
                     this.setupActivityWebSocket(tokenData.ws_token);
+                    this.connectSignalWebSocket(tokenData.ws_token); // NEW: Connect to signal WS
                 }
             } else {
                 console.error('Failed to get WebSocket token:', wsTokenResponse.status);
@@ -579,6 +720,195 @@ class ChillaDashboard {
         } catch (error) {
             console.error('WebSocket token error:', error);
         }
+    }
+
+    // ==================== NEW: Signal WebSocket for Decision Reports ====================
+    
+    connectSignalWebSocket(wsToken) {
+        if (!wsToken) {
+            console.error('No WebSocket token for signal connection');
+            return;
+        }
+
+        try {
+            this.signalWs = window.chillaAPI.connectSignalWS(wsToken);
+
+            this.signalWs.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'decision_report' || data.report) {
+                        this.handleDecisionReport(data.report || data);
+                    }
+                } catch (error) {
+                    console.error('Error parsing signal message:', error);
+                }
+            };
+
+            this.signalWs.onclose = (event) => {
+                console.log('📡 Signal WebSocket disconnected', event.code);
+                // Auto-reconnect logic
+                if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+                    const delay = Math.min(5000 * Math.pow(2, this.reconnectAttempts), 30000);
+                    this.reconnectAttempts++;
+                    setTimeout(() => this.initializeWebSocket(), delay);
+                }
+            };
+
+        } catch (error) {
+            console.error('Signal WebSocket connection error:', error);
+        }
+    }
+
+    handleDecisionReport(report) {
+        console.log('📋 Decision report received:', report);
+
+        // Backend sends: { type: "decision_report", id, mandate_id, strategy_id, symbol, action, skip_reason?, reason, inputs, risk, exec?, outcome?, timestamp }
+        this.addDecisionToFeed(report);
+
+        // Show toast notification for important decisions
+        const action = report.action; // enter_buy, enter_sell, skip_trade_signal, etc.
+        
+        if (action === 'skip_trade_signal') {
+            const skipReason = report.skip_reason || 'unknown';
+            this.showNotification(`Trade skipped: ${skipReason.replace(/_/g, ' ')}`, 'warning');
+        } else if (action.startsWith('enter_')) {
+            const direction = action === 'enter_buy' ? 'BUY' : 'SELL';
+            this.showNotification(`${direction} executed on ${report.symbol}`, 'success');
+        } else if (action.startsWith('exit_')) {
+            this.showNotification(`Position closed on ${report.symbol}`, 'info');
+        }
+
+        // Omega usage comes from activity_ws, NOT decision reports
+    }
+
+    addDecisionToFeed(report) {
+        const feed = document.getElementById('decision-feed');
+        if (!feed) return;
+
+        // Remove placeholder if present
+        const placeholder = feed.querySelector('.decision-placeholder');
+        if (placeholder) {
+            placeholder.remove();
+        }
+
+        // Parse backend DecisionReport format
+        const { 
+            action,           // enter_buy, enter_sell, skip_trade_signal, exit_buy, etc.
+            skip_reason,      // cap_exhausted, broker_minimum, out_of_mandate, etc.
+            reason,           // Human-readable explanation
+            symbol,
+            strategy_id,
+            mandate_id,
+            inputs,           // inputs_summary (non-IP market data)
+            risk,             // risk_allocation (risk_bps, lot_size, SL, TP)
+            exec,             // exec_metadata (contract_id, broker response)
+            outcome,          // outcome (P&L if closed)
+            timestamp
+        } = report;
+
+        // Determine decision type class and display text
+        let typeClass = '';
+        let actionText = '';
+        let statusText = '';
+
+        if (action === 'skip_trade_signal') {
+            typeClass = 'skip';
+            actionText = 'Trade Skipped';
+            statusText = skip_reason ? skip_reason.replace(/_/g, ' ').toUpperCase() : '';
+        } else if (action === 'enter_buy') {
+            typeClass = 'enter';
+            actionText = 'ENTER BUY';
+            statusText = symbol;
+        } else if (action === 'enter_sell') {
+            typeClass = 'enter';
+            actionText = 'ENTER SELL';
+            statusText = symbol;
+        } else if (action === 'exit_buy' || action === 'exit_sell') {
+            typeClass = 'exit';
+            actionText = action === 'exit_buy' ? 'EXIT BUY' : 'EXIT SELL';
+            statusText = symbol;
+        } else if (action === 'modify_stop_loss') {
+            typeClass = 'modify';
+            actionText = 'SL Modified';
+            statusText = symbol;
+        } else {
+            typeClass = 'other';
+            actionText = action.replace(/_/g, ' ').toUpperCase();
+            statusText = symbol;
+        }
+
+        // Build risk info string
+        let riskInfo = '';
+        if (risk) {
+            if (risk.risk_bps) {
+                riskInfo = `Risk: ${(risk.risk_bps / 100).toFixed(2)}%`;
+            }
+            if (risk.lot_size || risk.stake) {
+                riskInfo += ` | Size: ${risk.lot_size || risk.stake}`;
+            }
+        }
+
+        // Build outcome string (if closed)
+        let outcomeStr = '';
+        if (outcome && outcome.pnl) {
+            const pnlClass = outcome.pnl >= 0 ? 'profit' : 'loss';
+            outcomeStr = `<div class="decision-outcome ${pnlClass}">P&L: ${outcome.pnl >= 0 ? '+' : ''}${outcome.pnl.toFixed(2)}</div>`;
+        }
+
+        const item = document.createElement('div');
+        item.className = `decision-item ${typeClass}`;
+        item.innerHTML = `
+            <div class="decision-header">
+                <span class="decision-action">${actionText} ${statusText ? '— ' + statusText : ''}</span>
+                <span class="decision-timestamp">${this.formatTimeAgo(timestamp)}</span>
+            </div>
+            ${reason ? `<div class="decision-reason">${reason}</div>` : ''}
+            ${riskInfo ? `<div class="decision-risk">${riskInfo}</div>` : ''}
+            ${outcomeStr}
+            <div class="decision-metadata">
+                <span class="decision-tag">${strategy_id}</span>
+                ${mandate_id ? `<span class="decision-tag">v${report.mandate_version || 1}</span>` : ''}
+            </div>
+        `;
+
+        // Insert at top with smooth animation
+        if (feed.firstChild) {
+            feed.insertBefore(item, feed.firstChild);
+        } else {
+            feed.appendChild(item);
+        }
+
+        // Trigger slide-in animation
+        setTimeout(() => item.classList.add('slide-in'), 10);
+
+        // Update decision count
+        this.updateDecisionCount();
+
+        // Keep feed manageable (max 50 items)
+        while (feed.children.length > 50) {
+            feed.removeChild(feed.lastChild);
+        }
+    }
+
+    updateDecisionCount() {
+        const feed = document.getElementById('decision-feed');
+        const countEl = document.getElementById('decision-count');
+        
+        if (feed && countEl) {
+            const count = feed.querySelectorAll('.decision-item').length;
+            countEl.textContent = count;
+        }
+    }
+
+    formatTimeAgo(timestamp) {
+        const now = Date.now() / 1000;
+        const ts = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime() / 1000;
+        const diff = now - ts;
+
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
     }
 
     connectWebSocket(wsToken) {
@@ -691,6 +1021,22 @@ class ChillaDashboard {
             case 'trade_signal':
                 this.showNotification(`Trade Signal: ${data.action} ${data.symbol}`, 'info');
                 break;
+            case 'decision_report':
+                // Human-friendly decision feed entry
+                try {
+                    this.displayDecisionReport(data.report || data);
+                } catch (e) {
+                    console.error('Error displaying decision report:', e);
+                }
+                break;
+            case 'risk_budget_update':
+                // Contains { omega_cap_usage_percent, mandate_id }
+                try {
+                    this.updateOmegaUsage(data);
+                } catch (e) {
+                    console.error('Error updating omega usage:', e);
+                }
+                break;
         }
     }
 
@@ -698,6 +1044,12 @@ class ChillaDashboard {
         if (data.type === 'activity_update') {
             console.log('Activity data received:', data.data);
             this.updateActivityStatus(data.data);
+        } else if (data.type === 'risk_budget_update') {
+            // Handle omega usage updates from activity WebSocket
+            console.log('Omega usage update received:', data);
+            if (data.omega_cap_usage_percent !== undefined) {
+                this.updateOmegaUsageDisplay(data.omega_cap_usage_percent);
+            }
         }
     }
 
@@ -772,6 +1124,84 @@ class ChillaDashboard {
         }
 
         activityElement.innerHTML = statusHtml;
+        // If activityData contains omega usage info, update mandate card
+        if (activityData.omega_cap_usage_percent !== undefined) {
+            this.updateOmegaUsageDisplay(activityData.omega_cap_usage_percent);
+        }
+    }
+
+    // Adds a decision item to the decision feed UI
+    displayDecisionReport(report) {
+        // report expected to contain: id, strategy_id, action, status, reason, created_at, mandate_id, summary
+        const feed = document.getElementById('decision-feed');
+        if (!feed) return;
+
+        const item = document.createElement('div');
+        item.className = 'decision-item';
+        const ts = report.created_at ? new Date(report.created_at * 1000) : new Date();
+        const timeLabel = ts.toLocaleTimeString();
+
+        // Keep message compact and non-technical for novice users
+        const action = report.action || report.decision || 'decision';
+        const status = report.status || report.outcome || report.result || '';
+        const strategy = report.strategy_id ? `Strategy ${report.strategy_id}` : '';
+        const reason = report.reason || report.entry_reason || report.note || '';
+        const mandate = report.mandate_id ? `Mandate ${report.mandate_id}` : '';
+
+        item.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                <div style="flex:1;">
+                    <div style="font-weight:600">${action} ${status ? '— '+status : ''} ${strategy ? '<span style="color:var(--muted); font-weight:400;">'+strategy+'</span>' : ''}</div>
+                    <div style="font-size:0.9rem;color:var(--muted);margin-top:0.25rem;">${reason || '—'}</div>
+                    <div style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem;">${mandate}</div>
+                </div>
+                <div style="flex-shrink:0;color:var(--muted);font-size:0.85rem">${timeLabel}</div>
+            </div>
+        `;
+
+        // insert at top
+        if (feed.firstChild) {
+            feed.insertBefore(item, feed.firstChild);
+        } else {
+            feed.appendChild(item);
+        }
+
+        // keep feed reasonably sized
+        while (feed.children.length > 25) {
+            feed.removeChild(feed.lastChild);
+        }
+
+        // subtle notification for important events
+        if (status && (status.toLowerCase() === 'skip' || status.toLowerCase() === 'deny' || status.toLowerCase() === 'blocked')) {
+            this.showNotification(`${action} ${status} — ${reason || ''}`, 'warning');
+        } else {
+            this.showNotification(`${action} ${status}`, 'info');
+        }
+    }
+
+    // Update omega progress bar and mandate display
+    updateOmegaUsage(data) {
+        const percent = (data.omega_cap_usage_percent !== undefined) ? Number(data.omega_cap_usage_percent) : (data.omega_usage_percent !== undefined ? Number(data.omega_usage_percent) : null);
+        const mandateId = data.mandate_id || data.mandate || null;
+
+        const panel = document.getElementById('omega-usage-panel');
+        const bar = document.getElementById('omega-progress-bar');
+        const pct = document.getElementById('omega-usage-percent');
+        const mandateEl = document.getElementById('mandate-id-display');
+
+        if (!panel || !bar || !pct || !mandateEl) return;
+
+        if (mandateId) {
+            mandateEl.textContent = mandateId;
+            panel.style.display = 'block';
+        }
+
+        if (percent !== null && !isNaN(percent)) {
+            const clamped = Math.max(0, Math.min(100, percent));
+            bar.style.width = `${clamped}%`;
+            pct.textContent = `${clamped}%`;
+            panel.style.display = 'block';
+        }
     }
 
     formatTimeAgo(timestamp) {

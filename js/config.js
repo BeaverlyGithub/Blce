@@ -19,11 +19,13 @@
         const override = qs.get('api') || localStorage.getItem('APP_API_BASE');
         if (override) return normalizeBase(override);
 
-        if (hostname === 'dev' || hostname === 'wofk') {
+                if (hostname === 'localhost' || hostname === '127.0.0.1') {
             // default dev port for local backend; change in localStorage or query if different
             // Your backend runs on port 8080 while Live Server uses 5500 for the frontend.
             return normalizeBase('http://localhost:8080');
         }
+
+        
 
         // GitHub Pages or production domains -> use production API
         if (hostname.endsWith('beaverlyai.com') || hostname.endsWith('beaverlyai.com')) {

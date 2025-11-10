@@ -141,6 +141,56 @@
             <!-- Main Content -->
             <main class="main-content">
                 <div id="dashboard" class="dashboard">
+                    <!-- Mandate Status Card (NEW) -->
+                    <div id="mandate-status-card" class="mandate-card">
+                        <div class="mandate-header">
+                            <h2>Your Mandate</h2>
+                            <span id="mandate-status-badge" class="status-badge unauthorized">Unauthorized</span>
+                        </div>
+                        <div id="mandate-details" class="mandate-details">
+                            <div class="mandate-message">
+                                <p>No active mandate. <a href="mandate-wizard.html" class="setup-link">Set up your trading mandate</a> to get started.</p>
+                            </div>
+                        </div>
+                        <div id="mandate-active-view" class="mandate-active-view hidden">
+                            <div class="mandate-info-grid">
+                                <div class="mandate-info-item">
+                                    <span class="info-label">Strategy</span>
+                                    <span class="info-value" id="mandate-strategy">—</span>
+                                </div>
+                                <div class="mandate-info-item">
+                                    <span class="info-label">Risk Cap</span>
+                                    <span class="info-value" id="mandate-risk-cap">—</span>
+                                </div>
+                            </div>
+                            <div class="omega-usage-container">
+                                <div class="omega-usage-header">
+                                    <span>Omega Cap Usage</span>
+                                    <span id="omega-usage-percent" class="omega-percent">0%</span>
+                                </div>
+                                <div class="omega-progress-ring">
+                                    <svg class="progress-ring" width="120" height="120">
+                                        <defs>
+                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#00c853;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#00b0ff;stop-opacity:1" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle class="progress-ring-circle-bg" cx="60" cy="60" r="54" />
+                                        <circle id="progress-ring-circle" class="progress-ring-circle" cx="60" cy="60" r="54" />
+                                    </svg>
+                                    <div class="progress-ring-center">
+                                        <span id="omega-percent-center" class="percent-value">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mandate-actions">
+                                <button id="pause-mandate-btn" class="mandate-action-btn pause-btn">Pause</button>
+                                <button id="revoke-mandate-btn" class="mandate-action-btn revoke-btn">Revoke</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="chilla-activity-status" class="activity-card">
                         <div class="activity-status status-disconnected">
                             <div class="status-header">
@@ -165,6 +215,20 @@
                         <div class="positions-list" id="positions-list">
                             <div class="position-item">
                                 <span>Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decision Feed (ENHANCED) -->
+                    <div class="decisions-card">
+                        <div class="decisions-header">
+                            <h2>Live Decisions</h2>
+                            <span id="decision-count" class="decision-count">0</span>
+                        </div>
+                        <div id="decision-feed" class="decision-feed">
+                            <div class="decision-placeholder">
+                                <div class="placeholder-icon">📊</div>
+                                <p>Decision reports will appear here as Chilla trades</p>
                             </div>
                         </div>
                     </div>

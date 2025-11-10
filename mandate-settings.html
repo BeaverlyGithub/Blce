@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandate Settings - Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 6rem auto 2rem;
+            padding: 1rem;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-secondary);
+        }
+
+        .settings-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .mandate-details-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .actions-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .pause-btn {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+
+        .pause-btn:hover {
+            background: rgba(255, 152, 0, 0.2);
+        }
+
+        .revoke-btn {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .revoke-btn:hover {
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .no-mandate-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .no-mandate-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .create-mandate-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .create-mandate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="settings-container">
+            <div class="settings-header">
+                <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1>Mandate Settings</h1>
+            </div>
+
+            <div id="loading-state" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading mandate details...</p>
+            </div>
+
+            <div id="no-mandate-state" class="no-mandate-state" style="display: none;">
+                <p>You don't have an active mandate yet.</p>
+                <a href="mandate-wizard.html" class="create-mandate-btn">Create Mandate</a>
+            </div>
+
+            <div id="mandate-content" style="display: none;">
+                <div class="mandate-details-card">
+                    <h2>Current Mandate</h2>
+                    <div class="detail-row">
+                        <span class="detail-label">Mandate ID</span>
+                        <span class="detail-value" id="detail-mandate-id">—</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Strategy</span>
+                        <span class="detail-value" id="detail-strategy">—</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Risk Cap (Omega)</span>
+                        <span class="detail-value" id="detail-risk-cap">—</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value" id="detail-status">—</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Issued</span>
+                        <span class="detail-value" id="detail-issued">—</span>
+                    </div>
+                </div>
+
+                <div class="actions-card">
+                    <h2>Actions</h2>
+                    <button id="edit-mandate-btn" class="action-btn edit-btn">Edit Mandate</button>
+                    <button id="pause-mandate-btn" class="action-btn pause-btn">Pause Trading</button>
+                    <button id="revoke-mandate-btn" class="action-btn revoke-btn">Revoke Mandate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api-client.js"></script>
+    <script>
+        class MandateSettings {
+            constructor() {
+                this.currentMandate = null;
+                this.init();
+            }
+
+            async init() {
+                await window.chillaAPI.loadCSRFToken();
+                await this.loadMandate();
+            }
+
+            async loadMandate() {
+                try {
+                    const mandate = await window.chillaAPI.getCurrentMandate();
+                    
+                    if (mandate && mandate.status === 'active') {
+                        this.currentMandate = mandate;
+                        this.displayMandate(mandate);
+                    } else {
+                        this.showNoMandate();
+                    }
+                } catch (error) {
+                    console.error('Failed to load mandate:', error);
+                    this.showNoMandate();
+                }
+            }
+
+            displayMandate(mandate) {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('mandate-content').style.display = 'block';
+
+                document.getElementById('detail-mandate-id').textContent = 
+                    mandate.id || mandate.mandate_id || '—';
+                
+                document.getElementById('detail-strategy').textContent = 
+                    mandate.strategy_id || '—';
+                
+                const riskCap = mandate.omega_max_bps 
+                    ? `${(mandate.omega_max_bps / 100).toFixed(1)}% (${mandate.omega_max_bps} bps)` 
+                    : '—';
+                document.getElementById('detail-risk-cap').textContent = riskCap;
+
+                document.getElementById('detail-status').textContent = 
+                    mandate.status || '—';
+
+                const issued = mandate.issued_at || mandate.created_at;
+                document.getElementById('detail-issued').textContent = issued 
+                    ? new Date(issued * 1000).toLocaleDateString()
+                    : '—';
+
+                this.setupActionButtons(mandate.id || mandate.mandate_id);
+            }
+
+            showNoMandate() {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('no-mandate-state').style.display = 'block';
+            }
+
+            setupActionButtons(mandateId) {
+                document.getElementById('edit-mandate-btn').onclick = () => this.handleEdit(mandateId);
+                document.getElementById('pause-mandate-btn').onclick = () => this.handlePause(mandateId);
+                document.getElementById('revoke-mandate-btn').onclick = () => this.handleRevoke(mandateId);
+            }
+
+            handleEdit(mandateId) {
+                alert('Edit functionality coming soon! For now, you can revoke this mandate and create a new one.');
+            }
+
+            async handlePause(mandateId) {
+                if (!confirm('Pause trading? Chilla will stop monitoring markets until you reactivate.')) {
+                    return;
+                }
+
+                try {
+                    await window.chillaAPI.updateMandate({
+                        mandate_id: mandateId,
+                        status: 'paused'
+                    });
+
+                    alert('Mandate paused successfully');
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Failed to pause:', error);
+                    alert('Could not pause mandate. Please try again.');
+                }
+            }
+
+            async handleRevoke(mandateId) {
+                if (!confirm('Revoke mandate? This will permanently stop all trading. You can create a new mandate later.')) {
+                    return;
+                }
+
+                try {
+                    await window.chillaAPI.revokeMandate({ mandate_id: mandateId });
+
+                    alert('Mandate revoked successfully');
+                    window.location.href = 'dashboard.html';
+                } catch (error) {
+                    console.error('Failed to revoke:', error);
+                    alert('Could not revoke mandate. Please try again.');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new MandateSettings();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <title>Get Started - Chilla by Beaverly</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/mandate-wizard.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="logo">Chilla</div>
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <!-- Wizard Container -->
+        <div id="wizard-container" class="wizard-container hidden">
+            <!-- Progress Bar -->
+            <div class="wizard-progress">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div class="progress-steps">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Strategy</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Markets</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Risk</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Consent</div>
+                    </div>
+                    <div class="progress-step" data-step="5">
+                        <div class="step-number">5</div>
+                        <div class="step-label">Activate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Strategy Selection -->
+            <div id="step-1" class="wizard-step active">
+                <div class="step-header">
+                    <h1>Choose your vibe</h1>
+                    <p>Pick a trading strategy that fits your style. We'll handle the rest.</p>
+                </div>
+                <div id="strategy-grid" class="strategy-grid">
+                    <!-- Strategies loaded dynamically -->
+                    <div class="strategy-card loading">
+                        <div class="loading-shimmer"></div>
+                        <div class="loading-text">Loading strategies...</div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button id="step-1-next" class="btn-primary" disabled>Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Market Selection (NEW) -->
+            <div id="step-2" class="wizard-step">
+                <div class="step-header">
+                    <h1>Pick your markets</h1>
+                    <p>Select which markets Chilla should trade. Start with one or mix it up.</p>
+                </div>
+                <div id="markets-container" class="markets-container">
+                    <!-- Markets loaded dynamically -->
+                </div>
+                <div class="markets-footer">
+                    <span id="selected-markets-count" class="markets-count">0 selected</span>
+                </div>
+                <div class="step-actions">
+                    <button id="step-2-back" class="btn-secondary">Back</button>
+                    <button id="step-2-next" class="btn-primary" disabled>Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Risk Setup (previously Step 2) -->
+            <div id="step-3" class="wizard-step">
+                <div class="step-header">
+                    <h1>Set your limits</h1>
+                    <p>How much risk are you comfortable with? Adjust the slider below.</p>
+                </div>
+                <div class="risk-setup">
+                    <div class="risk-visual">
+                        <div class="risk-circle">
+                            <div class="risk-circle-fill" id="risk-circle-fill"></div>
+                            <div class="risk-circle-label">
+                                <div class="risk-value" id="risk-display-value">5%</div>
+                                <div class="risk-label">Monthly Cap</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="risk-slider-container">
+                        <input type="range" id="omega-slider" class="risk-slider" min="100" max="2000" value="500" step="50">
+                        <div class="risk-slider-labels">
+                            <span>1%</span>
+                            <span class="slider-label-center">Conservative</span>
+                            <span>20%</span>
+                        </div>
+                    </div>
+                    <div class="risk-explanation">
+                        <p>This is your <strong>Omega Cap</strong> - the maximum risk Chilla can take per month. If this limit is reached, trading pauses automatically until next month.</p>
+                    </div>
+                    <div id="risk-indicator" class="risk-indicator">
+                        <!-- Risk implications shown here after calculation -->
+                    </div>
+                    <div class="risk-preview">
+                        <div class="preview-item">
+                            <span class="preview-label">Monthly Cap:</span>
+                            <span class="preview-value" id="preview-bps">500 bps</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Strategy:</span>
+                            <span class="preview-value" id="preview-strategy">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button id="step-3-back" class="btn-secondary">Back</button>
+                    <button id="step-3-next" class="btn-primary">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Consent (previously Step 3) -->
+            <div id="step-4" class="wizard-step">
+                <div class="step-header">
+                    <h1>Quick legal check</h1>
+                    <p>Read and accept the consent to proceed. We keep it simple.</p>
+                </div>
+                <div class="consent-container">
+                    <div id="consent-text" class="consent-text">
+                        <div class="loading-shimmer"></div>
+                        <p>Loading consent document...</p>
+                    </div>
+                    <div class="consent-checkbox">
+                        <label>
+                            <input type="checkbox" id="consent-accept" class="consent-input">
+                            <span>I have read and accept the terms above</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button id="step-4-back" class="btn-secondary">Back</button>
+                    <button id="step-4-next" class="btn-primary" disabled>Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Activation (previously Step 4) -->
+            <div id="step-5" class="wizard-step">
+                <div class="step-header">
+                    <h1>You're all set!</h1>
+                    <p>Review your choices and activate Chilla. You can change these anytime.</p>
+                </div>
+                <div class="activation-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">🎯</div>
+                        <div class="summary-item">
+                            <div class="summary-label">Strategy</div>
+                            <div class="summary-value" id="final-strategy">—</div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">�</div>
+                        <div class="summary-item">
+                            <div class="summary-label">Markets</div>
+                            <div class="summary-value" id="final-markets">—</div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">�🛡️</div>
+                        <div class="summary-item">
+                            <div class="summary-label">Risk Cap</div>
+                            <div class="summary-value" id="final-risk">—</div>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">✅</div>
+                        <div class="summary-item">
+                            <div class="summary-label">Consent</div>
+                            <div class="summary-value">Accepted</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="activation-cta">
+                    <p>Ready to automate with Chilla?</p>
+                </div>
+                <div class="step-actions">
+                    <button id="step-5-back" class="btn-secondary">Back</button>
+                    <button id="step-5-activate" class="btn-activate">Activate Chilla</button>
+                </div>
+            </div>
+
+            <!-- Success Screen -->
+            <div id="success-screen" class="wizard-step">
+                <div class="success-content">
+                    <div class="success-icon">🎉</div>
+                    <h1>Chilla is live!</h1>
+                    <p>You're all set. Chilla is now monitoring markets and will trade according to your mandate.</p>
+                    <div class="success-actions">
+                        <button id="go-to-dashboard" class="btn-primary">Go to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div id="error-modal" class="error-modal hidden">
+            <div class="error-modal-content">
+                <div class="error-icon">⚠️</div>
+                <h3>Oops!</h3>
+                <p id="error-message">Something went wrong. Please try again.</p>
+                <button id="error-close" class="btn-primary">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/mandate-wizard.js"></script>
+</body>
+</html>
