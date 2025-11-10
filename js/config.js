@@ -50,7 +50,7 @@
         return proto + host + (path.startsWith('/') ? path : '/' + path);
     }
 
-    // Expose a safe global config objectt
+    // Expose a safe global config object
     window.APP_CONFIG = window.APP_CONFIG || {};
     window.APP_CONFIG.API_BASE = API_BASE;
     window.APP_CONFIG.apiUrl = apiUrl;
