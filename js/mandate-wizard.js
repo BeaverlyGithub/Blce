@@ -25,7 +25,7 @@ class MandateWizard {
         const wizard = document.getElementById('wizard-container');
 
         try {
-            // Load CSRF token
+            // Load security verification
             await window.chillaAPI.loadCSRFToken();
 
             // Check if user already has active mandate
@@ -50,7 +50,7 @@ class MandateWizard {
             console.log('✅ Mandate wizard initialized');
         } catch (error) {
             console.error('Failed to initialize wizard:', error);
-            this.showError('Failed to load wizard. Please refresh the page.');
+            this.showError('Could not load wizard — please refresh and try again');
         }
     }
 
@@ -72,7 +72,7 @@ class MandateWizard {
             this.renderStrategies();
         } catch (error) {
             console.error('Failed to load strategies:', error);
-            this.showError('Could not load strategies. Please try again.');
+            this.showError('Could not load strategies — please try again');
         }
     }
 
@@ -509,7 +509,7 @@ class MandateWizard {
             this.showSuccess();
         } catch (error) {
             console.error('Activation failed:', error);
-            this.showError(error.message || 'Could not activate mandate. Please try again.');
+            this.showError(error.message || 'Could not activate Chilla — please try again');
 
             // Re-enable button
             activateBtn.disabled = false;

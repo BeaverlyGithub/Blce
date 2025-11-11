@@ -45,7 +45,7 @@ class ContactFormHandler {
             }
         } catch (error) {
             console.error('Contact form error:', error);
-            this.showError('Network error. Please check your connection and try again.');
+            this.showError('Could not send message — please check your connection and try again');
         }
     }
 
@@ -168,11 +168,11 @@ class ChillaDashboard {
                 await this.loadDashboardData();
             } else {
                 const error = await response.json();
-                this.showNotification(error.detail || 'Connection failed', 'error');
+                this.showNotification(error.detail || 'Could not connect — please try again', 'error');
             }
         } catch (error) {
             console.error('OAuth callback processing error:', error);
-            this.showNotification('Connection error. Please try again.', 'error');
+            this.showNotification('Could not complete connection — please try again', 'error');
         }
     }
 
@@ -287,7 +287,7 @@ class ChillaDashboard {
                 this.csrfToken = data.csrf_token;
             }
         } catch (error) {
-            console.error('Failed to load CSRF token:', error);
+            console.error('Security verification unavailable:', error);
         }
     }
 
@@ -1464,7 +1464,7 @@ class ChillaDashboard {
             const broker = dropdown.value;
             console.log(`🔗 Starting ${broker} OAuth flow`);
 
-            // Generate state token with proper API endpoint
+            // Generate secure state for broker connection
             const stateResponse = await fetch(`${API_BASE}/api/generate_oauth_state`, {
                 method: 'POST',
                 headers: {
@@ -1495,7 +1495,7 @@ class ChillaDashboard {
             window.location.href = derivOAuthUrl;
         } catch (error) {
             console.error("OAuth error:", error);
-            this.showNotification('Could not start Deriv connection. Please try again.', 'error');
+            this.showNotification('Could not start broker connection — please try again', 'error');
         }
 
         this.closeBrokerModal();
@@ -1519,7 +1519,7 @@ class ChillaDashboard {
                 this.loadDashboardData();
             } else {
                 const error = await response.json();
-                this.showNotification(error.detail || 'Failed to disconnect from broker', 'error');
+                this.showNotification(error.detail || 'Could not disconnect — please try again', 'error');
             }
         } catch (error) {
             console.error('Error disconnecting:', error);
@@ -1527,7 +1527,7 @@ class ChillaDashboard {
 
             this.updateConnectionStatus(false);
             this.closeDisconnectModal();
-            this.showNotification('Disconnected locally (network error)', 'warning');
+            this.showNotification('Disconnected (network issue)', 'warning');
             this.loadDashboardData();
         }
     }

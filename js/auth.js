@@ -21,7 +21,7 @@ class ChillaAuth {
     async initAuth() {
         await this.validateSession();
         this.setupEventListeners();
-        // Load CSRF token after session validation
+        // Load security verification after session validation
         await this.loadCSRFToken();
     }
 
@@ -50,15 +50,15 @@ class ChillaAuth {
                 const data = await response.json();
                 this.csrfToken = data.csrf_token;
                 this.sessionId = data.session_id; // Store session ID for validation
-                console.log('✅ CSRF token loaded successfully');
+                console.log('✅ Security verification ready');
                 return this.csrfToken;
             } else {
-                console.error('❌ Failed to load CSRF token:', response.status);
+                console.error('❌ Security verification unavailable:', response.status);
                 this.csrfToken = null;
                 this.sessionId = null;
             }
         } catch (error) {
-            console.error('❌ CSRF token request error:', error);
+            console.error('❌ Security verification error:', error);
             this.csrfToken = null;
             this.sessionId = null;
         } finally {
@@ -90,15 +90,15 @@ class ChillaAuth {
                 const data = await response.json();
                 this.csrfToken = data.csrf_token;
                 this.sessionId = data.session_id; // Store session ID for validation
-                console.log('✅ CSRF token loaded successfully for email');
+                console.log('✅ Security verification ready for email');
                 return this.csrfToken;
             } else {
-                console.error('❌ Failed to load CSRF token:', response.status);
+                console.error('❌ Security verification unavailable:', response.status);
                 this.csrfToken = null;
                 this.sessionId = null;
             }
         } catch (error) {
-            console.error('❌ CSRF token request error:', error);
+            console.error('❌ Security verification error:', error);
             this.csrfToken = null;
             this.sessionId = null;
         } finally {
@@ -250,10 +250,10 @@ class ChillaAuth {
             return;
         }
 
-        // Ensure we have a valid CSRF token
+        // Ensure we have a valid security verification
         const csrfToken = await this.ensureCSRFToken();
         if (!csrfToken) {
-            this.showError('Security token unavailable. Please refresh the page and try again.');
+            this.showError('Security check failed — please refresh and try again');
             return;
         }
 
@@ -281,10 +281,10 @@ class ChillaAuth {
                 // Server handles all logic - just redirect to server-specified location
                 window.location.href = data.redirect_to || 'dashboard.html';
             } else if (response.status === 403 && data.detail?.includes('CSRF')) {
-                // CSRF token invalid - refresh and retry once
-                console.log('🔄 CSRF token invalid, refreshing...');
+                // Security verification invalid - refresh and retry once
+                console.log('🔄 Security check expired, refreshing...');
                 await this.loadCSRFToken(true);
-                this.showError('Security token expired. Please try logging in again.');
+                this.showError('Session expired — please try logging in again');
             } else if (data.show_verification_modal) {
                 // Server tells us to show verification modal
                 this.showLoginVerificationModal(email);
@@ -306,17 +306,17 @@ class ChillaAuth {
                 } else if (data.message) {
                     errorMessage = data.message;
                 } else if (response.status === 401) {
-                    errorMessage = 'Invalid email or password. Please try again.';
+                    errorMessage = "Email or password isn't quite right — please try again";
                 } else if (response.status === 422) {
-                    errorMessage = 'Please check your email and password format.';
+                    errorMessage = 'Please check your email and password';
                 } else if (response.status >= 500) {
-                    errorMessage = 'Server error. Please try again later.';
+                    errorMessage = 'Something went wrong — please try again in a moment';
                 }
                 this.showError(errorMessage);
             }
         } catch (error) {
             console.error('Login error:', error);
-            this.showError('Network error. Please try again.');
+            this.showError('Could not connect — please check your internet and try again');
         }
     }
 
@@ -374,10 +374,10 @@ class ChillaAuth {
             return;
         }
 
-        // Get CSRF token with email parameter for consistent validation
+        // Get security verification with email parameter for consistent validation
         const csrfToken = await this.loadCSRFTokenForEmail(formData.email);
         if (!csrfToken) {
-            this.showError('Security token unavailable. Please refresh the page and try again.');
+            this.showError('Security check failed — please refresh and try again');
             return;
         }
 
@@ -406,8 +406,8 @@ class ChillaAuth {
                 // Don't immediately switch to login screen
                 return;
             } else if (response.status === 403 && (data.detail?.includes('CSRF') || data.detail?.includes('Invalid CSRF'))) {
-                // CSRF token invalid - refresh and retry once automatically
-                console.log('🔄 CSRF token invalid, refreshing and retrying...');
+                // Security verification invalid - refresh and retry once automatically
+                console.log('🔄 Security check expired, refreshing and retrying...');
                 const newCsrfToken = await this.loadCSRFToken(true);
                 if (newCsrfToken) {
                     // Retry the registration with new token
@@ -451,13 +451,13 @@ class ChillaAuth {
                         console.error('Registration retry error:', retryError);
                     }
                 }
-                this.showError('Security token issue. Please try again.');
+                this.showError('Session expired — please try again');
             } else {
-                this.showError(data.detail || data.message || 'Registration failed');
+                this.showError(data.detail || data.message || 'Could not complete registration — please try again');
             }
         } catch (error) {
             console.error('Signup error:', error);
-            this.showError('Network error. Please try again.');
+            this.showError('Could not connect — please check your internet and try again');
         }
     }
 
@@ -498,7 +498,7 @@ class ChillaAuth {
             window.location.href = authUrl;
         } catch (error) {
             console.error('Google auth error:', error);
-            this.showError(`Authentication service unavailable: ${error.message}`);
+            this.showError('Could not start Google sign-in — please try again');
         }
     }
 
@@ -518,10 +518,10 @@ class ChillaAuth {
 
         const email = this.sanitizeInput(rawEmail);
 
-        // Ensure we have a valid CSRF token
+        // Ensure we have a valid security verification
         const csrfToken = await this.ensureCSRFToken();
         if (!csrfToken) {
-            this.showError('Security token unavailable. Please refresh the page and try again.');
+            this.showError('Security check failed — please refresh and try again');
             return;
         }
 
@@ -542,16 +542,16 @@ class ChillaAuth {
             if (response.ok) {
                 this.showSuccess(data.message || 'Reset link sent if account exists');
             } else if (response.status === 403 && data.detail?.includes('CSRF')) {
-                // CSRF token invalid - refresh and retry once
-                console.log('🔄 CSRF token invalid, refreshing...');
+                // Security verification invalid - refresh and retry once
+                console.log('🔄 Security check expired, refreshing...');
                 await this.loadCSRFToken(true);
-                this.showError('Security token expired. Please try again.');
+                this.showError('Session expired — please try again');
             } else {
-                this.showError(data.detail || data.message || 'Password reset failed');
+                this.showError(data.detail || data.message || 'Could not reset password — please try again');
             }
         } catch (error) {
             console.error('Password reset error:', error);
-            this.showError('Network error. Please try again.');
+            this.showError('Could not connect — please check your internet and try again');
         }
     }
 
@@ -1000,11 +1000,11 @@ class ChillaAuth {
                     });
                 }
             } else {
-                this.showError(result.error || result.message || 'Failed to send verification email');
+                this.showError(result.error || result.message || 'Could not send verification email — please try again');
             }
         } catch (error) {
             console.error('Verification email error:', error);
-            this.showError('Network error. Please try again.');
+            this.showError('Could not connect — please try again');
         }
     }
 
@@ -1156,11 +1156,11 @@ class ChillaAuth {
                     });
                 }
             } else {
-                this.showError(result.detail || result.message || 'Failed to send password reset email');
+                this.showError(result.detail || result.message || 'Could not send reset email — please try again');
             }
         } catch (error) {
             console.error('Password reset error:', error);
-            this.showError('Network error. Please try again.');
+            this.showError('Could not connect — please try again');
         }
     }
 

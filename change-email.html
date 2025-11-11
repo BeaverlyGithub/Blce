@@ -46,7 +46,7 @@
                     csrfToken = data.csrf_token;
                 }
             } catch (error) {
-                console.error('CSRF token load error:', error);
+                console.error('Security verification unavailable:', error);
             }
         }
 
@@ -217,13 +217,13 @@
                     }, 3000);
                 } else if (response.status === 403 && data.detail?.includes('CSRF')) {
                     await loadCSRFToken();
-                    showError('Security token expired. Please try again.');
+                    showError('Session expired — please try again');
                 } else {
-                    showError(data.detail || data.message || 'Error updating email');
+                    showError(data.detail || data.message || 'Could not update email — please try again');
                 }
             } catch (error) {
                 console.error('Network error:', error);
-                showError('Network error. Please try again.');
+                showError('Could not connect — please check your internet and try again');
             }
         });
     </script>

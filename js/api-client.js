@@ -26,7 +26,7 @@
         }
 
         /**
-         * Load CSRF token from backend
+         * Load security verification from backend
          */
         async loadCSRFToken() {
             try {
@@ -45,13 +45,13 @@
                     return this.csrfToken;
                 }
             } catch (error) {
-                console.error('try again later:', error);
+                console.error('Security verification unavailable:', error);
             }
             return null;
         }
 
         /**
-         * Ensure CSRF token is loaded before making authenticated requests
+         * Ensure security verification is loaded before making authenticated requests
          */
         async ensureCSRF() {
             if (!this.csrfToken) {
@@ -85,7 +85,7 @@
 
             if (!response.ok) {
                 const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-                throw new Error(error.detail || error.message || `HTTP ${response.status}`);
+                throw new Error(error.detail || error.message || 'Something went wrong — please try again');
             }
 
             return response.json();
