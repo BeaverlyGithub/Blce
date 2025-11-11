@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandate Settings - Chilla by Beaverly</title>
+    <title>Your Instructions - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <style>
@@ -159,24 +159,24 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <h1>Mandate Settings</h1>
+                <h1>Your Instructions</h1>
             </div>
 
             <div id="loading-state" class="loading-state">
                 <div class="loading-spinner"></div>
-                <p>Loading mandate details...</p>
+                <p>Loading your instructions...</p>
             </div>
 
             <div id="no-mandate-state" class="no-mandate-state" style="display: none;">
-                <p>You don't have an active mandate yet.</p>
-                <a href="mandate-wizard.html" class="create-mandate-btn">Create Mandate</a>
+                <p>You haven't given Chilla any instructions yet.</p>
+                <a href="mandate-wizard.html" class="create-mandate-btn">Give Instructions</a>
             </div>
 
             <div id="mandate-content" style="display: none;">
                 <div class="mandate-details-card">
-                    <h2>Current Mandate</h2>
+                    <h2>Active Instructions</h2>
                     <div class="detail-row">
-                        <span class="detail-label">Mandate ID</span>
+                        <span class="detail-label">Instruction ID</span>
                         <span class="detail-value" id="detail-mandate-id">—</span>
                     </div>
                     <div class="detail-row">
@@ -198,10 +198,10 @@
                 </div>
 
                 <div class="actions-card">
-                    <h2>Actions</h2>
-                    <button id="edit-mandate-btn" class="action-btn edit-btn">Edit Mandate</button>
-                    <button id="pause-mandate-btn" class="action-btn pause-btn">Pause Trading</button>
-                    <button id="revoke-mandate-btn" class="action-btn revoke-btn">Revoke Mandate</button>
+                    <h2>Manage</h2>
+                    <button id="edit-mandate-btn" class="action-btn edit-btn">Update Instructions</button>
+                    <button id="pause-mandate-btn" class="action-btn pause-btn">Pause Execution</button>
+                    <button id="revoke-mandate-btn" class="action-btn revoke-btn">Stop All Execution</button>
                 </div>
             </div>
         </div>
