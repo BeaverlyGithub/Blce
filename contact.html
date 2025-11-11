@@ -8,7 +8,7 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI=' 'sha256-HASH_PLACEHOLDER'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://cdn.jsdelivr.net 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
     <title>Contact Support - Chilla by Beaverly</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
@@ -264,12 +264,12 @@
 
         <div class="contact-header">
             <div class="logo-text">Contact Support</div>
-            <p class="subtitle">Get help with your technical issues, or general questions. We are here to assist you.</p>
+            <p class="subtitle">Stuck or not sure what to do? Tell us what you’re trying to achieve and we’ll help you get there.</p>
         </div>
 
         <div class="contact-grid">
             <div class="contact-form">
-                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary); font-weight: 500;">Send us a message at support@beaverlyai.com</h2>
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary); font-weight: 500;">Email us anytime: support@beaverlyai.com</h2>
 
                 <form id="contact-form">
                     <div class="form-group">
@@ -287,8 +287,8 @@
                         <select id="subject" name="subject" class="form-select" required>
                             <option value="">Select a subject</option>
                             <option value="Technical Support">Technical Issue</option>
-                            <option value="Installation Help">Getting Broker Account To Use Chilla</option>
-                            <option value="EA Configuration">Connection Configuration</option>
+                            <option value="Installation Help">Getting a broker account for Chilla</option>
+                            <option value="EA Configuration">Connecting your broker to Chilla</option>
                             <option value="Billing Question">Billing Question</option>
                             <option value="Other">Other</option>
                         </select>
@@ -322,7 +322,7 @@
                         <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        Before contacting support
+                        Before you contact support
                     </h3>
                     <ul>
                         <li>
@@ -335,7 +335,7 @@
                             <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <polyline points="20,6 9,17 4,12"/>
                             </svg>
-                            <span>Ensure your broker allows connection with Chilla or supported markets</span>
+                            <span>Check that your broker supports the markets you want to use with Chilla</span>
                         </li>
                         <li>
                             <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -372,6 +372,8 @@
 </script>
 
     <script src="js/config.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="js/contact.js"></script>
+    <script src="js/icons-init.js"></script>
 </body>
 </html>

@@ -794,7 +794,17 @@ class ChillaAuth {
                 text-align: center;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             ">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+                <div style="margin-bottom: 1rem; display:flex; justify-content:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48">
+                        <path d="M4 22v-2"/>
+                        <path d="M20 22v-2"/>
+                        <path d="M5 19l14-9"/>
+                        <path d="M5 12l14 7"/>
+                        <path d="M8 22v-3"/>
+                        <path d="M16 22v-3"/>
+                        <path d="M12 2v5"/>
+                    </svg>
+                </div>
                 <h3 style="margin: 0 0 1rem 0; color: black;">Registration Successful!</h3>
                 <p style="margin-bottom: 1rem; color: #666; font-size: 16px;">
                     ${message}
@@ -882,7 +892,13 @@ class ChillaAuth {
                 text-align: center;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             ">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📧</div>
+                <div style="margin-bottom: 1rem; display:flex; justify-content:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="40" height="40">
+                        <path d="M22 12V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v5"/>
+                        <path d="M22 12l-10 7L2 12"/>
+                        <path d="M2 7l10 7L22 7"/>
+                    </svg>
+                </div>
                 <h3 style="margin: 0 0 1rem 0; color: #333;">Email Verification Required</h3>
                 <p style="margin-bottom: 1rem; color: #666;">
                     Please verify your email address before logging in.
@@ -955,7 +971,12 @@ class ChillaAuth {
                 if (modal) {
                     const content = modal.querySelector('div');
                     content.innerHTML = `
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                        <div style="margin-bottom: 1rem; display:flex; justify-content:center;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="40" height="40">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
                         <h3 style="margin: 0 0 1rem 0; color: #333;">Verification Email Sent!</h3>
                         <p style="margin-bottom: 1rem; color: #666;">
                             We've sent a verification email to <strong>${email}</strong>.
@@ -1022,7 +1043,12 @@ class ChillaAuth {
                 text-align: center;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             ">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                <div style="margin-bottom: 1rem; display:flex; justify-content:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="40" height="40">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
                 <h3 style="margin: 0 0 1rem 0; color: #333;">Password Update Required</h3>
                 <p style="margin-bottom: 1rem; color: #666;">
                     Your current password doesn't meet our updated security standards.
@@ -1098,7 +1124,12 @@ class ChillaAuth {
                 if (modal) {
                     const content = modal.querySelector('div');
                     content.innerHTML = `
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                        <div style="margin-bottom: 1rem; display:flex; justify-content:center;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="40" height="40">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
                         <h3 style="margin: 0 0 1rem 0; color: #333;">Password Reset Sent!</h3>
                         <p style="margin-bottom: 1rem; color: #666;">
                             We've sent a password reset email to <strong>${email}</strong>.
@@ -1145,13 +1176,24 @@ class ChillaAuth {
 function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
     const eyeIcon = field.nextElementSibling;
+    if (!field || !eyeIcon) return;
 
     if (field.type === 'password') {
         field.type = 'text';
-        eyeIcon.innerHTML = '🙈'; // Hidden/closed eye
+        eyeIcon.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                <path d="M2 2l20 20" />
+                <path d="M10.73 5.08A10.94 10.94 0 0 1 12 5c7 0 11 7 11 7a21.86 21.86 0 0 1-1.67 2.68" />
+                <path d="M6.16 6.16A21.88 21.88 0 0 0 1 12s4 7 11 7a10.94 10.94 0 0 0 5.39-1.41" />
+                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+            </svg>`;
     } else {
         field.type = 'password';
-        eyeIcon.innerHTML = '👁️'; // Open eye
+        eyeIcon.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>`;
     }
 }
 

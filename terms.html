@@ -14,7 +14,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://cdn.jsdelivr.net 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
     <style>
         .content-container {
             max-width: 800px;
@@ -110,7 +110,10 @@
             </a>
         </div>
 
-        <h1>Terms of Service for Beaverly®</h1>
+    <h1>Terms of Service for Beaverly®</h1>
+    <p style="background:var(--bg-secondary);padding:1rem 1.25rem;border-left:4px solid var(--accent-color);border-radius:8px;margin-top:-0.25rem;margin-bottom:1.25rem;font-size:0.95rem;line-height:1.5;color:var(--text-secondary)">
+      <strong>Plain language summary:</strong> These terms say how you can use Chilla, what we’re responsible for, and what you’re responsible for. Trading involves risk — no profits are guaranteed. You stay in control of your broker account, and you can stop using Chilla anytime.
+    </p>
         <p><strong>Effective Date:</strong> June 28, 2025</p>
 
         <h2>1. Introduction</h2>
@@ -195,19 +198,21 @@
         <p style="margin-top: 2rem; font-size: 0.95rem; font-style: italic;">Disclaimer: Beaverly® is not a licensed broker-dealer or financial advisory firm. We build software to help you automate trading with ease and transparency.</p>
     </div>
 
-    <!-- Chatbot -->
+  <!-- Chatbot -->
     <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>
     <script src="https://files.bpcontent.cloud/2025/06/09/22/20250609220506-ZFL7FQ6G.js"></script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-229WRH1KTN"></script>
-    <script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
       gtag('config', 'G-229WRH1KTN');
-    </script>
+  </script>
+  <script src="js/icons-init.js"></script>
 
     <script>
         // Setup theme from localStorage

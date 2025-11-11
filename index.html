@@ -7,8 +7,8 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
-    <title>Chilla by Beaverly</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://cdn.jsdelivr.net 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+    <title>Chilla – You chill. Chilla works.</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/auth.css">
@@ -36,12 +36,12 @@
             <div id="login-screen" class="auth-screen">
                 <div class="auth-header">
                     <h1 class="logo-text">Chilla</h1>
-                    <p class="subtitle">by Beaverly</p>
+                    <p class="subtitle">You chill. Chilla works.</p>
                 </div>
                 <div class="auth-form">
                     <input type="email" id="login-email" placeholder="Email" class="input-field">
                     <input type="password" id="login-password" placeholder="Password" class="input-field">
-                    <button id="login-btn" class="primary-btn">Sign In</button>
+                    <button id="login-btn" class="primary-btn">Sign in & chill</button>
                     <button id="google-login-btn" class="secondary-btn">Continue with Google</button>
                     <div class="auth-links">
                         <a href="#" id="forgot-password-link">Forgot password?</a>
@@ -54,7 +54,7 @@
             <div id="signup-screen" class="auth-screen hidden">
                 <div class="auth-header">
                     <h1 class="logo-text">Create Account</h1>
-                    <p class="subtitle">Join Chilla</p>
+                    <p class="subtitle">Plug in once. Then chill while Chilla handles the busy work.</p>
                 </div>
                 <div class="auth-form">
                     <button id="google-signup-btn" class="secondary-btn">Continue with Google</button>
@@ -67,7 +67,12 @@
                     <input type="email" id="signup-email" placeholder="Email" class="input-field">
                     <div style="position: relative;">
                         <input type="password" id="signup-password" placeholder="Password" class="input-field">
-                        <span class="password-toggle" id="signup-password-toggle">👁️</span>
+                        <span class="password-toggle" id="signup-password-toggle" aria-label="Toggle password visibility" role="button">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </span>
                     </div>
 
                     <!-- Password Strength Meter -->
@@ -95,7 +100,7 @@
                     <input type="text" id="middle-name" placeholder="Middle Name (Optional)" class="input-field">
                     <input type="text" id="last-name" placeholder="Last Name" class="input-field">
                     <input type="date" id="date-of-birth" placeholder="Date of Birth" class="input-field">
-                    <button id="signup-btn" class="primary-btn">Create Account</button>
+                    <button id="signup-btn" class="primary-btn">Create account & start chilling</button>
                     <div class="auth-links">
                         <a href="#" id="back-to-login">Back to Sign In</a>
                     </div>
@@ -106,7 +111,7 @@
             <div id="forgot-password-screen" class="auth-screen hidden">
                 <div class="auth-header">
                     <h1 class="logo-text">Reset Password</h1>
-                    <p class="subtitle">Enter your email to reset</p>
+                    <p class="subtitle">Enter your email and we'll send a secure reset link</p>
                 </div>
                 <div class="auth-form">
                     <input type="email" id="reset-email" placeholder="Email" class="input-field">
@@ -120,7 +125,9 @@
     </div>
 
     <script src="js/config.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/icons-init.js"></script>
 
     <!-- Chatbot -->
     <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js"></script>

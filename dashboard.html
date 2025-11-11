@@ -6,7 +6,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com https://www.google.com.ng; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://cdn.jsdelivr.net 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com https://www.google.com.ng; connect-src 'self' https://cook.beaverlyai.com wss://cook.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://webchat.botpress.cloud wss://webchat.botpress.cloud; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com;">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
     <title>Dashboard - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
@@ -194,12 +194,12 @@
                     <div id="chilla-activity-status" class="activity-card">
                         <div class="activity-status status-disconnected">
                             <div class="status-header">
-                                <div class="status-title">Not Connected</div>
+                                <div class="status-title">Not connected yet</div>
                                 <div class="status-indicator"></div>
                             </div>
                             <div class="status-details">
                                 <div class="status-info">
-                                    <span>Connect a broker to start monitoring</span>
+                                    <span>Connect a broker to let Chilla watch and trade for you</span>
                                 </div>
                             </div>
                         </div>
@@ -227,8 +227,14 @@
                         </div>
                         <div id="decision-feed" class="decision-feed">
                             <div class="decision-placeholder">
-                                <div class="placeholder-icon">📊</div>
-                                <p>Decision reports will appear here as Chilla trades</p>
+                                <div class="placeholder-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="24" height="24">
+                                        <path d="M18 20V10"/>
+                                        <path d="M12 20V4"/>
+                                        <path d="M6 20v-6"/>
+                                    </svg>
+                                </div>
+                                <p>Live decisions will show up here once you're connected</p>
                             </div>
                         </div>
                     </div>
@@ -266,8 +272,17 @@
         <!-- Disconnect Warning Modal -->
         <div id="disconnect-modal" class="broker-modal hidden">
             <div class="broker-modal-content">
-                <h3>⚠️ Disconnect Chilla</h3>
-                <p>Warning: Disconnecting Chilla will stop all trading activities for your account. Are you sure you want to continue?</p>
+                <h3>
+                    <span aria-hidden="true" style="display:inline-flex;vertical-align:middle;margin-right:8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v5"/>
+                            <path d="M12 16h.01"/>
+                        </svg>
+                    </span>
+                    Disconnect Chilla
+                </h3>
+                <p>Disconnecting will stop Chilla from trading on your account. Continue?</p>
                 <button id="confirm-disconnect-btn" class="broker-oauth-btn danger">Yes, Disconnect</button>
                 <button id="cancel-disconnect-btn" class="modal-close-btn">Cancel</button>
             </div>
@@ -275,7 +290,9 @@
     </div>
 
     <script src="js/config.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/icons-init.js"></script>
 
     <!-- Contact functionality implemented via secure backend API -->
 
