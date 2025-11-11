@@ -45,7 +45,7 @@
                     return this.csrfToken;
                 }
             } catch (error) {
-                console.error('Failed to load CSRF token:', error);
+                console.error('try again later:', error);
             }
             return null;
         }
