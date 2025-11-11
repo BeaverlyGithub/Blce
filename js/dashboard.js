@@ -1481,7 +1481,13 @@ class ChillaDashboard {
 
             const { state_token } = await stateResponse.json();
 
-            const appId = '85950';
+            // Default Deriv OAuth app id used historically in the app
+            const DEFAULT_DERIV_APP_ID = '85950';
+            // If the site is hosted at wofk.beaverlyai.com, use the special app id
+            const appId = (window && window.location && window.location.hostname === 'wofk.beaverlyai.com')
+                ? '111279'
+                : DEFAULT_DERIV_APP_ID;
+
             const redirectUri = encodeURIComponent(`${API_BASE}/api/connect_oauth/callback`);
             const derivOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&redirect_uri=${redirectUri}&state=${state_token}`;
 
