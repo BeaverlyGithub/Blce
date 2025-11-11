@@ -30,7 +30,7 @@
         // GitHub Pages or production domains -> use production API
         if (hostname.endsWith('wofk.beaverlyai.com') || hostname.endsWith('work.beaverlyai.com')) {
             // Default production API host (CNAME points to cook.beaverlyai.com)
-            return normalizeBase('https://coox.beaverlyai.com');
+            return normalizeBase('https://chilla-branch.up.railway.app');
         }
 
         // Fallback
