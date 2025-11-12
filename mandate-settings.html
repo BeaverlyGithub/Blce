@@ -159,27 +159,27 @@
     <div id="app">
         <div class="settings-container">
             <div class="settings-header">
-                <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                <button class="back-btn" aria-label="Back" onclick="window.location.href='dashboard.html'">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <h1>Your Instructions</h1>
+                <h1>Your execution instructions</h1>
             </div>
 
-            <div id="loading-state" class="loading-state">
+                <div id="loading-state" class="loading-state">
                 <div class="loading-spinner"></div>
                 <p>Loading your instructions...</p>
             </div>
 
             <div id="no-mandate-state" class="no-mandate-state" style="display: none;">
-                <p>You haven't given Chilla any instructions yet.</p>
-                <a href="mandate-wizard.html" class="create-mandate-btn">Give Instructions</a>
+                <p>You don't have any execution instructions yet.</p>
+                <a href="mandate-wizard.html" class="create-mandate-btn">Create your execution instructions</a>
             </div>
 
             <div id="mandate-content" style="display: none;">
                 <div class="mandate-details-card">
-                    <h2>Active Instructions</h2>
+                    <h2>Active instructions</h2>
                     <div class="detail-row">
                         <span class="detail-label">Instruction ID</span>
                         <span class="detail-value" id="detail-mandate-id">—</span>
@@ -204,9 +204,9 @@
 
                 <div class="actions-card">
                     <h2>Manage</h2>
-                    <button id="edit-mandate-btn" class="action-btn edit-btn">Update Instructions</button>
-                    <button id="pause-mandate-btn" class="action-btn pause-btn">Pause Execution</button>
-                    <button id="revoke-mandate-btn" class="action-btn revoke-btn">Stop All Execution</button>
+                    <button id="edit-mandate-btn" class="action-btn edit-btn">Update instructions</button>
+                    <button id="pause-mandate-btn" class="action-btn pause-btn">Pause instructions</button>
+                    <button id="revoke-mandate-btn" class="action-btn revoke-btn">Revoke instructions</button>
                 </div>
             </div>
         </div>
@@ -237,7 +237,7 @@
                         this.showNoMandate();
                     }
                 } catch (error) {
-                    console.error('Failed to load mandate:', error);
+                    console.error('Failed to load instructions:', error);
                     this.showNoMandate();
                 }
             }
@@ -280,11 +280,11 @@
             }
 
             handleEdit(mandateId) {
-                alert('Edit functionality coming soon! For now, you can revoke this mandate and create a new one.');
+                alert('Edit functionality coming soon! For now, you can revoke these instructions and create new ones.');
             }
 
             async handlePause(mandateId) {
-                if (!confirm('Pause trading? Chilla will stop monitoring markets until you reactivate.')) {
+                if (!confirm('Pause execution? Chilla will stop monitoring markets until you reactivate.')) {
                     return;
                 }
 
@@ -294,27 +294,27 @@
                         status: 'paused'
                     });
 
-                    alert('Mandate paused successfully');
+                    alert('Instructions paused — you can reactivate them anytime.');
                     window.location.reload();
                 } catch (error) {
                     console.error('Failed to pause:', error);
-                    alert('Could not pause mandate. Please try again.');
+                    alert('Could not pause your instructions. Please try again.');
                 }
             }
 
             async handleRevoke(mandateId) {
-                if (!confirm('Revoke mandate? This will permanently stop all trading. You can create a new mandate later.')) {
+                if (!confirm('Revoke instructions? This will stop execution under these instructions. You can create new instructions later.')) {
                     return;
                 }
 
                 try {
                     await window.chillaAPI.revokeMandate({ mandate_id: mandateId });
 
-                    alert('Mandate revoked successfully');
+                    alert('Instructions revoked — you can create new instructions anytime.');
                     window.location.href = 'dashboard.html';
                 } catch (error) {
                     console.error('Failed to revoke:', error);
-                    alert('Could not revoke mandate. Please try again.');
+                    alert('Could not revoke your instructions. Please try again.');
                 }
             }
         }

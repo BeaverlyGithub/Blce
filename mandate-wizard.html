@@ -56,8 +56,8 @@
             <!-- Step 1: Strategy Selection -->
             <div id="step-1" class="wizard-step active">
                 <div class="step-header">
-                    <h1>Choose your vibe</h1>
-                    <p>Pick a trading strategy that fits your style. We'll handle the rest.</p>
+                    <h1>Pick a strategy</h1>
+                    <p>Choose a strategy that fits your style. Chilla will execute your instructions accordingly.</p>
                 </div>
                 <div id="strategy-grid" class="strategy-grid">
                     <!-- Strategies loaded dynamically -->
@@ -75,7 +75,7 @@
             <div id="step-2" class="wizard-step">
                 <div class="step-header">
                     <h1>Pick your markets</h1>
-                    <p>Select which markets Chilla should trade. Start with one or mix it up.</p>
+                    <p>Select which markets Chilla should execute your instructions in. Start with one, or mix a few.</p>
                 </div>
                 <div id="markets-container" class="markets-container">
                     <!-- Markets loaded dynamically -->
@@ -93,7 +93,7 @@
             <div id="step-3" class="wizard-step">
                 <div class="step-header">
                     <h1>Set your limits</h1>
-                    <p>How much risk are you comfortable with? Adjust the slider below.</p>
+                    <p>How much risk are you comfortable with? Use the slider to set your max risk boundary (Omega Cap).</p>
                 </div>
                 <div class="risk-setup">
                     <div class="risk-visual">
@@ -114,7 +114,7 @@
                         </div>
                     </div>
                     <div class="risk-explanation">
-                        <p>This is your <strong>Omega Cap</strong> - the maximum risk Chilla can take per month. If this limit is reached, trading pauses automatically until next month.</p>
+                        <p>This is your <strong>Omega Cap</strong> — your max risk boundary per month. If this limit is reached, execution pauses until the next month.</p>
                     </div>
                     <div id="risk-indicator" class="risk-indicator">
                         <!-- Risk implications shown here after calculation -->
@@ -139,13 +139,13 @@
             <!-- Step 4: Consent (previously Step 3) -->
             <div id="step-4" class="wizard-step">
                 <div class="step-header">
-                    <h1>Quick legal check</h1>
-                    <p>Read and accept the consent to proceed. We keep it simple.</p>
+                    <h1>Quick legal summary</h1>
+                    <p>Read and accept the consent to proceed.</p>
                 </div>
                 <div class="consent-container">
                     <div id="consent-text" class="consent-text">
                         <div class="loading-shimmer"></div>
-                        <p>Loading consent document...</p>
+                        <p>In plain terms, this page explains what Chilla will do with your instructions, the limits you set, and how to change or revoke those instructions. Read the full terms if you want more detail.</p>
                     </div>
                     <div class="consent-checkbox">
                         <label>
@@ -168,28 +168,28 @@
                 </div>
                 <div class="activation-summary">
                     <div class="summary-card">
-                        <div class="summary-icon">🎯</div>
+                        <div class="summary-icon" aria-hidden="true"></div>
                         <div class="summary-item">
                             <div class="summary-label">Strategy</div>
                             <div class="summary-value" id="final-strategy">—</div>
                         </div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-icon">�</div>
+                        <div class="summary-icon" aria-hidden="true"></div>
                         <div class="summary-item">
                             <div class="summary-label">Markets</div>
                             <div class="summary-value" id="final-markets">—</div>
                         </div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-icon">�🛡️</div>
+                        <div class="summary-icon" aria-hidden="true"></div>
                         <div class="summary-item">
                             <div class="summary-label">Risk Cap</div>
                             <div class="summary-value" id="final-risk">—</div>
                         </div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-icon">✅</div>
+                        <div class="summary-icon" aria-hidden="true"></div>
                         <div class="summary-item">
                             <div class="summary-label">Consent</div>
                             <div class="summary-value">Accepted</div>
@@ -208,9 +208,9 @@
             <!-- Success Screen -->
             <div id="success-screen" class="wizard-step">
                 <div class="success-content">
-                    <div class="success-icon">🎉</div>
+                    <div class="success-icon" aria-hidden="true"></div>
                     <h1>Chilla is live!</h1>
-                    <p>You're all set. Chilla is now monitoring markets and will trade according to your mandate.</p>
+                    <p>All set — you're good to chill.</p>
                     <div class="success-actions">
                         <button id="go-to-dashboard" class="btn-primary">Go to Dashboard</button>
                     </div>

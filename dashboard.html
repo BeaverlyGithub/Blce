@@ -32,15 +32,15 @@
         <div id="main-app" class="screen">
             <!-- App Bar -->
             <div class="app-bar">
-                <div class="app-left-section">
-                    <button id="menu-btn" class="icon-btn">
+                    <div class="app-left-section">
+                    <button id="menu-btn" class="icon-btn" aria-label="Open menu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
                         </svg>
                     </button>
                     <h1 class="app-title">Chilla</h1>
                 </div>
-                <button id="nav-connect-btn" class="icon-btn">
+                <button id="nav-connect-btn" class="icon-btn" aria-label="Connect broker">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 5v14m7-7H5"/>
                     </svg>
@@ -144,12 +144,12 @@
                     <!-- Mandate Status Card (NEW) -->
                     <div id="mandate-status-card" class="mandate-card">
                         <div class="mandate-header">
-                            <h2>Your Mandate</h2>
-                            <span id="mandate-status-badge" class="status-badge unauthorized">Unauthorized</span>
+                            <h2>Your execution instructions</h2>
+                            <span id="mandate-status-badge" class="status-badge unauthorized">Not authorized</span>
                         </div>
                         <div id="mandate-details" class="mandate-details">
                             <div class="mandate-message">
-                                <p>No active mandate. <a href="mandate-wizard.html" class="setup-link">Set up your trading mandate</a> to get started.</p>
+                                <p>No active instructions. <a href="mandate-wizard.html" class="setup-link">Create your execution instructions</a> to get started.</p>
                             </div>
                         </div>
                         <div id="mandate-active-view" class="mandate-active-view hidden">
@@ -185,8 +185,8 @@
                                 </div>
                             </div>
                             <div class="mandate-actions">
-                                <button id="pause-mandate-btn" class="mandate-action-btn pause-btn">Pause</button>
-                                <button id="revoke-mandate-btn" class="mandate-action-btn revoke-btn">Revoke</button>
+                                <button id="pause-mandate-btn" class="mandate-action-btn pause-btn">Pause instructions</button>
+                                <button id="revoke-mandate-btn" class="mandate-action-btn revoke-btn">Revoke instructions</button>
                             </div>
                         </div>
                     </div>
@@ -199,7 +199,7 @@
                             </div>
                             <div class="status-details">
                                 <div class="status-info">
-                                    <span>Connect a broker to let Chilla watch and trade for you</span>
+                                    <span>Connect a broker so Chilla can execute instructions for you.</span>
                                 </div>
                             </div>
                         </div>
@@ -264,8 +264,8 @@
                     <option value="deriv">Deriv</option>
                     <option value="other">Other brokers (coming soon)</option>
                 </select>
-                <button id="broker-oauth-btn" class="broker-oauth-btn" disabled>Connect</button>
-                <button id="modal-close-btn" class="modal-close-btn">Cancel</button>
+                <button id="broker-oauth-btn" class="broker-oauth-btn" disabled aria-label="Connect broker">Connect broker</button>
+                <button id="modal-close-btn" class="modal-close-btn" aria-label="Close modal">Cancel</button>
             </div>
         </div>
 
@@ -282,9 +282,9 @@
                     </span>
                     Disconnect Chilla
                 </h3>
-                <p>Disconnecting will stop Chilla from trading on your account. Continue?</p>
-                <button id="confirm-disconnect-btn" class="broker-oauth-btn danger">Yes, Disconnect</button>
-                <button id="cancel-disconnect-btn" class="modal-close-btn">Cancel</button>
+                <p>Disconnecting stops Chilla from executing instructions on this account. Continue?</p>
+                <button id="confirm-disconnect-btn" class="broker-oauth-btn danger" aria-label="Disconnect">Disconnect</button>
+                <button id="cancel-disconnect-btn" class="modal-close-btn" aria-label="Cancel">Cancel</button>
             </div>
         </div>
     </div>
