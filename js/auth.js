@@ -10,6 +10,36 @@ function _apiUrl(path) {
     // fallback: assume absolute path provided
     return path;
 }
+// Small on-page status panel for troubleshooting login issues (mobile-friendly)
+;(function createAuthStatusPanel(){
+    if (window.__authStatusPanelCreated) return;
+    window.__authStatusPanelCreated = true;
+
+    function onReady() {
+        try {
+            const container = document.getElementById('auth-container') || document.body;
+            const panel = document.createElement('div');
+            panel.id = 'auth-status-panel';
+            panel.style.cssText = 'position:fixed;left:12px;top:12px;z-index:99999;background:rgba(0,0,0,0.7);color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;max-width:calc(100vw - 24px);box-shadow:0 6px 18px rgba(0,0,0,0.4);';
+            panel.innerHTML = '<strong style="display:block;margin-bottom:6px;">Status</strong><div id="auth-status-content" style="max-height:120px;overflow:auto;font-size:12px;line-height:1.2;">Initializing…</div>';
+            document.body.appendChild(panel);
+            window.__authStatusWrite = function(msg, level){
+                try{
+                    const c = document.getElementById('auth-status-content');
+                    const time = new Date().toLocaleTimeString();
+                    const node = document.createElement('div');
+                    node.style.padding = '4px 0';
+                    node.textContent = `[${time}] ${msg}`;
+                    if (level === 'error') node.style.color = '#ffdddd';
+                    if (level === 'warn') node.style.color = '#ffe6c2';
+                    c.insertBefore(node, c.firstChild);
+                    while (c.children.length > 20) c.removeChild(c.lastChild);
+                }catch(e){}
+            };
+        }catch(e){console.error('auth status panel init failed', e)}
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady); else onReady();
+})();
 class ChillaAuth {
     constructor() {
         this.csrfToken = null;
@@ -51,14 +81,17 @@ class ChillaAuth {
                 this.csrfToken = data.csrf_token;
                 this.sessionId = data.session_id; // Store session ID for validation
                 console.log('✅ Security verification ready');
+                if (window.__authStatusWrite) window.__authStatusWrite('CSRF token loaded');
                 return this.csrfToken;
             } else {
                 console.error('❌ Security verification unavailable:', response.status);
+                if (window.__authStatusWrite) window.__authStatusWrite('CSRF token unavailable: '+response.status, 'warn');
                 this.csrfToken = null;
                 this.sessionId = null;
             }
         } catch (error) {
             console.error('❌ Security verification error:', error);
+            if (window.__authStatusWrite) window.__authStatusWrite('CSRF token fetch error: '+(error && error.message?error.message:error), 'error');
             this.csrfToken = null;
             this.sessionId = null;
         } finally {
@@ -110,6 +143,7 @@ class ChillaAuth {
 
     async validateSession() {
         try {
+            if (window.__authStatusWrite) window.__authStatusWrite('Validating session...');
             const response = await fetch(_apiUrl('/api/verify_token'), {
                 method: 'POST',
                 credentials: 'include',
@@ -122,6 +156,7 @@ class ChillaAuth {
             if (response.ok) {
                 const data = await response.json();
                 if (data.status === 'valid') {
+                    if (window.__authStatusWrite) window.__authStatusWrite('Session valid; redirecting...');
                     // Server decides where user goes - no client-side decision making
                     if (data.redirect_to) {
                         window.location.href = data.redirect_to;
@@ -132,13 +167,16 @@ class ChillaAuth {
                 }
             } else if (response.status === 401) {
                 console.error('Session validation failed: 401 Unauthorized');
+                if (window.__authStatusWrite) window.__authStatusWrite('Session validation failed: 401', 'warn');
                 this.showAuthScreen();
                 return;
             }
 
+            if (window.__authStatusWrite) window.__authStatusWrite('Session not valid; showing auth screen');
             this.showAuthScreen();
         } catch (error) {
             console.error('Session validation error:', error);
+            if (window.__authStatusWrite) window.__authStatusWrite('Session validation error: '+(error && error.message?error.message:error), 'error');
             this.showAuthScreen();
         }
     }
