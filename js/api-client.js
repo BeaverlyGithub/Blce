@@ -234,12 +234,12 @@
 
         /**
          * Get consent document for jurisdiction
-         * GET /api/consent/documents?jurisdiction=US
+         * GET /api/consents/latest?jurisdiction=US
          * @param {string} jurisdiction - Jurisdiction code (default: US)
          * @returns {object} Consent document with text
          */
         async getConsent(jurisdiction = 'US') {
-            return this.request(`/api/consent/documents?jurisdiction=${jurisdiction}`, {
+            return this.request(`/api/consents/latest?jurisdiction=${jurisdiction}`, {
                 method: 'GET'
             });
         }

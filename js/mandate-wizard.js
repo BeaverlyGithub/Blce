@@ -97,11 +97,22 @@ class MandateWizard {
 
     getStrategyIcon(strategyId) {
         const icons = {
-            on_tick_classic: '⚡',
-            momentum: '🚀',
-            mean_reversion: '🔄',
-            trend_following: '📈',
-            default: '🎯'
+            on_tick_classic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>`,
+            momentum: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20m0-20L5 9m7-7l7 7"/>
+            </svg>`,
+            mean_reversion: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 12l4-4m-4 4l4 4m14-4l-4-4m4 4l-4 4"/>
+            </svg>`,
+            trend_following: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12l-4-4v3H3v2h15v3l4-4z"/>
+            </svg>`,
+            default: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+            </svg>`
         };
         return icons[strategyId] || icons.default;
     }
