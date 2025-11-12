@@ -89,49 +89,32 @@ html, body {
     text-align: center;
 }
 
-/* Logo Component - Separated for flexible styling */
+
 .logo {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
+    gap: 0.5rem;
 }
-
-.logo-icon {
+/* Beaverly Logo */
+.logo::before {
+    content: '';
     width: 32px;
     height: 32px;
-    flex-shrink: 0;
+    background-image: url('../attached_assets/beaverly_logoi.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    background-image: url('../attached_assets/beaverly_logoi.png');
+    margin-right: 0.5rem;
 }
 
-[data-theme="dark"] .logo-icon {
+[data-theme="dark"] .logo::before {
     background-image: url('../attached_assets/beaverly_lodo.png');
 }
-
-.logo-text {
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-    line-height: 1;
-}
-
-/* Logo size variants */
-.logo-sm .logo-icon { width: 24px; height: 24px; }
-.logo-sm .logo-text { font-size: 1.25rem; font-weight: 700; }
-
-.logo-md .logo-icon { width: 32px; height: 32px; }
-.logo-md .logo-text { font-size: 1.5rem; font-weight: 800; }
-
-.logo-lg .logo-icon { width: 40px; height: 40px; }
-.logo-lg .logo-text { font-size: 2rem; font-weight: 900; }
-
-.logo-xl .logo-icon { width: 48px; height: 48px; }
-.logo-xl .logo-text { font-size: 2.5rem; font-weight: 900; }
 
 .loading-spinner {
     width: 40px;
