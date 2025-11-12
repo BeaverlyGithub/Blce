@@ -439,8 +439,8 @@ class ChillaDashboard {
         if (badge) {
             // Show a neutral, user-facing label when no active instructions exist
             badge.textContent = 'NONE';
-            // keep styling via status-badge and use a non-technical modifier
-            badge.className = 'status-badge none';
+            badge.className = 'status-badge unauthorized';
+
         }
 
         const activeView = document.getElementById('mandate-active-view');
