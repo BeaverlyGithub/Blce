@@ -437,8 +437,10 @@ class ChillaDashboard {
     displayUnauthorizedMandate() {
         const badge = document.getElementById('mandate-status-badge');
         if (badge) {
-            badge.textContent = 'Unauthorized';
-            badge.className = 'status-badge unauthorized';
+            // Show a neutral, user-facing label when no active instructions exist
+            badge.textContent = 'NONE';
+            // keep styling via status-badge and use a non-technical modifier
+            badge.className = 'status-badge none';
         }
 
         const activeView = document.getElementById('mandate-active-view');
@@ -480,7 +482,7 @@ class ChillaDashboard {
     }
 
     async handlePauseMandate(mandateId) {
-        if (!confirm('Pause trading? Chilla will stop monitoring markets until you reactivate.')) {
+        if (!confirm('Chilla will stop executing your instructions until you reactivate.')) {
             return;
         }
 
@@ -495,16 +497,16 @@ class ChillaDashboard {
                 reason: 'User requested pause'
             });
 
-            this.showNotification('Mandate paused successfully', 'success');
+            this.showNotification('Instructions paused successfully', 'success');
             await this.loadMandateStatus();
         } catch (error) {
-            console.error('Failed to pause mandate:', error);
-            this.showNotification('Could not pause mandate. Please try again.', 'error');
+            console.error('Failed to pause your instructions:', error);
+            this.showNotification('Could not pause your instructions. Please try again.', 'error');
         }
     }
 
     async handleRevokeMandate(mandateId) {
-        if (!confirm('Revoke mandate? This will permanently stop all trading. You can create a new mandate later.')) {
+        if (!confirm('This will permanently cancel your instructions. You can create new instructions later.')) {
             return;
         }
 
@@ -516,11 +518,11 @@ class ChillaDashboard {
                 reason: 'User requested revocation'
             });
 
-            this.showNotification('Mandate revoked successfully', 'success');
+            this.showNotification('Instructions canceled successfully', 'success');
             await this.loadMandateStatus();
         } catch (error) {
-            console.error('Failed to revoke mandate:', error);
-            this.showNotification('Could not revoke mandate. Please try again.', 'error');
+            console.error('Failed to cancel your instructions:', error);
+            this.showNotification('Could not cancel your instructions. Please try again.', 'error');
         }
     }
 
@@ -726,7 +728,7 @@ class ChillaDashboard {
     
     connectSignalWebSocket(wsToken) {
         if (!wsToken) {
-            console.error('No WebSocket token for signal connection');
+            console.error('Service unavailable');
             return;
         }
 
@@ -913,7 +915,7 @@ class ChillaDashboard {
 
     connectWebSocket(wsToken) {
         if (!wsToken) {
-            console.error('No WebSocket token provided');
+            console.error('Unavailable to connect');
             return;
         }
 
@@ -952,16 +954,16 @@ class ChillaDashboard {
             };
 
             this.wsConnection.onerror = (error) => {
-                console.error('WebSocket error:', error);
+                console.error('service error:', error);
             };
         } catch (error) {
-            console.error('WebSocket connection error:', error);
+            console.error('service connection error:', error);
         }
     }
 
     setupActivityWebSocket(wsToken) {
         if (!wsToken) {
-            console.error('Websocket temporarily unavailable');
+            console.error('Service unavailable');
             return;
         }
 

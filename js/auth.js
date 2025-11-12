@@ -10,88 +10,7 @@ function _apiUrl(path) {
     // fallback: assume absolute path provided
     return path;
 }
-// Small on-page status panel for troubleshooting login issues (mobile-friendly)
-;(function createAuthStatusPanel(){
-    if (window.__authStatusPanelCreated) return;
-    window.__authStatusPanelCreated = true;
-
-    function onReady() {
-        try {
-            const container = document.getElementById('auth-container') || document.body;
-            const panel = document.createElement('div');
-            panel.id = 'auth-status-panel';
-            panel.style.cssText = 'position:fixed;left:12px;top:12px;z-index:99999;background:rgba(0,0,0,0.7);color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;max-width:calc(100vw - 24px);box-shadow:0 6px 18px rgba(0,0,0,0.4);';
-            panel.innerHTML = '<strong style="display:block;margin-bottom:6px;">Status</strong><div id="auth-status-content" style="max-height:120px;overflow:auto;font-size:12px;line-height:1.2;">Initializing…</div><div style="margin-top:8px;text-align:right;"><button id="auth-run-diag" style="background:#fff;color:#000;border-radius:6px;padding:6px 8px;border:0;font-weight:600;">Run diagnostics</button></div>';
-            document.body.appendChild(panel);
-            // Attach diagnostics button
-            const diagBtn = document.getElementById('auth-run-diag');
-            if (diagBtn) {
-                diagBtn.addEventListener('click', async () => {
-                    if (window.__authStatusWrite) window.__authStatusWrite('Running diagnostics...');
-                    try {
-                        // Basic environment info
-                        window.__authStatusWrite('location: ' + window.location.href);
-                        window.__authStatusWrite('page protocol: ' + window.location.protocol);
-                        window.__authStatusWrite('navigator.onLine: ' + (navigator.onLine ? 'online' : 'offline'));
-
-                        // service worker info
-                        if ('serviceWorker' in navigator) {
-                            const regs = await navigator.serviceWorker.getRegistrations();
-                            window.__authStatusWrite('serviceWorker registrations: ' + regs.length);
-                        } else {
-                            window.__authStatusWrite('serviceWorker: not supported');
-                        }
-
-                        // Show computed API base from config if available
-                        const apiBase = (window.APP_CONFIG && (window.APP_CONFIG.API_BASE || (typeof window.APP_CONFIG.apiUrl === 'function' && window.APP_CONFIG.apiUrl('')))) || 'unknown';
-                        window.__authStatusWrite('API_BASE: ' + apiBase);
-
-                        // Attempt a direct fetch to CSRF endpoint (no credentials) to detect network vs CORS
-                        const testUrl = (apiBase && apiBase !== 'unknown') ? (apiBase.replace(/\/$/, '') + '/api/csrf_token') : '/api/csrf_token';
-                        window.__authStatusWrite('Attempting fetch to: ' + testUrl);
-
-                        try {
-                            const r = await fetch(testUrl, { method: 'GET', credentials: 'include' });
-                            window.__authStatusWrite('Fetch completed: status=' + r.status);
-                            try {
-                                const txt = await r.text();
-                                window.__authStatusWrite('Response len: ' + (txt ? txt.length : 0));
-                            } catch (e) {
-                                window.__authStatusWrite('Could not read response text: ' + (e && e.message ? e.message : e), 'warn');
-                            }
-                        } catch (fetchErr) {
-                            window.__authStatusWrite('Fetch error: ' + (fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)), 'error');
-                            // try a simpler plain fetch to same-origin to prove networking
-                            try {
-                                const sameOrigin = window.location.origin + '/';
-                                await fetch(sameOrigin, { method: 'GET' });
-                                window.__authStatusWrite('Same-origin root fetch succeeded: ' + sameOrigin);
-                            } catch (soErr) {
-                                window.__authStatusWrite('Same-origin fetch failed: ' + (soErr && soErr.message ? soErr.message : String(soErr)), 'error');
-                            }
-                        }
-                    } catch (err) {
-                        window.__authStatusWrite('Diagnostics failed: ' + (err && err.message ? err.message : err), 'error');
-                    }
-                });
-            }
-            window.__authStatusWrite = function(msg, level){
-                try{
-                    const c = document.getElementById('auth-status-content');
-                    const time = new Date().toLocaleTimeString();
-                    const node = document.createElement('div');
-                    node.style.padding = '4px 0';
-                    node.textContent = `[${time}] ${msg}`;
-                    if (level === 'error') node.style.color = '#ffdddd';
-                    if (level === 'warn') node.style.color = '#ffe6c2';
-                    c.insertBefore(node, c.firstChild);
-                    while (c.children.length > 20) c.removeChild(c.lastChild);
-                }catch(e){}
-            };
-        }catch(e){console.error('auth status panel init failed', e)}
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady); else onReady();
-})();
+// (Diagnostics panel removed) — auth flows run without on-page debugging UI in production.
 class ChillaAuth {
     constructor() {
         this.csrfToken = null;
@@ -133,17 +52,14 @@ class ChillaAuth {
                 this.csrfToken = data.csrf_token;
                 this.sessionId = data.session_id; // Store session ID for validation
                 console.log('✅ Security verification ready');
-                if (window.__authStatusWrite) window.__authStatusWrite('CSRF token loaded');
                 return this.csrfToken;
             } else {
                 console.error('❌ Security verification unavailable:', response.status);
-                if (window.__authStatusWrite) window.__authStatusWrite('CSRF token unavailable: '+response.status, 'warn');
                 this.csrfToken = null;
                 this.sessionId = null;
             }
-        } catch (error) {
+            } catch (error) {
             console.error('❌ Security verification error:', error);
-            if (window.__authStatusWrite) window.__authStatusWrite('CSRF token fetch error: '+(error && error.message?error.message:error), 'error');
             this.csrfToken = null;
             this.sessionId = null;
         } finally {
@@ -195,7 +111,6 @@ class ChillaAuth {
 
     async validateSession() {
         try {
-            if (window.__authStatusWrite) window.__authStatusWrite('Validating session...');
             const response = await fetch(_apiUrl('/api/verify_token'), {
                 method: 'POST',
                 credentials: 'include',
@@ -208,7 +123,6 @@ class ChillaAuth {
             if (response.ok) {
                 const data = await response.json();
                 if (data.status === 'valid') {
-                    if (window.__authStatusWrite) window.__authStatusWrite('Session valid; redirecting...');
                     // Server decides where user goes - no client-side decision making
                     if (data.redirect_to) {
                         window.location.href = data.redirect_to;
@@ -219,16 +133,14 @@ class ChillaAuth {
                 }
             } else if (response.status === 401) {
                 console.error('Session validation failed: 401 Unauthorized');
-                if (window.__authStatusWrite) window.__authStatusWrite('Session validation failed: 401', 'warn');
                 this.showAuthScreen();
                 return;
             }
-
-            if (window.__authStatusWrite) window.__authStatusWrite('Session not valid; showing auth screen');
+            
+            // session invalid — show auth screen
             this.showAuthScreen();
         } catch (error) {
             console.error('Session validation error:', error);
-            if (window.__authStatusWrite) window.__authStatusWrite('Session validation error: '+(error && error.message?error.message:error), 'error');
             this.showAuthScreen();
         }
     }
