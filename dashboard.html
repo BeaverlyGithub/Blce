@@ -148,8 +148,8 @@
                             <span id="mandate-status-badge" class="status-badge unauthorized">Not authorized</span>
                         </div>
                         <div id="mandate-details" class="mandate-details">
-                            <div class="mandate-message">
-                                <p>No active instructions. <a href="mandate-wizard.html" class="setup-link">Create your execution instructions</a></p>
+                            <div class="mandate-message" id="mandate-create-target" role="button" tabindex="0" aria-label="Create execution instructions">
+                                <p>No active instructions. <em>[Tap to create]</em></p>
                             </div>
                         </div>
                         <div id="mandate-active-view" class="mandate-active-view hidden">
@@ -290,6 +290,8 @@
     </div>
 
     <script src="js/config.js"></script>
+    <!-- API client provides window.chillaAPI helpers (connectActivityWS, getCurrentMandate, etc.) -->
+    <script src="js/api-client.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/icons-init.js"></script>

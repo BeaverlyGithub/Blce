@@ -1337,6 +1337,26 @@ class ChillaDashboard {
             });
         }
 
+        // Make mandate card tappable/clickable to open the mandate wizard (simple, low cognitive load UX)
+        try {
+            const mandateCard = document.getElementById('mandate-status-card');
+            if (mandateCard) {
+                mandateCard.style.cursor = 'pointer';
+                mandateCard.addEventListener('click', () => {
+                    window.location.href = 'mandate-wizard.html';
+                });
+                mandateCard.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        window.location.href = 'mandate-wizard.html';
+                    }
+                });
+            }
+        } catch (e) {
+            // Non-fatal — don't block other listeners
+            console.debug('Could not attach mandate card click handler:', e && e.message ? e.message : e);
+        }
+
         console.log('All event listeners attached');
     }
 
