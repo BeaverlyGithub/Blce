@@ -363,12 +363,6 @@ class MandateWizard {
             if (consentEl) {
                 consentEl.innerHTML = `<p>By proceeding, you authorize Chilla to execute your instructions according to your selected strategy and risk parameters. You can edit or cancel these instructions at any time.</p>`;
             }
-            
-            // Fallback: Show default consent text
-            const consentEl = document.getElementById('consent-text');
-            if (consentEl) {
-                consentEl.innerHTML = `<p>By proceeding, you authorize Chilla to execute your instructions according to your selected strategy and risk parameters. You can edit or cancel these instructions at any time.</p>`;
-            }
         }
     }
 
