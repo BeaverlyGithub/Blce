@@ -1119,7 +1119,7 @@ class ChillaDashboard {
                             <span>Status: Chilla is waiting for your instructions</span>
                         </div>
                         <div class="watching-markets">
-                            Create a mandate to get started
+                            No instructions received yet.
                         </div>
                     </div>
                 </div>
@@ -1136,7 +1136,7 @@ class ChillaDashboard {
                     </div>
                     <div class="status-details">
                         <div class="status-info">
-                            <span>Connect a broker to start monitoring</span>
+                            <span>Connect your broker</span>
                         </div>
                     </div>
                 </div>
@@ -1337,7 +1337,7 @@ class ChillaDashboard {
             });
         }
 
-        // Make mandate card tappable/clickable to open the mandate wizard (simple, low cognitive load UX)
+        // Make mandate card tappable/clickable to open the mandate wizard 
         try {
             const mandateCard = document.getElementById('mandate-status-card');
             if (mandateCard) {
