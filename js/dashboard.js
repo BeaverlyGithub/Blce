@@ -960,21 +960,14 @@ class ChillaDashboard {
     }
 
     setupActivityWebSocket(wsToken) {
-        if (!this.currentUser?.email) {
-            console.error('No user email available for Activity WebSocket');
+        if (!wsToken) {
+            console.error('Websocket temporarily unavailable');
             return;
         }
 
-        let activityWsUrl;
-        if (window.APP_CONFIG && typeof window.APP_CONFIG.wsUrl === 'function') {
-            activityWsUrl = window.APP_CONFIG.wsUrl(`/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`);
-        } else {
-            const wsHost = API_BASE.replace('https://', '').replace('http://', '');
-            activityWsUrl = `wss://${wsHost}/activity-ws?email=${encodeURIComponent(this.currentUser.email)}`;
-        }
-
         try {
-            this.activityWs = new WebSocket(activityWsUrl);
+            // Use API client to connect with token (handles URL building)
+            this.activityWs = window.chillaAPI.connectActivityWS(wsToken);
 
             this.activityWs.onopen = () => {
                 console.log('📊 Activity WebSocket connected');
@@ -1057,7 +1050,7 @@ class ChillaDashboard {
         const activityElement = document.getElementById('chilla-activity-status');
         if (!activityElement) return;
 
-        const { status, broker, account_id, watching_markets, last_activity, monitoring_active } = activityData;
+        const { status, broker, account_id, watching_markets, last_activity, monitoring_active, has_mandate } = activityData;
 
         const displayAccountId = account_id || activityData.accountId || activityData.account ||
             (activityData.broker_data && activityData.broker_data.account_id);
@@ -1065,6 +1058,7 @@ class ChillaDashboard {
         let statusHtml = '';
         let statusClass = '';
 
+        // State 1: Actively monitoring (mandate exists + monitoring active)
         if (status === 'connected' && monitoring_active) {
             statusClass = 'status-active';
             const timeAgo = last_activity ? this.formatTimeAgo(last_activity) : 'just now';
@@ -1081,32 +1075,58 @@ class ChillaDashboard {
                             <span>Last active: ${timeAgo}</span>
                         </div>
                         <div class="watching-markets">
-                            Watching: ${watching_markets.map(m => m.name).join(', ') || 'No markets'}
+                            Watching: ${watching_markets && watching_markets.length > 0 ? watching_markets.map(m => m.name).join(', ') : 'No markets'}
                         </div>
                     </div>
                 </div>
             `;
-        } else if (status === 'connected' || status === 'idle') {
-            statusClass = 'status-idle';
+        } 
+        // State 2: Broker connected + mandate exists but not monitoring yet (warming up)
+        else if ((status === 'connected' || status === 'idle') && has_mandate) {
+            statusClass = 'status-warming';
             statusHtml = `
                 <div class="activity-status ${statusClass}">
                     <div class="status-header">
-                        <div class="status-title">Connected - Waiting for Chilla</div>
+                        <div class="status-title">Ready to Execute Instructions</div>
                         <div class="status-indicator"></div>
                     </div>
                     <div class="status-details">
                         ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
                         <div class="status-info">
                             <span>Broker: ${broker || 'Unknown'}</span>
-                            <span>Status: ${status === 'idle' ? 'Chilla will start monitoring shortly' : 'Waiting for monitoring to begin'}</span>
+                            <span>Status: Chilla will carry out your instructions shortly</span>
                         </div>
                         <div class="watching-markets">
-                            ${watching_markets && watching_markets.length > 0 ? `Markets ready: ${watching_markets.map(m => m.name).join(', ')}` : 'No markets configured yet'}
+                            ${watching_markets && watching_markets.length > 0 ? `Markets ready: ${watching_markets.map(m => m.name).join(', ')}` : 'Preparing markets...'}
                         </div>
                     </div>
                 </div>
             `;
-        } else {
+        }
+        // State 3: Broker connected but NO mandate (needs user action)
+        else if (status === 'connected' || status === 'idle') {
+            statusClass = 'status-idle';
+            statusHtml = `
+                <div class="activity-status ${statusClass}">
+                    <div class="status-header">
+                        <div class="status-title">Connected - Waiting for Instructions</div>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="status-details">
+                        ${displayAccountId ? `<div class="account-id-display">Account: <span class="account-id-value">${displayAccountId}</span></div>` : ''}
+                        <div class="status-info">
+                            <span>Broker: ${broker || 'Unknown'}</span>
+                            <span>Status: Chilla is waiting for your instructions</span>
+                        </div>
+                        <div class="watching-markets">
+                            Create a mandate to get started
+                        </div>
+                    </div>
+                </div>
+            `;
+        } 
+        // State 4: Not connected at all
+        else {
             statusClass = 'status-disconnected';
             statusHtml = `
                 <div class="activity-status ${statusClass}">

@@ -6,7 +6,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://coox.beaverlyai.com https://work.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://cdn.jsdelivr.net 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com https://coox.beaverlyai.com https://work.beaverlyai.com https://www.google.com.ng; connect-src 'self' https://cook.beaverlyai.com https://coox.beaverlyai.com https://work.beaverlyai.com wss://cook.beaverlyai.com wss://coox.beaverlyai.com wss://work.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://webchat.botpress.cloud wss://webchat.botpress.cloud https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com https://coox.beaverlyai.com https://work.beaverlyai.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cook.beaverlyai.com https://coox.beaverlyai.com https://wofk.beaverlyai.com https://work.beaverlyai.com https://www.googletagmanager.com https://cdn.botpress.cloud https://files.bpcontent.cloud https://cdn.jsdelivr.net 'sha256-SCfHb0f59QEhuYaon2DqnZfALcsBcsqwAhgV/RxmHnI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cook.beaverlyai.com https://coox.beaverlyai.com https://wofk.beaverlyai.com https://work.beaverlyai.com https://www.google.com https://www.google.com.ng https://stats.g.doubleclick.net; connect-src 'self' https://cook.beaverlyai.com https://coox.beaverlyai.com https://wofk.beaverlyai.com https://work.beaverlyai.com wss://cook.beaverlyai.com wss://coox.beaverlyai.com wss://wofk.beaverlyai.com wss://work.beaverlyai.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://region1.google-analytics.com https://webchat.botpress.cloud wss://webchat.botpress.cloud https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://cook.beaverlyai.com https://coox.beaverlyai.com https://wofk.beaverlyai.com https://work.beaverlyai.com;">
     <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
     <title>Dashboard - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
@@ -23,7 +23,10 @@
         <!-- Loading Screen -->
         <div id="loading-screen" class="loading-screen">
             <div class="loading-content">
-                <div class="logo">Chilla</div>
+                <div class="logo logo-lg">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">Chilla</div>
+                </div>
                 <div class="loading-spinner"></div>
             </div>
         </div>
@@ -38,7 +41,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 6h18"/>
                         </svg>
                     </button>
-                    <h1 class="app-title">Chilla</h1>
+                    <div class="logo logo-sm" style="margin-bottom: 0; gap: 0.5rem;">
+                        <div class="logo-icon"></div>
+                        <h1 class="app-title logo-text">Chilla</h1>
+                    </div>
                 </div>
                 <button id="nav-connect-btn" class="icon-btn" aria-label="Connect broker">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

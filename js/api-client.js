@@ -63,12 +63,18 @@
         /**
          * Build secure headers for authenticated requests
          */
-        getHeaders() {
-            return {
-                'Content-Type': 'application/json',
+        getHeaders(includeContentType = true) {
+            const headers = {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-Token': this.csrfToken || ''
             };
+            
+            // Only include Content-Type for requests with body (POST, PUT, PATCH)
+            if (includeContentType) {
+                headers['Content-Type'] = 'application/json';
+            }
+            
+            return headers;
         }
 
         /**
@@ -77,10 +83,14 @@
         async request(endpoint, options = {}) {
             await this.ensureCSRF();
 
+            // Determine if this request should have Content-Type header
+            const method = (options.method || 'GET').toUpperCase();
+            const hasBody = method !== 'GET' && method !== 'HEAD' && method !== 'DELETE';
+
             const response = await fetch(`${getApiBase()}${endpoint}`, {
                 ...options,
                 credentials: 'include',
-                headers: this.getHeaders()
+                headers: this.getHeaders(hasBody)
             });
 
             if (!response.ok) {
@@ -285,11 +295,11 @@
 
         /**
          * Connect to activity WebSocket for mandate status updates
-         * @param {string} email - User email
+         * @param {string} wsToken - WebSocket security
          * @returns {WebSocket} Connected WebSocket instance
          */
-        connectActivityWS(email) {
-            const url = getWsUrl(`/ws/activity?email=${encodeURIComponent(email)}`);
+        connectActivityWS(wsToken) {
+            const url = getWsUrl(`/activity-ws?token=${wsToken}`);
             const ws = new WebSocket(url);
 
             ws.onopen = () => console.log('📊 Activity WebSocket connected');
