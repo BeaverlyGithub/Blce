@@ -283,7 +283,7 @@
          * @returns {WebSocket} Connected WebSocket instance
          */
         connectSignalWS(wsToken) {
-            const url = getWsUrl(`/ws/signal?token=${wsToken}`);
+            const url = getWsUrl(`/ws?token=${wsToken}`);
             const ws = new WebSocket(url);
 
             ws.onopen = () => console.log('📡 Signal WebSocket connected');

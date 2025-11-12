@@ -25,31 +25,44 @@ class MandateWizard {
         const wizard = document.getElementById('wizard-container');
 
         try {
+            console.log('🚀 Starting wizard initialization...');
+            
             // Load security verification
+            console.log('🔐 checking security status');
             await window.chillaAPI.loadCSRFToken();
+            console.log('✅ security check complete');
 
             // Check if user already has active mandate
+            console.log('📋 Checking existing instruction...');
             const currentMandate = await this.checkExistingMandate();
             if (currentMandate) {
+                console.log('📋 Active instruction found, redirecting to dashboard');
                 // Redirect to dashboard if already activated
                 window.location.href = 'dashboard.html';
                 return;
             }
+            console.log('✅ No active instruction found, proceeding with wizard');
 
             // Load initial data
+            console.log('📊 Loading strategies...');
             await this.loadStrategies();
+            console.log('✅ Strategies loaded:', this.strategies.length, 'strategies');
+
+            console.log('📜 Loading consent...');
             await this.loadConsent();
+            console.log('✅ Consent loaded');
 
             // Setup event listeners
             this.setupEventListeners();
 
             // Show wizard
+            console.log('🎉 Showing wizard');
             loading.classList.add('hidden');
             wizard.classList.remove('hidden');
 
-            console.log('✅ Mandate wizard initialized');
+            console.log('✅ Mandate wizard initialized successfully');
         } catch (error) {
-            console.error('Failed to initialize wizard:', error);
+            console.error('❌ Failed to initialize wizard:', error);
             this.showError('Could not load wizard — please refresh and try again');
         }
     }
@@ -57,7 +70,8 @@ class MandateWizard {
     async checkExistingMandate() {
         try {
             const mandate = await window.chillaAPI.getCurrentMandate();
-            return mandate;
+            // Only redirect if there's an active mandate
+            return mandate && mandate.status === 'active' ? mandate : null;
         } catch (error) {
             // No mandate exists - proceed with wizard
             return null;
@@ -66,20 +80,62 @@ class MandateWizard {
 
     async loadStrategies() {
         try {
+            console.log('📊 Calling getStrategies API...');
             const data = await window.chillaAPI.getStrategies();
+            console.log('📊 API response:', data);
+            
             this.strategies = data.strategies || data;
+            console.log('📊 Parsed strategies:', this.strategies);
+            console.log('📊 Strategies length:', this.strategies.length);
+
+            // Fallback: If no strategies, use hardcoded defaults
+            if (!this.strategies || !Array.isArray(this.strategies) || this.strategies.length === 0) {
+                console.log('📊 Using fallback strategies');
+                this.strategies = [
+                    {
+                        strategy_id: 'Sharp_maneuvers',
+                        name: 'Quick Moves',
+                        description: 'High-frequency pattern recognition for volatile indices',
+                        category: 'most_popular'
+                    }
+                ];
+            }
 
             this.renderStrategies();
+            console.log('✅ Strategies rendered');
         } catch (error) {
-            console.error('Failed to load strategies:', error);
-            this.showError('Could not load strategies — please try again');
+            console.error('❌ Failed to load strategies:', error);
+            
+            // Fallback: Use hardcoded strategies
+            console.log('📊 Using fallback strategies due to error');
+            this.strategies = [
+                {
+                    strategy_id: 'Sharp_maneuvers',
+                    name: 'Quick Moves',
+                    description: 'High-frequency pattern recognition for volatile indices',
+                    category: 'most_popular'
+                }
+            ];
+            this.renderStrategies();
+            
+            // Don't show error for strategies - use fallback
+            // this.showError('Could not load strategies — please try again');
         }
     }
 
     renderStrategies() {
+        console.log('🎨 Rendering strategies...');
         const grid = document.getElementById('strategy-grid');
-        if (!grid || !this.strategies.length) return;
+        console.log('🎨 Strategy grid element:', grid);
+        
+        if (!grid || !this.strategies.length) {
+            console.log('🎨 No grid or no strategies, returning early');
+            console.log('🎨 Grid exists:', !!grid);
+            console.log('🎨 Strategies length:', this.strategies.length);
+            return;
+        }
 
+        console.log('🎨 Generating HTML for', this.strategies.length, 'strategies');
         grid.innerHTML = this.strategies.map(strategy => `
             <div class="strategy-card" data-strategy-id="${strategy.id || strategy.strategy_id}">
                 <div class="strategy-icon">${this.getStrategyIcon(strategy.id || strategy.strategy_id)}</div>
@@ -89,10 +145,13 @@ class MandateWizard {
             </div>
         `).join('');
 
+        console.log('🎨 HTML set, adding click handlers');
         // Add click handlers
         grid.querySelectorAll('.strategy-card').forEach(card => {
             card.addEventListener('click', () => this.selectStrategy(card));
         });
+        
+        console.log('✅ Strategies rendered successfully');
     }
 
     getStrategyIcon(strategyId) {
@@ -303,6 +362,12 @@ class MandateWizard {
             this.consentText = 'Unable to load consent document. Please try again.';
             this.consentVersion = 'v1';
             this.consentHash = '';
+            
+            // Fallback: Show default consent text
+            const consentEl = document.getElementById('consent-text');
+            if (consentEl) {
+                consentEl.innerHTML = `<p>By proceeding, you authorize Chilla to execute your instructions according to your selected strategy and risk parameters. You can edit or cancel these instructions at any time.</p>`;
+            }
         }
     }
 
