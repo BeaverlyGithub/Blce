@@ -752,7 +752,23 @@ class ChillaDashboard {
                 if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
                     const delay = Math.min(5000 * Math.pow(2, this.reconnectAttempts), 30000);
                     this.reconnectAttempts++;
-                    setTimeout(() => this.initializeWebSocket(), delay);
+                    setTimeout(async () => {
+                        try {
+                            const wsTokenResponse = await fetch(`${API_BASE}/api/ws_token`, {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: this.getSecureHeaders()
+                            });
+                            if (wsTokenResponse.ok) {
+                                const tokenData = await wsTokenResponse.json();
+                                if (tokenData.ws_token) {
+                                    this.connectSignalWebSocket(tokenData.ws_token);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to reconnect signal WebSocket:', error);
+                        }
+                    }, delay);
                 }
             };
 
@@ -949,7 +965,23 @@ class ChillaDashboard {
                 if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
                     this.reconnectAttempts++;
                     const delay = Math.min(5000 * this.reconnectAttempts, 30000);
-                    setTimeout(() => this.initializeWebSocket(), delay);
+                    setTimeout(async () => {
+                        try {
+                            const wsTokenResponse = await fetch(`${API_BASE}/api/ws_token`, {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: this.getSecureHeaders()
+                            });
+                            if (wsTokenResponse.ok) {
+                                const tokenData = await wsTokenResponse.json();
+                                if (tokenData.ws_token) {
+                                    this.connectWebSocket(tokenData.ws_token);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to reconnect main WebSocket:', error);
+                        }
+                    }, delay);
                 }
             };
 
@@ -993,7 +1025,23 @@ class ChillaDashboard {
                     this.activityWsReconnectAttempts++;
 
                     console.log(`📊 Will reconnect Activity WebSocket in ${reconnectDelay / 1000}s (attempt ${this.activityWsReconnectAttempts})`);
-                    setTimeout(() => this.initializeWebSocket(), reconnectDelay);
+                    setTimeout(async () => {
+                        try {
+                            const wsTokenResponse = await fetch(`${API_BASE}/api/ws_token`, {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: this.getSecureHeaders()
+                            });
+                            if (wsTokenResponse.ok) {
+                                const tokenData = await wsTokenResponse.json();
+                                if (tokenData.ws_token) {
+                                    this.setupActivityWebSocket(tokenData.ws_token);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Failed to reconnect activity WebSocket:', error);
+                        }
+                    }, reconnectDelay);
                 }
             };
 
