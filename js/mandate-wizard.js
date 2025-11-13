@@ -8,6 +8,9 @@ class MandateWizard {
         this.selectedStrategy = null;
         this.selectedMarkets = []; // New: User-selected markets
         this.omegaBps = 500; // Default: 5%
+        this.perStrategyRiskPercent = 1.00; // Default 1.00% per trade (user-facing)
+        this.maxPositions = 3;
+        this.adaptiveRisk = false;
         this.consentAccepted = false;
         this.strategies = [];
         this.consentText = '';
@@ -55,6 +58,9 @@ class MandateWizard {
             // Setup event listeners
             this.setupEventListeners();
 
+            // Initialize new risk input bindings
+            this.bindRiskInputs();
+
             // Show wizard
             console.log('🎉 Showing wizard');
             loading.classList.add('hidden');
@@ -64,6 +70,38 @@ class MandateWizard {
         } catch (error) {
             console.error('❌ Failed to initialize wizard:', error);
             this.showError('Could not load wizard — please refresh and try again');
+        }
+    }
+
+    bindRiskInputs() {
+        const riskInput = document.getElementById('risk-per-trade');
+        const maxPos = document.getElementById('max-positions');
+        const adaptive = document.getElementById('adaptive-risk-toggle');
+        const slider = document.getElementById('omega-slider');
+
+        if (riskBps) {
+            riskBps.addEventListener('input', (e) => {
+                const v = parseFloat(e.target.value);
+                // Clamp between 0.01% and 5.00%
+                const clamped = Math.min(Math.max(isNaN(v) ? 1.0 : v, 0.01), 5.0);
+                this.perStrategyRiskPercent = Math.round(clamped * 100) / 100;
+                // Keep the field consistent (format to 2 decimals)
+                e.target.value = this.perStrategyRiskPercent.toFixed(2);
+            });
+        }
+        if (maxPos) {
+            maxPos.addEventListener('input', (e) => {
+                const v = parseInt(e.target.value, 10) || 3;
+                this.maxPositions = Math.min(Math.max(v, 1), 10);
+            });
+        }
+        if (adaptive) {
+            adaptive.addEventListener('change', (e) => {
+                this.adaptiveRisk = !!e.target.checked;
+            });
+        }
+        if (slider) {
+            slider.addEventListener('input', (e) => this.updateRiskDisplay(e.target.value));
         }
     }
 
@@ -190,46 +228,67 @@ class MandateWizard {
     }
 
     renderMarkets() {
-        // Simple market selection - hardcoded common Deriv symbols
-        const markets = {
-            volatility: {
-                name: '⚡ Volatility Indices',
-                symbols: [
-                    { id: '1HZ100V', name: 'Volatility 100' },
-                    { id: '1HZ200V', name: 'Volatility 200' },
-                    { id: '1HZ300V', name: 'Volatility 300' }
-                ]
-            },
-            forex: {
-                name: '💱 Forex Pairs',
-                symbols: [
-                    { id: 'EURUSD', name: 'EUR/USD' },
-                    { id: 'GBPUSD', name: 'GBP/USD' },
-                    { id: 'USDJPY', name: 'USD/JPY' }
-                ]
-            },
-            otc: {
-                name: '📊 OTC Indices',
-                symbols: [
-                    { id: 'OTC_DJI', name: 'OTC DJ Index' },
-                    { id: 'OTC_AUS200', name: 'OTC AUS 200' }
-                ]
-            }
-        };
-
+        // If a strategy is selected and provides compatible_symbols, use those.
+        // Otherwise fall back to the default full market list.
         const container = document.getElementById('markets-container');
         if (!container) return;
 
+        // Helper to classify a symbol into a category for display
+        const classify = (sym) => {
+            if (!sym) return 'other';
+            const s = sym.toUpperCase();
+            if (s.startsWith('1HZ') || s.includes('VOL') || s.includes('VOLAT')) return 'volatility';
+            if (s.startsWith('OTC') || s.startsWith('OTC_')) return 'otc';
+            // crude forex detection (common 6-letter pairs)
+            if (/^[A-Z]{6}$/.test(s)) return 'forex';
+            return 'other';
+        };
+
+        // Build a markets object from either the selected strategy or defaults
+        let markets = {
+            volatility: { name: '⚡ Volatility Indices', symbols: [] },
+            forex: { name: '💱 Forex Pairs', symbols: [] },
+            otc: { name: '📊 OTC Indices', symbols: [] },
+            other: { name: 'Other', symbols: [] }
+        };
+
+        // If a strategy is selected, prefer its compatible_symbols
+        let symbolsToShow = null;
+        if (this.selectedStrategy && Array.isArray(this.strategies) && this.strategies.length) {
+            const strat = this.strategies.find(s => (s.strategy_id || s.id) === this.selectedStrategy);
+            if (strat && Array.isArray(strat.compatible_symbols) && strat.compatible_symbols.length) {
+                symbolsToShow = strat.compatible_symbols.slice();
+            }
+        }
+
+        // Default fallback list when no strategy-specific symbols available
+        if (!symbolsToShow) {
+            symbolsToShow = [
+                '1HZ100V','1HZ200V','1HZ300V',
+                'EURUSD','GBPUSD','USDJPY',
+                'OTC_DJI','OTC_AUS200'
+            ];
+        }
+
+        // Convert to display entries
+        symbolsToShow.forEach(sym => {
+            const category = classify(sym);
+            const name = (category === 'forex' && sym.length === 6)
+                ? `${sym.slice(0,3)}/${sym.slice(3)}`
+                : sym.replace('_', ' ');
+
+            markets[category] = markets[category] || { name: category, symbols: [] };
+            markets[category].symbols.push({ id: sym, name: name });
+        });
+
+        // Render HTML
         container.innerHTML = Object.entries(markets).map(([category, data]) => `
             <div class="market-category">
                 <h3 class="market-category-title">${data.name}</h3>
                 <div class="market-grid">
                     ${data.symbols.map(symbol => `
                         <label class="market-checkbox">
-                            <input type="checkbox" 
-                                   value="${symbol.id}" 
-                                   data-category="${category}"
-                                   onchange="wizard.toggleMarket('${symbol.id}', this.checked)">
+                            <input type="checkbox" value="${symbol.id}" data-category="${category}">
                             <span class="market-name">${symbol.name}</span>
                             <span class="market-id">${symbol.id}</span>
                         </label>
@@ -238,12 +297,27 @@ class MandateWizard {
             </div>
         `).join('');
 
-        // Pre-select popular choice (1HZ100V)
-        const defaultMarket = container.querySelector('input[value="1HZ100V"]');
-        if (defaultMarket) {
-            defaultMarket.checked = true;
-            this.selectedMarkets = ['1HZ100V'];
-            document.getElementById('step-2-next').disabled = false;
+        // Add event listeners for checkboxes (no inline handlers)
+        container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                this.toggleMarket(e.target.value, e.target.checked);
+            });
+        });
+
+        // Pre-select first symbol if none selected yet
+        if (!this.selectedMarkets || this.selectedMarkets.length === 0) {
+            const defaultMarket = container.querySelector('input[value="1HZ100V"]') || container.querySelector('input[type="checkbox"]');
+            if (defaultMarket) {
+                defaultMarket.checked = true;
+                this.selectedMarkets = [defaultMarket.value];
+                const nextBtn = document.getElementById('step-2-next');
+                if (nextBtn) nextBtn.disabled = false;
+            }
+        } else {
+            // Restore checked state from this.selectedMarkets
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (this.selectedMarkets.includes(cb.value)) cb.checked = true;
+            });
         }
     }
 
@@ -282,18 +356,19 @@ class MandateWizard {
                 portfolio: [{
                     strategy_id: this.selectedStrategy,
                     symbols: this.selectedMarkets,
-                    adaptive_risk: false
+                    adaptive_risk: !!this.adaptiveRisk
                 }],
                 risk: {
                     per_strategy: {
                         [this.selectedStrategy]: {
-                            risk_per_trade_bps: 100, // Default 1%
-                            max_positions: 3
+                            // Backend expects bps (basis points). Convert from percent.
+                            risk_per_trade_bps: Math.round((parseFloat(this.perStrategyRiskPercent) || 1.0) * 100),
+                            max_positions: parseInt(this.maxPositions, 10) || 3
                         }
                     },
-                    omega_risk_cap_bps: this.omegaBps
+                    omega_risk_cap_bps: Math.min(parseInt(this.omegaBps, 10) || 500, 1000)
                 },
-                omega_enabled: true
+                omega_enabled: (parseInt(this.omegaBps, 10) || 0) > 0
             };
 
             const result = await window.chillaAPI.calculateRiskImplications(config);
@@ -383,6 +458,13 @@ class MandateWizard {
         // Step 3: Risk
         document.getElementById('step-3-back')?.addEventListener('click', () => this.goToStep(2));
         document.getElementById('step-3-next')?.addEventListener('click', async () => {
+            // Validate per-strategy risk before calculating implications
+            const valid = this.validateRiskInputs();
+            if (!valid.ok) {
+                this.showError(valid.message);
+                return;
+            }
+
             // Calculate risk implications before moving to consent
             await this.calculateRiskImplications();
             this.goToStep(4);
@@ -415,6 +497,28 @@ class MandateWizard {
 
         // Error modal
         document.getElementById('error-close')?.addEventListener('click', () => this.hideError());
+    }
+
+    validateRiskInputs() {
+        // Ensure a strategy is selected
+        if (!this.selectedStrategy) {
+            return { ok: false, message: 'Please select a strategy before setting risk.' };
+        }
+
+        // Read the input directly to ensure HTML validity
+
+        const riskEl = document.getElementById('risk-per-trade');
+        if (!riskEl) return { ok: false, message: 'Risk input not found' };
+
+        const value = parseFloat(riskEl.value);
+        if (isNaN(value) || value < 0.01 || value > 5.0) {
+            return { ok: false, message: 'Please enter a per-trade risk between 0.01% and 5.00%.' };
+        }
+
+        // Update internal state from validated input
+        this.perStrategyRiskPercent = Math.round(value * 100) / 100;
+
+        return { ok: true };
     }
 
     goToStep(stepNumber) {
@@ -481,7 +585,7 @@ class MandateWizard {
         this.omegaBps = parseInt(bps);
 
         // Update circular progress
-        const percent = (this.omegaBps / 2000) * 100;
+        const percent = (this.omegaBps / 1000) * 100;
         const fill = document.getElementById('risk-circle-fill');
         if (fill) {
             fill.style.background = `conic-gradient(
@@ -490,20 +594,26 @@ class MandateWizard {
             )`;
         }
 
-        // Update display value
+        // Update display value (monthly cap)
         const displayValue = (this.omegaBps / 100).toFixed(1) + '%';
         const displayEl = document.getElementById('risk-display-value');
         if (displayEl) displayEl.textContent = displayValue;
 
-        // Update preview
+        // Update preview (show percent only, not bps)
         const previewBps = document.getElementById('preview-bps');
-        if (previewBps) previewBps.textContent = `${this.omegaBps} bps`;
+        if (previewBps) previewBps.textContent = displayValue;
     }
 
     updateRiskPreview() {
         const strategyName = this.getStrategyName(this.selectedStrategy);
         const previewStrategy = document.getElementById('preview-strategy');
         if (previewStrategy) previewStrategy.textContent = strategyName;
+        // Show per-trade risk percent in preview (no bps shown to users)
+        const previewBps = document.getElementById('preview-bps');
+        if (previewBps) {
+            const percent = (parseFloat(this.perStrategyRiskPercent) || 1.0).toFixed(2) + '%';
+            previewBps.textContent = `${percent}`;
+        }
     }
 
     updateActivationSummary() {
@@ -515,7 +625,9 @@ class MandateWizard {
 
         document.getElementById('final-strategy').textContent = strategyName;
         document.getElementById('final-markets').textContent = marketsDisplay;
-        document.getElementById('final-risk').textContent = `${riskDisplay} (${this.omegaBps} bps)`;
+        // Show both monthly cap and per-trade baseline (percent only)
+        const perTrade = (parseFloat(this.perStrategyRiskPercent) || 1.0).toFixed(2) + '%';
+        document.getElementById('final-risk').textContent = `${riskDisplay} monthly cap • Per-trade: ${perTrade}`;
     }
 
     getStrategyName(strategyId) {
@@ -535,6 +647,9 @@ class MandateWizard {
 
         try {
             // Build draft matching backend MandateDraft model
+            // Clamp omega to backend limits before sending
+            const clampedOmega = Math.min(Math.max(parseInt(this.omegaBps, 10) || 500, 1), 1000);
+
             const draft = {
                 portfolio: [{
                     strategy_id: this.selectedStrategy,
@@ -543,16 +658,17 @@ class MandateWizard {
                         broker: 'deriv', // TODO: Get from user's OAuth
                         account_id: 'default' // TODO: Get from user metadata
                     },
-                    adaptive_risk: false
+                    adaptive_risk: !!this.adaptiveRisk
                 }],
                 risk: {
                     per_strategy: {
                         [this.selectedStrategy]: {
-                            risk_per_trade_bps: 100, // Default 1%
-                            max_positions: 3
+                            // Convert the user-facing percent into backend bps for the draft
+                            risk_per_trade_bps: Math.round((parseFloat(this.perStrategyRiskPercent) || 1.0) * 100),
+                            max_positions: parseInt(this.maxPositions, 10) || 3
                         }
                     },
-                    omega_risk_cap_bps: this.omegaBps
+                    omega_risk_cap_bps: clampedOmega
                 }
             };
 
@@ -560,9 +676,10 @@ class MandateWizard {
             const validation = await window.chillaAPI.validateMandate(draft);
             
             if (!validation.valid) {
-                // Show validation errors
-                const errorMsg = validation.errors?.join(', ') || 'Validation failed';
-                throw new Error(errorMsg);
+                // Show validation errors (backend returns warnings/errors array)
+                const errors = validation.errors || validation.warnings || [];
+                const errorMsg = Array.isArray(errors) ? errors.join(', ') : (errors || 'Validation failed');
+                throw new Error(errorMsg || 'Please review the warnings and try again');
             }
 
             // If validation passes, issue the mandate

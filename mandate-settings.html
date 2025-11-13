@@ -193,6 +193,10 @@
                         <span class="detail-value" id="detail-risk-cap">—</span>
                     </div>
                     <div class="detail-row">
+                        <span class="detail-label">Risk per trade</span>
+                        <span class="detail-value" id="detail-per-trade">—</span>
+                    </div>
+                    <div class="detail-row">
                         <span class="detail-label">Status</span>
                         <span class="detail-value" id="detail-status">—</span>
                     </div>
@@ -266,6 +270,14 @@
                     : '—';
 
                 this.setupActionButtons(mandate.id || mandate.mandate_id);
+                // Show per-trade risk if available (support dict/object mandate formats)
+                try {
+                    const per = (mandate.risk && mandate.risk.per_strategy) ? (Object.values(mandate.risk.per_strategy)[0] || {}) : {};
+                    const per_bps = per.risk_per_trade_bps || per.risk_per_trade || null;
+                    document.getElementById('detail-per-trade').textContent = per_bps ? `${per_bps} bps` : '—';
+                } catch (e) {
+                    document.getElementById('detail-per-trade').textContent = '—';
+                }
             }
 
             showNoMandate() {
@@ -280,7 +292,8 @@
             }
 
             handleEdit(mandateId) {
-                alert('Edit functionality coming soon! For now, you can revoke these instructions and create new ones.');
+                // Redirect to the mandate wizard where users can edit and re-issue instructions
+                window.location.href = 'mandate-wizard.html';
             }
 
             async handlePause(mandateId) {

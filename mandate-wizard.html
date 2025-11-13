@@ -106,11 +106,31 @@
                         </div>
                     </div>
                     <div class="risk-slider-container">
-                        <input type="range" id="omega-slider" class="risk-slider" min="100" max="2000" value="500" step="50">
+                        <input type="range" id="omega-slider" class="risk-slider" min="100" max="1000" value="500" step="50">
                         <div class="risk-slider-labels">
                             <span>1%</span>
                             <span class="slider-label-center">Conservative</span>
-                            <span>20%</span>
+                            <span>10%</span>
+                        </div>
+                    </div>
+                    <div class="risk-controls">
+                        <h4>Per-Strategy Risk</h4>
+                        <div class="control-row">
+                            <label for="risk-per-trade">Risk per trade (%)</label>
+                            <input id="risk-per-trade" type="number" min="0.01" max="5.00" value="1.00" step="0.01" required aria-required="true">
+                            <span class="control-hint">Enter a percent (for example: <strong>1.00</strong> = 1%). We'll show this in the review below.</span>
+                        </div>
+                        <div class="control-row">
+                            <p class="info">This is the per-trade risk you choose — Chilla uses this as your baseline. If you enable Adaptive Risk, Chilla may adjust this baseline for individual signals only when you explicitly allow it. These are scenario-only figures to help you understand impact; you stay in control.</p>
+                        </div>
+                        <div class="control-row">
+                            <label for="max-positions">Max positions</label>
+                            <input id="max-positions" type="number" min="1" max="10" value="3" step="1">
+                        </div>
+                        <div class="control-row">
+                            <label for="adaptive-risk-toggle">Adaptive risk</label>
+                            <input id="adaptive-risk-toggle" type="checkbox">
+                            <span class="control-hint">Optional: if enabled, Adaptive will adjust your baseline per-trade risk within your mandate limits (educational scenario only).</span>
                         </div>
                     </div>
                     <div class="risk-explanation">
@@ -122,7 +142,7 @@
                     <div class="risk-preview">
                         <div class="preview-item">
                             <span class="preview-label">Monthly Cap:</span>
-                            <span class="preview-value" id="preview-bps">500 bps</span>
+                            <span class="preview-value" id="preview-bps">5.0%</span>
                         </div>
                         <div class="preview-item">
                             <span class="preview-label">Strategy:</span>
