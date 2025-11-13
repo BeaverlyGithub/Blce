@@ -79,8 +79,8 @@ class MandateWizard {
         const adaptive = document.getElementById('adaptive-risk-toggle');
         const slider = document.getElementById('omega-slider');
 
-        if (riskBps) {
-            riskBps.addEventListener('input', (e) => {
+        if (riskInput) {
+            riskInput.addEventListener('input', (e) => {
                 const v = parseFloat(e.target.value);
                 // Clamp between 0.01% and 5.00%
                 const clamped = Math.min(Math.max(isNaN(v) ? 1.0 : v, 0.01), 5.0);
