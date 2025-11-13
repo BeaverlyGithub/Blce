@@ -190,46 +190,67 @@ class MandateWizard {
     }
 
     renderMarkets() {
-        // Simple market selection - hardcoded common Deriv symbols
-        const markets = {
-            volatility: {
-                name: '⚡ Volatility Indices',
-                symbols: [
-                    { id: '1HZ100V', name: 'Volatility 100' },
-                    { id: '1HZ200V', name: 'Volatility 200' },
-                    { id: '1HZ300V', name: 'Volatility 300' }
-                ]
-            },
-            forex: {
-                name: '💱 Forex Pairs',
-                symbols: [
-                    { id: 'EURUSD', name: 'EUR/USD' },
-                    { id: 'GBPUSD', name: 'GBP/USD' },
-                    { id: 'USDJPY', name: 'USD/JPY' }
-                ]
-            },
-            otc: {
-                name: '📊 OTC Indices',
-                symbols: [
-                    { id: 'OTC_DJI', name: 'OTC DJ Index' },
-                    { id: 'OTC_AUS200', name: 'OTC AUS 200' }
-                ]
-            }
-        };
-
+        // If a strategy is selected and provides compatible_symbols, use those.
+        // Otherwise fall back to the default full market list.
         const container = document.getElementById('markets-container');
         if (!container) return;
 
+        // Helper to classify a symbol into a category for display
+        const classify = (sym) => {
+            if (!sym) return 'other';
+            const s = sym.toUpperCase();
+            if (s.startsWith('1HZ') || s.includes('VOL') || s.includes('VOLAT')) return 'volatility';
+            if (s.startsWith('OTC') || s.startsWith('OTC_')) return 'otc';
+            // crude forex detection (common 6-letter pairs)
+            if (/^[A-Z]{6}$/.test(s)) return 'forex';
+            return 'other';
+        };
+
+        // Build a markets object from either the selected strategy or defaults
+        let markets = {
+            volatility: { name: '⚡ Volatility Indices', symbols: [] },
+            forex: { name: '💱 Forex Pairs', symbols: [] },
+            otc: { name: '📊 OTC Indices', symbols: [] },
+            other: { name: 'Other', symbols: [] }
+        };
+
+        // If a strategy is selected, prefer its compatible_symbols
+        let symbolsToShow = null;
+        if (this.selectedStrategy && Array.isArray(this.strategies) && this.strategies.length) {
+            const strat = this.strategies.find(s => (s.strategy_id || s.id) === this.selectedStrategy);
+            if (strat && Array.isArray(strat.compatible_symbols) && strat.compatible_symbols.length) {
+                symbolsToShow = strat.compatible_symbols.slice();
+            }
+        }
+
+        // Default fallback list when no strategy-specific symbols available
+        if (!symbolsToShow) {
+            symbolsToShow = [
+                '1HZ100V','1HZ200V','1HZ300V',
+                'EURUSD','GBPUSD','USDJPY',
+                'OTC_DJI','OTC_AUS200'
+            ];
+        }
+
+        // Convert to display entries
+        symbolsToShow.forEach(sym => {
+            const category = classify(sym);
+            const name = (category === 'forex' && sym.length === 6)
+                ? `${sym.slice(0,3)}/${sym.slice(3)}`
+                : sym.replace('_', ' ');
+
+            markets[category] = markets[category] || { name: category, symbols: [] };
+            markets[category].symbols.push({ id: sym, name: name });
+        });
+
+        // Render HTML
         container.innerHTML = Object.entries(markets).map(([category, data]) => `
             <div class="market-category">
                 <h3 class="market-category-title">${data.name}</h3>
                 <div class="market-grid">
                     ${data.symbols.map(symbol => `
                         <label class="market-checkbox">
-                            <input type="checkbox" 
-                                   value="${symbol.id}" 
-                                   data-category="${category}"
-                                   onchange="wizard.toggleMarket('${symbol.id}', this.checked)">
+                            <input type="checkbox" value="${symbol.id}" data-category="${category}">
                             <span class="market-name">${symbol.name}</span>
                             <span class="market-id">${symbol.id}</span>
                         </label>
@@ -238,12 +259,27 @@ class MandateWizard {
             </div>
         `).join('');
 
-        // Pre-select popular choice (1HZ100V)
-        const defaultMarket = container.querySelector('input[value="1HZ100V"]');
-        if (defaultMarket) {
-            defaultMarket.checked = true;
-            this.selectedMarkets = ['1HZ100V'];
-            document.getElementById('step-2-next').disabled = false;
+        // Add event listeners for checkboxes (no inline handlers)
+        container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                this.toggleMarket(e.target.value, e.target.checked);
+            });
+        });
+
+        // Pre-select first symbol if none selected yet
+        if (!this.selectedMarkets || this.selectedMarkets.length === 0) {
+            const defaultMarket = container.querySelector('input[value="1HZ100V"]') || container.querySelector('input[type="checkbox"]');
+            if (defaultMarket) {
+                defaultMarket.checked = true;
+                this.selectedMarkets = [defaultMarket.value];
+                const nextBtn = document.getElementById('step-2-next');
+                if (nextBtn) nextBtn.disabled = false;
+            }
+        } else {
+            // Restore checked state from this.selectedMarkets
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (this.selectedMarkets.includes(cb.value)) cb.checked = true;
+            });
         }
     }
 
