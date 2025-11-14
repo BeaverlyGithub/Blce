@@ -142,61 +142,16 @@
             <!-- Main Content -->
             <main class="main-content">
                 <div id="dashboard" class="dashboard">
-                    <!-- Mandate Status Card -->
-                    <div id="mandate-status-card" class="mandate-card">
-                        <div class="mandate-header">
-                            <h2>Execution instructions</h2>
-                            <span id="mandate-status-badge" class="status-badge unauthorized">None</span>
-                        </div>
-                        <div id="mandate-details" class="mandate-details">
-                            <div class="mandate-message" id="mandate-create-target" role="button" tabindex="0" aria-label="Create execution instructions">
-                                <p>No active instructions. <em>[Tap to create]</em></p>
-                            </div>
-                        </div>
-                        <div id="mandate-active-view" class="mandate-active-view hidden">
-                            <div class="mandate-info-grid">
-                                <div class="mandate-info-item">
-                                    <span class="info-label">Strategy</span>
-                                    <span class="info-value" id="mandate-strategy">—</span>
-                                </div>
-                                <div class="mandate-info-item">
-                                    <span class="info-label">Risk Cap</span>
-                                    <span class="info-value" id="mandate-risk-cap">—</span>
-                                </div>
-                            </div>
-                            <div class="omega-usage-container">
-                                <div class="omega-usage-header">
-                                    <span>Omega Cap Usage</span>
-                                    <span id="omega-usage-percent" class="omega-percent">0%</span>
-                                </div>
-                                <div class="omega-progress-ring">
-                                    <svg class="progress-ring" width="120" height="120">
-                                        <defs>
-                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" style="stop-color:#00c853;stop-opacity:1" />
-                                                <stop offset="100%" style="stop-color:#00b0ff;stop-opacity:1" />
-                                            </linearGradient>
-                                        </defs>
-                                        <circle class="progress-ring-circle-bg" cx="60" cy="60" r="54" />
-                                        <circle id="progress-ring-circle" class="progress-ring-circle" cx="60" cy="60" r="54" />
-                                    </svg>
-                                    <div class="progress-ring-center">
-                                        <span id="omega-percent-center" class="percent-value">0%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mandate-actions">
-                                <button id="modify-mandate-btn" class="mandate-action-btn modify-btn">Modify instructions</button>
-                                <button id="revoke-mandate-btn" class="mandate-action-btn revoke-btn">Cancel all instructions</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Broker Connection Status Card -->
+                    <!-- 1. Broker Connection Status Card -->
                     <div id="chilla-activity-status" class="activity-card">
                         <div class="activity-status status-disconnected">
                             <div class="status-header">
                                 <div class="status-title">Not connected yet</div>
+                                <button class="settings-icon-btn" id="broker-settings-btn" aria-label="Broker settings">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
                                 <div class="status-indicator"></div>
                             </div>
                             <div class="status-details">
@@ -207,21 +162,45 @@
                         </div>
                     </div>
 
+                    <!-- 2. Instructions Card -->
+                    <div id="mandate-status-card" class="mandate-card">
+                        <div class="mandate-header">
+                            <h2>Execution instructions</h2>
+                            <button class="settings-icon-btn" id="mandate-settings-btn" aria-label="Instructions settings">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                            <span id="mandate-status-badge" class="status-badge unauthorized">None</span>
+                        </div>
+                        <div id="mandate-details" class="mandate-details">
+                            <div class="mandate-message" id="mandate-create-target" role="button" tabindex="0" aria-label="Create execution instructions">
+                                <p>No active instructions. <em>[Tap to create]</em></p>
+                            </div>
+                        </div>
+                        <div id="mandate-active-view" class="mandate-active-view hidden">
+                            <div class="mandate-info-row">
+                                <span class="info-label">Strategies</span>
+                                <span class="info-value" id="mandate-strategies">—</span>
+                            </div>
+                            <div class="mandate-info-row">
+                                <span class="info-label">Omega risk</span>
+                                <span class="info-value" id="mandate-omega">—</span>
+                            </div>
+                            <div class="mandate-info-row">
+                                <span class="info-label">Adaptive risk</span>
+                                <span class="info-value" id="mandate-adaptive">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Account Balance Card -->
                     <div class="balance-card">
                         <h2>Account Balance</h2>
                         <div class="balance-amount" id="account-balance">$0.00</div>
                     </div>
 
-                    <div class="positions-card">
-                        <h2>Open Positions</h2>
-                        <div class="positions-list" id="positions-list">
-                            <div class="position-item">
-                                <span>Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Decision Feed (ENHANCED) -->
+                    <!-- 4. Live Decisions Card -->
                     <div class="decisions-card">
                         <div class="decisions-header">
                             <h2>Live Decisions</h2>
@@ -237,6 +216,16 @@
                                     </svg>
                                 </div>
                                 <p>Live decisions will show up here once you're connected</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Open Positions Card -->
+                    <div class="positions-card">
+                        <h2>Open Positions</h2>
+                        <div class="positions-list" id="positions-list">
+                            <div class="position-item">
+                                <span>Loading...</span>
                             </div>
                         </div>
                     </div>

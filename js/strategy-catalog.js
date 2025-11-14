@@ -101,31 +101,13 @@ class StrategyCatalog {
         
         this.container.innerHTML = `
             <div class="catalog-header">
-                <h1>Choose Your Strategy</h1>
-                <div class="search-container">
-                    <i data-lucide="search"></i>
-                    <input 
-                        type="text" 
-                        id="strategy-search" 
-                        placeholder="Search strategies..." 
-                        value="${this.searchQuery}"
-                    />
-                </div>
+                <h1>Choose your strategy</h1>
             </div>
             
             <div class="catalog-categories">
                 ${this.renderCategories()}
             </div>
-            
-            <div class="catalog-footer">
-                <button id="continue-with-selection" class="btn-primary" disabled>
-                    Continue
-                </button>
-            </div>
         `;
-        
-        // Initialize Lucide icons
-        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
     
     renderCategories() {
@@ -136,7 +118,7 @@ class StrategyCatalog {
         if (filtered.length === 0) {
             return `
                 <div class="no-results">
-                    <i data-lucide="search-x"></i>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
                     <p>No strategies match "${this.searchQuery}"</p>
                 </div>
             `;
@@ -149,9 +131,11 @@ class StrategyCatalog {
                     <button 
                         class="category-view-all" 
                         data-category="${category.slug}"
+                        aria-label="View all ${category.name} strategies"
                     >
-                        <span>View All</span>
-                        <i data-lucide="chevron-right"></i>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
                     </button>
                 </div>
                 
@@ -175,7 +159,7 @@ class StrategyCatalog {
             >
                 <div class="card-thumbnail">
                     ${this.getStrategyIcon(strategy.id || strategy.strategy_id)}
-                    ${isSelected ? '<div class="selected-badge"><i data-lucide="check-circle"></i></div>' : ''}
+                    ${isSelected ? '<div class="selected-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>' : ''}
                 </div>
                 
                 <div class="card-content">
@@ -184,11 +168,11 @@ class StrategyCatalog {
                     
                     <div class="card-meta">
                         <span class="user-count">
-                            <i data-lucide="users"></i>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             ${this.formatUserCount(strategy.user_count || 0)}
                         </span>
                         <button class="card-info-btn" data-action="expand">
-                            <i data-lucide="info"></i>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                         </button>
                     </div>
                 </div>
@@ -202,14 +186,14 @@ class StrategyCatalog {
         return `
             <div class="card-expanded">
                 <div class="expanded-section">
-                    <h4><i data-lucide="file-text"></i> Full Description</h4>
+                    <h4>Full Description</h4>
                     <p>${strategy.full_description || strategy.description || 'Detailed information coming soon.'}</p>
                 </div>
                 
                 <div class="expanded-section">
-                    <h4><i data-lucide="activity"></i> Historical Metrics (Educational Only)</h4>
+                    <h4>Historical Metrics (Educational Only)</h4>
                     <div class="compliance-notice">
-                        <small><i data-lucide="info"></i> Past performance does not indicate future results. These are educational statistics only.</small>
+                        <small>Past performance does not indicate future results. These are educational statistics only.</small>
                     </div>
                     <div class="performance-stats">
                         <div class="stat">
@@ -232,7 +216,7 @@ class StrategyCatalog {
                 </div>
                 
                 <div class="expanded-section">
-                    <h4><i data-lucide="bar-chart-2"></i> Drawdown Pattern (Backtest)</h4>
+                    <h4>Drawdown Pattern (Backtest)</h4>
                     <canvas id="backtest-chart-${strategy.strategy_id}" class="backtest-chart"></canvas>
                     <div id="backtest-loading-${strategy.strategy_id}" class="backtest-loading">Loading backtest data...</div>
                     <p class="chart-disclaimer"><small>Historical data for educational purposes. Not a recommendation or guarantee of future performance.</small></p>
@@ -254,9 +238,9 @@ class StrategyCatalog {
         // Simple visual trend indicator (replace with actual chart library if needed)
         const trend = strategy.trend || 'up'; // 'up', 'down', 'sideways'
         const icons = {
-            up: '<i data-lucide="trending-up" class="trend-up"></i>',
-            down: '<i data-lucide="trending-down" class="trend-down"></i>',
-            sideways: '<i data-lucide="minus" class="trend-sideways"></i>'
+            up: '<svg class="trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>',
+            down: '<svg class="trend-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>',
+            sideways: '<svg class="trend-sideways" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/></svg>'
         };
         return icons[trend] || icons.up;
     }
@@ -267,7 +251,7 @@ class StrategyCatalog {
     }
     
     getStrategyIcon(strategyId) {
-        return `<i data-lucide="zap"></i>`;
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`;
     }
     
     filterStrategies(query) {
@@ -284,14 +268,6 @@ class StrategyCatalog {
     }
     
     setupEventListeners() {
-        // Search
-        const searchInput = document.getElementById('strategy-search');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchQuery = e.target.value;
-                this.renderCatalog();
-            });
-        }
         
         // Strategy card clicks
         this.container.addEventListener('click', (e) => {

@@ -15,34 +15,67 @@
 /* ==================== Search Bar ==================== */
 .search-container {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     max-width: 500px;
 }
 
-.search-container i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    opacity: 0.5;
-}
-
-.search-container input {
-    width: 100%;
-    padding: 0.875rem 1rem 0.875rem 3rem;
-    font-size: 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+.search-toggle-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.625rem;
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
-.search-container input:focus {
+.search-toggle-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.search-toggle-btn svg {
+    stroke-width: 2;
+}
+
+.search-input-collapsed {
+    width: 0;
+    padding: 0;
+    border: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.search-input-expanded {
+    width: 300px;
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    opacity: 1;
+    pointer-events: all;
+    transition: all 0.3s ease;
+}
+
+.search-input-expanded:focus {
     outline: none;
-    border-color: var(--primary-color, #000);
-    background: #fff;
+    border-color: var(--accent-color);
+    background: var(--bg-primary);
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .search-input-expanded:focus {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
 /* ==================== Category Sections ==================== */
@@ -61,37 +94,42 @@
     margin-bottom: 1rem;
     position: sticky;
     top: 0;
-    background: #fff;
+    background: var(--bg-primary);
     z-index: 10;
     padding: 0.5rem 0;
 }
 
 .category-title {
-    font-size: 1.5rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.9);
+    color: var(--text-primary);
 }
 
 .category-view-all {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: none;
-    border: none;
-    color: var(--primary-color, #000);
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.category-view-all:hover {
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 6px;
     opacity: 0.7;
 }
 
-.category-view-all i {
-    width: 18px;
-    height: 18px;
+.category-view-all:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    opacity: 1;
+    border-color: var(--text-secondary);
+}
+
+.category-view-all svg {
+    stroke-width: 2;
+    width: 20px;
+    height: 20px;
 }
 
 /* ==================== Horizontal Scrolling ==================== */
@@ -125,24 +163,26 @@
 /* ==================== Strategy Cards (Netflix Style) ==================== */
 .strategy-card-netflix {
     flex: 0 0 280px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 1.5px solid transparent;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s ease;
     position: relative;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .strategy-card-netflix:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    border-color: var(--border-color);
 }
 
 .strategy-card-netflix.selected {
-    border-color: var(--primary-color, #000);
-    box-shadow: 0 0 0 2px var(--primary-color, #000);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.15), 0 6px 16px rgba(0, 0, 0, 0.12);
+    background: var(--bg-primary);
 }
 
 .strategy-card-netflix.expanded {
@@ -154,7 +194,7 @@
 .card-thumbnail {
     position: relative;
     height: 140px;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.02) 100%);
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -168,17 +208,18 @@
 
 .selected-badge {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+    top: 0.875rem;
+    right: 0.875rem;
     width: 32px;
     height: 32px;
-    background: var(--primary-color, #000);
+    background: var(--accent-color);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 3px 10px rgba(0, 200, 83, 0.4);
+    animation: scaleIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .selected-badge i {
@@ -202,16 +243,16 @@
 }
 
 .card-title {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: rgba(0, 0, 0, 0.9);
+    color: var(--text-primary);
 }
 
 .card-description {
     font-size: 0.875rem;
     line-height: 1.4;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--text-secondary);
     margin-bottom: 1rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -228,12 +269,12 @@
 .user-count {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    font-size: 0.875rem;
-    color: rgba(0, 0, 0, 0.6);
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
 }
 
-.user-count i {
+.user-count svg {
     width: 16px;
     height: 16px;
 }
@@ -447,7 +488,7 @@
 }
 
 [data-theme="dark"] .card-thumbnail {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
 }
 
 [data-theme="dark"] .card-description,

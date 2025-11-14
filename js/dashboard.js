@@ -1832,10 +1832,9 @@ class ChillaDashboard {
         try {
             const mandate = await window.chillaAPI.getCurrentMandate();
             
-            if (mandate) {
+            if (mandate && mandate.status === 'active') {
                 this.hasActiveMandate = true;
                 this.renderActiveMandateView(mandate);
-                await this.loadOmegaRiskUsage();
             } else {
                 this.hasActiveMandate = false;
                 this.renderEmptyMandateView();
@@ -1861,19 +1860,25 @@ class ChillaDashboard {
         emptyView.classList.add('hidden');
         activeView.classList.remove('hidden');
 
-        // Populate strategy info
-        const strategyEl = document.getElementById('mandate-strategy');
-        const riskCapEl = document.getElementById('mandate-risk-cap');
+        // Populate minimalist info rows
+        const strategiesEl = document.getElementById('mandate-strategies');
+        const omegaEl = document.getElementById('mandate-omega');
+        const adaptiveEl = document.getElementById('mandate-adaptive');
         
-        if (strategyEl) {
+        if (strategiesEl) {
             const strategyCount = mandate.portfolio?.length || 0;
-            const strategies = mandate.portfolio?.map(p => p.strategy_id).join(', ') || 'None';
-            strategyEl.textContent = strategyCount > 0 ? `${strategyCount} active` : 'None';
+            strategiesEl.textContent = strategyCount > 0 ? strategyCount : '0';
         }
         
-        if (riskCapEl) {
+        if (omegaEl) {
             const omegaCap = mandate.risk?.omega_risk_cap_bps || 0;
-            riskCapEl.textContent = omegaCap > 0 ? `${(omegaCap / 100).toFixed(1)}%` : 'None';
+            omegaEl.textContent = omegaCap > 0 ? 'On' : 'Off';
+        }
+        
+        if (adaptiveEl) {
+            // Check if any portfolio item has adaptive_risk enabled
+            const hasAdaptive = mandate.portfolio?.some(p => p.adaptive_risk === true) || false;
+            adaptiveEl.textContent = hasAdaptive ? 'On' : 'Off';
         }
     }
 
@@ -1889,49 +1894,6 @@ class ChillaDashboard {
 
         emptyView.classList.remove('hidden');
         activeView.classList.add('hidden');
-    }
-
-    async loadOmegaRiskUsage() {
-        try {
-            const riskData = await window.chillaAPI.getRiskUsage();
-            
-            if (riskData) {
-                const percentUsed = riskData.percent_used || 0;
-                this.updateOmegaRing(percentUsed);
-            }
-        } catch (error) {
-            console.error('Failed to load omega risk:', error);
-            this.updateOmegaRing(0);
-        }
-    }
-
-    updateOmegaRing(percentUsed) {
-        const percentEl = document.getElementById('omega-usage-percent');
-        const centerPercentEl = document.getElementById('omega-percent-center');
-        const circle = document.getElementById('progress-ring-circle');
-        
-        if (!circle) return;
-
-        // Update text
-        if (percentEl) percentEl.textContent = `${percentUsed.toFixed(1)}%`;
-        if (centerPercentEl) centerPercentEl.textContent = `${percentUsed.toFixed(0)}%`;
-
-        // Animate ring
-        const radius = 54;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (percentUsed / 100) * circumference;
-        
-        circle.style.strokeDasharray = `${circumference} ${circumference}`;
-        circle.style.strokeDashoffset = offset;
-
-        // Color coding
-        if (percentUsed < 50) {
-            circle.style.stroke = '#00c853'; // Green
-        } else if (percentUsed < 80) {
-            circle.style.stroke = '#ffd600'; // Yellow
-        } else {
-            circle.style.stroke = '#ff1744'; // Red
-        }
     }
 
     async handleRevokeMandate() {
@@ -1972,5 +1934,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof MandateManager !== 'undefined') {
         const mandateManager = new MandateManager('mandate-manager');
         console.log('✅ Mandate Manager initialized');
+    }
+    
+    // Settings buttons navigation
+    const brokerSettingsBtn = document.getElementById('broker-settings-btn');
+    const mandateSettingsBtn = document.getElementById('mandate-settings-btn');
+    
+    if (brokerSettingsBtn) {
+        brokerSettingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.location.href = 'broker-settings.html';
+        });
+    }
+    
+    if (mandateSettingsBtn) {
+        mandateSettingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.location.href = 'mandate-settings.html';
+        });
     }
 });

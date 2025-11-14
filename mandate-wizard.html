@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/mandate-wizard.css">
     <link rel="stylesheet" href="css/strategy-catalog.css">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js for backtest visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -61,11 +59,16 @@
             <!-- Step 1: Strategy Selection -->
             <div id="step-1" class="wizard-step active">
                 <div class="step-header">
-                    <h1>Pick a strategy</h1>
-                    <p>Choose a strategy that fits your style. Chilla will execute your instructions accordingly.</p>
+                    <h1>Choose your strategy</h1>
+                    <p>Pick one that fits your style. Chilla will execute accordingly.</p>
                 </div>
                 <!-- Netflix-style Strategy Catalog -->
                 <div id="strategy-catalog"></div>
+                
+                <!-- Fixed Footer for Step 1 -->
+                <div class="wizard-footer-fixed">
+                    <button id="step-1-continue" class="btn-primary" disabled>Continue</button>
+                </div>
             </div>
 
             <!-- Step 2: Market Selection (NEW) -->
@@ -80,7 +83,9 @@
                 <div class="markets-footer">
                     <span id="selected-markets-count" class="markets-count">0 selected</span>
                 </div>
-                <div class="step-actions">
+                
+                <!-- Fixed Footer for Step 2 -->
+                <div class="wizard-footer-fixed">
                     <button id="step-2-back" class="btn-secondary">Back</button>
                     <button id="step-2-next" class="btn-primary" disabled>Continue</button>
                 </div>
@@ -200,7 +205,9 @@
                     </div>
                 </div>
 
-                <div class="step-actions fixed-bottom">
+                
+                <!-- Fixed Footer for Step 3 -->
+                <div class="wizard-footer-fixed">
                     <button id="step-3-back" class="btn-secondary">Back</button>
                     <button id="step-3-next" class="btn-primary">Calculate & Continue</button>
                 </div>
@@ -219,17 +226,17 @@
                     </div>
                 </div>
                 
-                <div class="consent-acceptance fixed-consent">
-                    <div class="consent-checkbox">
-                        <label>
-                            <input type="checkbox" id="consent-accept" class="consent-input">
-                            <span>I have read, understand, and authorize Chilla to execute strictly within my rules</span>
-                        </label>
-                    </div>
-                    <div class="step-actions">
-                        <button id="step-4-back" class="btn-secondary">Back</button>
-                        <button id="step-4-next" class="btn-primary" disabled>Continue</button>
-                    </div>
+                <div class="consent-checkbox-wrapper">
+                    <label class="consent-label">
+                        <input type="checkbox" id="consent-accept" class="consent-input">
+                        <span>I have read, understand, and authorize Chilla to execute strictly within my rules</span>
+                    </label>
+                </div>
+                
+                <!-- Fixed Footer for Step 4 -->
+                <div class="wizard-footer-fixed">
+                    <button id="step-4-back" class="btn-secondary">Back</button>
+                    <button id="step-4-next" class="btn-primary" disabled>Continue</button>
                 </div>
             </div>
 
@@ -289,7 +296,7 @@
                     </div>
                 </div>
                 
-                <div class="step-actions fixed-bottom">
+                <!-- Fixed Footer for Step 5 -->\n                <div class="wizard-footer-fixed">
                     <button id="step-5-back" class="btn-secondary">Back</button>
                     <button id="step-5-activate" class="btn-activate">Activate Chilla</button>
                 </div>
@@ -323,13 +330,5 @@
     <script src="js/api-client.js"></script>
     <script src="js/strategy-catalog.js"></script>
     <script src="js/mandate-wizard.js"></script>
-    <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    </script>
 </body>
 </html>

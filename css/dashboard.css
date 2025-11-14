@@ -330,6 +330,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.75rem;
 }
 
 .status-indicator {
@@ -751,6 +752,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    gap: 0.75rem;
 }
 
 .mandate-header h2 {
@@ -758,6 +760,33 @@
     font-weight: 500;
     color: var(--text-secondary);
     margin: 0;
+    flex: 1;
+}
+
+.settings-icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.settings-icon-btn:hover {
+    background: var(--bg-tertiary);
+    opacity: 1;
+    color: var(--text-primary);
+}
+
+.settings-icon-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
 }
 
 .status-badge {
@@ -1280,12 +1309,16 @@
 }
 
 .mandate-details {
-    padding: 1rem 0;
+    padding: 0;
+}
+
+.mandate-details.hidden {
+    display: none;
 }
 
 .mandate-message {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
     cursor: pointer;
     border-radius: 8px;
     transition: background 0.2s ease;
@@ -1297,7 +1330,8 @@
 
 .mandate-message p {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.9375rem;
+    margin: 0;
 }
 
 .mandate-message em {
@@ -1306,150 +1340,40 @@
 }
 
 .mandate-active-view {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .mandate-active-view.hidden {
     display: none;
 }
 
-.mandate-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.mandate-info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: var(--bg-tertiary);
-    border-radius: 8px;
-}
-
-.info-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-}
-
-.info-value {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-/* Omega Risk Ring */
-.omega-usage-container {
-    margin: 2rem 0;
-    text-align: center;
-}
-
-.omega-usage-header {
+.mandate-info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding: 0 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.omega-usage-header span:first-child {
-    font-size: 0.875rem;
+.mandate-info-row:last-child {
+    border-bottom: none;
+}
+
+.mandate-info-row .info-label {
+    font-size: 0.9375rem;
     color: var(--text-secondary);
 }
 
-.omega-percent {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.omega-progress-ring {
-    position: relative;
-    display: inline-block;
-    margin: 1rem 0;
-}
-
-.progress-ring {
-    transform: rotate(-90deg);
-}
-
-.progress-ring-circle-bg {
-    fill: none;
-    stroke: var(--bg-tertiary);
-    stroke-width: 8;
-}
-
-.progress-ring-circle {
-    fill: none;
-    stroke: url(#gradient);
-    stroke-width: 8;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
-}
-
-.progress-ring-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.percent-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* Mandate Actions */
-.mandate-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-.mandate-action-btn {
-    padding: 0.875rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.875rem;
+.mandate-info-row .info-value {
+    font-size: 0.9375rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.modify-btn {
-    background: var(--bg-tertiary);
     color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-.modify-btn:hover {
-    background: var(--bg-primary);
-    transform: translateY(-1px);
-}
-
-.revoke-btn {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.revoke-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
-    .mandate-info-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .mandate-actions {
-        grid-template-columns: 1fr;
+    .mandate-info-row {
+        padding: 0.625rem 0;
     }
 }

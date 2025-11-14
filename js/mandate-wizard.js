@@ -157,8 +157,6 @@ class MandateWizard {
             const mandate = await window.chillaAPI.getCurrentMandate();
             // Only redirect if there's an active mandate
             return mandate && mandate.status === 'active' ? mandate : null;
-            // Only redirect if there's an active mandate
-            return mandate && mandate.status === 'active' ? mandate : null;
         } catch (error) {
             // No mandate exists - proceed with wizard
             return null;

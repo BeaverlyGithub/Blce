@@ -321,280 +321,8 @@
 
 /* ==================== Risk Setup ==================== */
 .risk-setup {
-    max-width: 700px;
+    max-width: 600px;
     margin: 0 auto;
-    padding-bottom: 100px; /* Space for fixed bottom buttons */
-}
-
-.risk-section {
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.risk-section h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-}
-
-.section-description {
-    color: var(--muted-color);
-    margin-bottom: 2rem;
-    line-height: 1.6;
-}
-
-.risk-input-group {
-    margin-bottom: 1.5rem;
-}
-
-.risk-input-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-}
-
-.risk-input-group input[type="number"] {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s ease;
-}
-
-.risk-input-group input[type="number"]:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-.input-hint {
-    display: block;
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--muted-color);
-    line-height: 1.5;
-}
-
-/* Risk Preview */
-.risk-preview {
-    background: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 2rem;
-}
-
-.risk-preview.hidden {
-    display: none;
-}
-
-.preview-icon {
-    font-size: 2rem;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.preview-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.preview-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-}
-
-.preview-label {
-    font-weight: 500;
-    color: var(--muted-color);
-}
-
-.preview-value {
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-/* Risk Accordion */
-.risk-accordion {
-    background: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.risk-accordion summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    list-style: none;
-}
-
-.risk-accordion summary::-webkit-details-marker {
-    display: none;
-}
-
-.accordion-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--text-color);
-}
-
-.accordion-icon {
-    transition: transform 0.3s ease;
-}
-
-.risk-accordion[open] .accordion-icon {
-    transform: rotate(180deg);
-}
-
-.accordion-content {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-/* Risk Options */
-.risk-option {
-    margin-bottom: 2rem;
-}
-
-.risk-option:last-child {
-    margin-bottom: 0;
-}
-
-.option-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.option-header h4 {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-}
-
-.option-description {
-    font-size: 0.9rem;
-    color: var(--muted-color);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-.option-controls {
-    margin-top: 1rem;
-}
-
-/* Toggle Switch */
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.1);
-    transition: 0.3s;
-    border-radius: 26px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-}
-
-.toggle-switch input:checked + .toggle-slider {
-    background-color: var(--primary-color);
-}
-
-.toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(24px);
-}
-
-/* Slider */
-.slider-container {
-    margin-bottom: 1rem;
-}
-
-.slider-value {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.75rem;
-}
-
-.slider-value span:first-child {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.slider-label {
-    font-size: 0.85rem;
-    color: var(--muted-color);
-}
-
-/* Omega Mode */
-.omega-mode {
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-top: 1rem;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-}
-
-.checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.mode-hint {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--muted-color);
-    margin-left: 2rem;
 }
 
 .risk-visual {
@@ -787,7 +515,6 @@
 .consent-container {
     max-width: 700px;
     margin: 0 auto;
-    padding-bottom: 160px; /* Space for fixed acceptance */
 }
 
 .consent-text {
@@ -795,21 +522,11 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     padding: 1.5rem;
-    max-height: 50vh;
+    max-height: 400px;
     overflow-y: auto;
+    margin-bottom: 1.5rem;
     line-height: 1.7;
     font-size: 0.95rem;
-}
-
-.fixed-consent {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 1.5rem;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-    z-index: 100;
 }
 
 .consent-checkbox {
@@ -817,7 +534,6 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     padding: 1.25rem;
-    margin-bottom: 1rem;
 }
 
 .consent-checkbox label {
@@ -836,12 +552,6 @@
 }
 
 /* ==================== Activation Summary ==================== */
-.activation-content {
-    max-width: 800px;
-    margin: 0 auto;
-    padding-bottom: 100px; /* Space for fixed bottom buttons */
-}
-
 .activation-summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -855,32 +565,23 @@
     border-radius: 16px;
     padding: 1.5rem;
     text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.summary-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .summary-icon {
     font-size: 2.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .summary-label {
     font-size: 0.85rem;
     color: var(--muted-color);
     margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .summary-value {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-color);
-    word-break: break-word;
 }
 
 .activation-cta {
@@ -929,18 +630,6 @@
     gap: 1rem;
     justify-content: center;
     margin-top: 3rem;
-}
-
-.step-actions.fixed-bottom {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 1.5rem;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-    z-index: 100;
-    margin-top: 0;
 }
 
 .btn-primary,
@@ -1036,65 +725,8 @@
     margin-bottom: 1.5rem;
 }
 
-/* ==================== Risk Calculation States ==================== */
-.calculating-state {
-    text-align: center;
-    padding: 2rem;
-}
-
-.calculating-state .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.calculating-state p {
-    color: var(--muted-color);
-    font-size: 0.9rem;
-}
-
-.risk-warning-list {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.warning-item {
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-    line-height: 1.5;
-}
-
-.warning-item:last-child {
-    margin-bottom: 0;
-}
-
-.risk-recommendation {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    font-size: 0.85rem;
-    line-height: 1.5;
-}
-
 /* ==================== Responsive ==================== */
 @media (max-width: 768px) {
-    .wizard-container {
-        padding-bottom: 120px; /* Extra space for fixed buttons on mobile */
-    }
-
     .step-header h1 {
         font-size: 1.5rem;
     }
@@ -1115,53 +747,33 @@
         font-size: 0.75rem;
     }
 
-    .step-actions {
-        flex-direction: column;
+    .risk-circle {
+        width: 160px;
+        height: 160px;
     }
 
-    .step-actions.fixed-bottom {
-        flex-direction: row;
-        gap: 0.75rem;
+    .risk-circle-label {
+        width: 110px;
+        height: 110px;
+    }
+
+    .risk-value {
+        font-size: 1.5rem;
+    }
+
+    .step-actions {
+        flex-direction: column;
     }
 
     .btn-primary,
     .btn-secondary,
     .btn-activate {
         width: 100%;
-        padding: 0.875rem 1.5rem;
     }
 
     .activation-summary {
         grid-template-columns: 1fr;
     }
-
-    .market-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .risk-section {
-        padding: 1.5rem;
-    }
-}
-
-/* ==================== Beta Badge ==================== */
-.beta-badge {
-    display: inline-block;
-    padding: 0.125rem 0.5rem;
-    font-size: 0.625rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0, 0, 0, 0.5);
-    border-radius: 999px;
-    margin-left: 0.5rem;
-    vertical-align: middle;
-}
-
-[data-theme="dark"] .beta-badge {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.5);
 }
 
 /* ==================== Dark Mode Support ==================== */
