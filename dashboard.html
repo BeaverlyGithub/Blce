@@ -141,7 +141,7 @@
             <!-- Main Content -->
             <main class="main-content">
                 <div id="dashboard" class="dashboard">
-                    <!-- Mandate Status Card (NEW) -->
+                    <!-- Mandate Status Card -->
                     <div id="mandate-status-card" class="mandate-card">
                         <div class="mandate-header">
                             <h2>Execution instructions</h2>
@@ -185,12 +185,13 @@
                                 </div>
                             </div>
                             <div class="mandate-actions">
-                                <button id="pause-mandate-btn" class="mandate-action-btn pause-btn">Pause all instructions</button>
+                                <button id="modify-mandate-btn" class="mandate-action-btn modify-btn">Modify instructions</button>
                                 <button id="revoke-mandate-btn" class="mandate-action-btn revoke-btn">Cancel all instructions</button>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Broker Connection Status Card -->
                     <div id="chilla-activity-status" class="activity-card">
                         <div class="activity-status status-disconnected">
                             <div class="status-header">
@@ -292,7 +293,6 @@
     <script src="js/config.js"></script>
     <!-- API client provides window.chillaAPI helpers (connectActivityWS, getCurrentMandate, etc.) -->
     <script src="js/api-client.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/icons-init.js"></script>
 

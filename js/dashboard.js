@@ -119,7 +119,7 @@ class ChillaDashboard {
         // Small delay to ensure DOM is ready
         setTimeout(async () => {
             await this.validateSession();
-            await this.loadMandateStatus(); // NEW: Load mandate on init
+            this.setupEventListeners();
         }, 100);
     }
 
@@ -1793,6 +1793,173 @@ class ChillaDashboard {
                     this.loadDashboardData();
                 }
             }, 30000);
+        }
+    }
+
+    setupEventListeners() {
+        // Tap to create mandate
+        const createTarget = document.getElementById('mandate-create-target');
+        if (createTarget) {
+            createTarget.addEventListener('click', () => {
+                window.location.href = 'mandate-wizard.html';
+            });
+            createTarget.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    window.location.href = 'mandate-wizard.html';
+                }
+            });
+        }
+
+        // Modify mandate button
+        const modifyBtn = document.getElementById('modify-mandate-btn');
+        if (modifyBtn) {
+            modifyBtn.addEventListener('click', () => {
+                window.location.href = 'mandate-settings.html';
+            });
+        }
+
+        // Revoke mandate button
+        const revokeBtn = document.getElementById('revoke-mandate-btn');
+        if (revokeBtn) {
+            revokeBtn.addEventListener('click', () => this.handleRevokeMandate());
+        }
+
+        // Load mandate status on init
+        this.loadMandateStatus();
+    }
+
+    async loadMandateStatus() {
+        try {
+            const mandate = await window.chillaAPI.getCurrentMandate();
+            
+            if (mandate) {
+                this.hasActiveMandate = true;
+                this.renderActiveMandateView(mandate);
+                await this.loadOmegaRiskUsage();
+            } else {
+                this.hasActiveMandate = false;
+                this.renderEmptyMandateView();
+            }
+        } catch (error) {
+            console.error('Failed to load mandate:', error);
+            this.renderEmptyMandateView();
+        }
+    }
+
+    renderActiveMandateView(mandate) {
+        const badge = document.getElementById('mandate-status-badge');
+        const emptyView = document.getElementById('mandate-details');
+        const activeView = document.getElementById('mandate-active-view');
+        
+        if (!badge || !emptyView || !activeView) return;
+
+        // Update badge
+        badge.textContent = 'Active';
+        badge.className = 'status-badge active';
+
+        // Hide empty view, show active view
+        emptyView.classList.add('hidden');
+        activeView.classList.remove('hidden');
+
+        // Populate strategy info
+        const strategyEl = document.getElementById('mandate-strategy');
+        const riskCapEl = document.getElementById('mandate-risk-cap');
+        
+        if (strategyEl) {
+            const strategyCount = mandate.portfolio?.length || 0;
+            const strategies = mandate.portfolio?.map(p => p.strategy_id).join(', ') || 'None';
+            strategyEl.textContent = strategyCount > 0 ? `${strategyCount} active` : 'None';
+        }
+        
+        if (riskCapEl) {
+            const omegaCap = mandate.risk?.omega_risk_cap_bps || 0;
+            riskCapEl.textContent = omegaCap > 0 ? `${(omegaCap / 100).toFixed(1)}%` : 'None';
+        }
+    }
+
+    renderEmptyMandateView() {
+        const badge = document.getElementById('mandate-status-badge');
+        const emptyView = document.getElementById('mandate-details');
+        const activeView = document.getElementById('mandate-active-view');
+        
+        if (!badge || !emptyView || !activeView) return;
+
+        badge.textContent = 'None';
+        badge.className = 'status-badge unauthorized';
+
+        emptyView.classList.remove('hidden');
+        activeView.classList.add('hidden');
+    }
+
+    async loadOmegaRiskUsage() {
+        try {
+            const riskData = await window.chillaAPI.getRiskUsage();
+            
+            if (riskData) {
+                const percentUsed = riskData.percent_used || 0;
+                this.updateOmegaRing(percentUsed);
+            }
+        } catch (error) {
+            console.error('Failed to load omega risk:', error);
+            this.updateOmegaRing(0);
+        }
+    }
+
+    updateOmegaRing(percentUsed) {
+        const percentEl = document.getElementById('omega-usage-percent');
+        const centerPercentEl = document.getElementById('omega-percent-center');
+        const circle = document.getElementById('progress-ring-circle');
+        
+        if (!circle) return;
+
+        // Update text
+        if (percentEl) percentEl.textContent = `${percentUsed.toFixed(1)}%`;
+        if (centerPercentEl) centerPercentEl.textContent = `${percentUsed.toFixed(0)}%`;
+
+        // Animate ring
+        const radius = 54;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (percentUsed / 100) * circumference;
+        
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = offset;
+
+        // Color coding
+        if (percentUsed < 50) {
+            circle.style.stroke = '#00c853'; // Green
+        } else if (percentUsed < 80) {
+            circle.style.stroke = '#ffd600'; // Yellow
+        } else {
+            circle.style.stroke = '#ff1744'; // Red
+        }
+    }
+
+    async handleRevokeMandate() {
+        const confirmed = confirm(
+            '⚠️ Cancel all instructions?\n\n' +
+            'This will immediately stop Chilla from executing any trades.\n\n' +
+            'You can create new instructions anytime.'
+        );
+        
+        if (!confirmed) return;
+
+        const doubleConfirm = confirm(
+            '🚨 Final confirmation\n\n' +
+            'Are you absolutely sure you want to cancel all instructions?'
+        );
+        
+        if (!doubleConfirm) return;
+
+        try {
+            const mandate = await window.chillaAPI.getCurrentMandate();
+            if (mandate) {
+                await window.chillaAPI.revokeMandate(mandate.mandate_id);
+                alert('✓ All instructions cancelled successfully.');
+                await this.loadMandateStatus();
+            }
+        } catch (error) {
+            console.error('Failed to revoke mandate:', error);
+            alert('Failed to cancel instructions. Please try again.');
         }
     }
 }

@@ -1,0 +1,570 @@
+/* Mandate Manager Dashboard Styles */
+
+/* ==================== Dashboard Container ==================== */
+.mandate-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* ==================== Header ==================== */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.header-content h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.header-content p {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.header-actions button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-actions button i {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* ==================== Risk Usage Card ==================== */
+.risk-usage-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.risk-usage-card.healthy {
+    border-left: 4px solid #10b981;
+}
+
+.risk-usage-card.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.risk-usage-card.critical {
+    border-left: 4px solid #ef4444;
+}
+
+.usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.usage-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.usage-header h3 i {
+    width: 24px;
+    height: 24px;
+}
+
+.usage-badge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 999px;
+}
+
+.risk-usage-card.healthy .usage-badge {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.risk-usage-card.warning .usage-badge {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.risk-usage-card.critical .usage-badge {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.usage-chart {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+/* Progress Ring */
+.progress-ring {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.progress-circle {
+    transition: stroke-dasharray 0.5s ease;
+}
+
+.risk-usage-card.healthy .progress-circle {
+    stroke: #10b981;
+}
+
+.risk-usage-card.warning .progress-circle {
+    stroke: #f59e0b;
+}
+
+.risk-usage-card.critical .progress-circle {
+    stroke: #ef4444;
+}
+
+.progress-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.progress-percent {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.progress-text {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Usage Details */
+.usage-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.usage-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.usage-stat:last-child {
+    border-bottom: none;
+}
+
+.usage-stat .stat-label {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.usage-stat .stat-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+/* ==================== Mandate Grid ==================== */
+.mandate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.mandate-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.card-header h3 i {
+    width: 20px;
+    height: 20px;
+}
+
+.card-badge {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.7);
+    border-radius: 999px;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+/* Strategy Items */
+.strategy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.strategy-item:last-child {
+    border-bottom: none;
+}
+
+.strategy-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.strategy-name {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.strategy-markets {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 4px;
+}
+
+.badge.adaptive {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Markets List */
+.markets-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.market-chip {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+/* Risk Settings */
+.risk-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.risk-setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.risk-setting-item:last-child {
+    border-bottom: none;
+}
+
+.risk-setting-item.omega {
+    background: rgba(0, 0, 0, 0.02);
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+    border-radius: 6px;
+    border: none;
+}
+
+.risk-setting-item .setting-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.risk-setting-item .setting-label i {
+    width: 16px;
+    height: 16px;
+}
+
+.risk-setting-item .setting-value {
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+/* Account Items */
+.account-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.account-item:last-child {
+    border-bottom: none;
+}
+
+.account-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+.account-icon i {
+    width: 20px;
+    height: 20px;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.account-broker {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.account-id {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* ==================== Activity Timeline ==================== */
+.activity-timeline {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.activity-timeline h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.activity-timeline h3 i {
+    width: 24px;
+    height: 24px;
+}
+
+.timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.timeline-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timeline-icon.issued {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.timeline-icon.modified {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.timeline-icon i {
+    width: 20px;
+    height: 20px;
+}
+
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.timeline-action {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* ==================== Empty/Error States ==================== */
+.no-mandate,
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.no-mandate i,
+.error-state i {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+.no-mandate h2,
+.error-state h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.no-mandate p,
+.error-state p {
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 2rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem 0;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.875rem;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+    }
+    
+    .header-actions button {
+        flex: 1;
+    }
+    
+    .usage-chart {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .mandate-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== Dark Mode ==================== */
+[data-theme="dark"] .mandate-dashboard,
+[data-theme="dark"] .risk-usage-card,
+[data-theme="dark"] .mandate-card,
+[data-theme="dark"] .activity-timeline {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .header-content h1,
+[data-theme="dark"] .card-header h3,
+[data-theme="dark"] .activity-timeline h3,
+[data-theme="dark"] .strategy-name,
+[data-theme="dark"] .account-broker {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .header-content p,
+[data-theme="dark"] .strategy-markets,
+[data-theme="dark"] .account-id,
+[data-theme="dark"] .timeline-date {
+    color: rgba(255, 255, 255, 0.6);
+}

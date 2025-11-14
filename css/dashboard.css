@@ -574,13 +574,20 @@
 
 .balance-card,
 .earnings-card,
-.positions-card {
+.positions-card,
+.mandate-status-card {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 2rem;
     margin-bottom: 2rem;
     box-shadow: 0 2px 8px var(--shadow-light);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mandate-status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-light);
 }
 
 .balance-card h2,
@@ -1218,5 +1225,231 @@
     .floating-theme-toggle {
         bottom: 8rem;
         right: 1rem;
+    }
+}
+
+/* ==================== Mandate Card ==================== */
+.mandate-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.mandate-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.mandate-header h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.status-badge.unauthorized {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+[data-theme="dark"] .status-badge.active {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+[data-theme="dark"] .status-badge.unauthorized {
+    background: rgba(107, 114, 128, 0.2);
+}
+
+.mandate-details {
+    padding: 1rem 0;
+}
+
+.mandate-message {
+    text-align: center;
+    padding: 2rem 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.mandate-message:hover {
+    background: var(--bg-tertiary);
+}
+
+.mandate-message p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.mandate-message em {
+    color: var(--text-primary);
+    font-style: italic;
+}
+
+.mandate-active-view {
+    display: block;
+}
+
+.mandate-active-view.hidden {
+    display: none;
+}
+
+.mandate-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.mandate-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.info-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Omega Risk Ring */
+.omega-usage-container {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.omega-usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.omega-usage-header span:first-child {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.omega-percent {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.omega-progress-ring {
+    position: relative;
+    display: inline-block;
+    margin: 1rem 0;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle-bg {
+    fill: none;
+    stroke: var(--bg-tertiary);
+    stroke-width: 8;
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+}
+
+.progress-ring-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.percent-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Mandate Actions */
+.mandate-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.mandate-action-btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modify-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.modify-btn:hover {
+    background: var(--bg-primary);
+    transform: translateY(-1px);
+}
+
+.revoke-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.revoke-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .mandate-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mandate-actions {
+        grid-template-columns: 1fr;
     }
 }

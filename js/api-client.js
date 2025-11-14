@@ -230,6 +230,106 @@
             });
         }
 
+        /**
+         * Get user counts per strategy (for "Most Popular")
+         * GET /api/strategies/user-counts
+         * @returns {object} { counts: { strategy_id: user_count } }
+         */
+        async getStrategyUserCounts() {
+            return this.request('/api/strategies/user-counts', {
+                method: 'GET'
+            });
+        }
+
+        /**
+         * Get strategy details including backtest data
+         * GET /api/strategies/{id}
+         * @param {string} strategyId - Strategy ID
+         * @returns {object} Strategy details
+         */
+        async getStrategyDetails(strategyId) {
+            return this.request(`/api/strategies/${strategyId}`, {
+                method: 'GET'
+            });
+        }
+
+        /**
+         * Get backtest results for a strategy
+         * GET /api/strategies/{id}/backtests
+         * @param {string} strategyId - Strategy ID
+         * @param {string} timezone - Timezone (default: UTC)
+         * @param {string} rangeKey - Time range (default: 1y)
+         * @returns {object} Backtest data with charts
+         */
+        async getStrategyBacktests(strategyId, timezone = 'UTC', rangeKey = '1y') {
+            return this.request(`/api/strategies/${strategyId}/backtests?timezone=${timezone}&range_key=${rangeKey}`, {
+                method: 'GET'
+            });
+        }
+
+        /**
+         * Get risk usage tracking (Omega Risk)
+         * GET /api/mandates/risk-usage
+         * @returns {object} Current month risk usage data
+         */
+        async getRiskUsage() {
+            return this.request('/api/mandates/risk-usage', {
+                method: 'GET'
+            });
+        }
+
+        // ==================== Broker Account Management ====================
+
+        /**
+         * Get all connected broker accounts
+         * GET /api/broker-accounts
+         * @returns {object} { accounts: [...] }
+         */
+        async getBrokerAccounts() {
+            return this.request('/api/broker-accounts', {
+                method: 'GET'
+            });
+        }
+
+        /**
+         * Disconnect a broker account
+         * POST /api/broker-accounts/{id}/disconnect
+         * @param {string} accountId - Account ID to disconnect
+         * @returns {object} Success status
+         */
+        async disconnectBrokerAccount(accountId) {
+            return this.request(`/api/broker-accounts/${accountId}/disconnect`, {
+                method: 'POST'
+            });
+        }
+
+        /**
+         * Update strategy assignments for a broker account
+         * PUT /api/broker-accounts/{id}/strategies
+         * @param {string} accountId - Account ID
+         * @param {array} strategyIds - List of strategy IDs to assign
+         * @returns {object} Success status
+         */
+        async updateAccountStrategies(accountId, strategyIds) {
+            return this.request(`/api/broker-accounts/${accountId}/strategies`, {
+                method: 'PUT',
+                body: JSON.stringify({ strategy_ids: strategyIds })
+            });
+        }
+
+        /**
+         * Initiate OAuth flow for broker connection
+         * POST /api/oauth/initiate
+         * @param {string} broker - Broker name (e.g., 'deriv')
+         * @returns {object} { authorization_url }
+         */
+        async initiateOAuth(broker) {
+            return this.request('/api/oauth/initiate', {
+                method: 'POST',
+                body: JSON.stringify({ broker })
+            });
+        }
+
         // ==================== Consent Management ====================
 
         /**

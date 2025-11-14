@@ -7,17 +7,28 @@ class MandateWizard {
         this.totalSteps = 5; // Updated: Added market selection step
         this.selectedStrategy = null;
         this.selectedMarkets = []; // New: User-selected markets
-        this.omegaBps = 500; // Default: 5%
-        this.perStrategyRiskPercent = 1.00; // Default 1.00% per trade (user-facing)
-        this.maxPositions = 3;
+        
+        // Risk parameters (all in user-facing percent, converted to bps for backend)
+        this.perSignalRiskPercent = 1.00; // Default 1.00% per signal (universal across all asset classes)
         this.adaptiveRisk = false;
+        
+        // Omega Risk (optional)
+        this.omegaEnabled = true; // Default: enabled
+        this.omegaCapPercent = 5.0; // Default: 5% monthly cap (user-facing)
+        this.omegaStrictMode = false; // Default: soft-manage (show warnings, allow signals)
+        
+        // Consent
         this.consentAccepted = false;
-        this.strategies = [];
         this.consentText = '';
         this.consentVersion = null; // Backend requires this
         this.consentHash = null; // Backend requires this
         this.jurisdiction = 'US'; // Default jurisdiction
-        this.riskImplications = null; // Risk calculator result
+        
+        // Risk calculation result from backend
+        this.riskImplications = null;
+        
+        // Strategy catalog
+        this.strategies = [];
 
         this.init();
     }
@@ -46,10 +57,21 @@ class MandateWizard {
             }
             console.log('✅ No active instruction found, proceeding with wizard');
 
-            // Load initial data
-            console.log('📊 Loading strategies...');
-            await this.loadStrategies();
-            console.log('✅ Strategies loaded:', this.strategies.length, 'strategies');
+            // Initialize Netflix-style Strategy Catalog
+            console.log('📊 Initializing strategy catalog...');
+            this.strategyCatalog = new StrategyCatalog('strategy-catalog');
+            
+            // Listen for strategy selection from catalog
+            document.getElementById('strategy-catalog').addEventListener('strategy-selected', (e) => {
+                this.selectedStrategy = e.detail.strategy.id || e.detail.strategy.strategy_id;
+                console.log('✅ Strategy selected:', this.selectedStrategy);
+            });
+            
+            // Listen for continue from catalog
+            document.getElementById('strategy-catalog').addEventListener('catalog-continue', (e) => {
+                console.log('➡️ Continuing to markets step');
+                this.goToStep(2); // Go to markets step
+            });
 
             console.log('📜 Loading consent...');
             await this.loadConsent();
@@ -74,34 +96,59 @@ class MandateWizard {
     }
 
     bindRiskInputs() {
-        const riskInput = document.getElementById('risk-per-trade');
-        const maxPos = document.getElementById('max-positions');
+        const riskInput = document.getElementById('risk-per-signal');
         const adaptive = document.getElementById('adaptive-risk-toggle');
-        const slider = document.getElementById('omega-slider');
+        const omegaEnabled = document.getElementById('omega-enabled');
+        const omegaSlider = document.getElementById('omega-slider');
+        const omegaStrict = document.getElementById('omega-strict-mode');
 
+        // Per-signal risk input (percent)
         if (riskInput) {
             riskInput.addEventListener('input', (e) => {
                 const v = parseFloat(e.target.value);
                 // Clamp between 0.01% and 5.00%
                 const clamped = Math.min(Math.max(isNaN(v) ? 1.0 : v, 0.01), 5.0);
-                this.perStrategyRiskPercent = Math.round(clamped * 100) / 100;
+                this.perSignalRiskPercent = Math.round(clamped * 100) / 100;
                 // Keep the field consistent (format to 2 decimals)
-                e.target.value = this.perStrategyRiskPercent.toFixed(2);
+                e.target.value = this.perSignalRiskPercent.toFixed(2);
             });
         }
-        if (maxPos) {
-            maxPos.addEventListener('input', (e) => {
-                const v = parseInt(e.target.value, 10) || 3;
-                this.maxPositions = Math.min(Math.max(v, 1), 10);
-            });
-        }
+
+        // Adaptive risk toggle
         if (adaptive) {
             adaptive.addEventListener('change', (e) => {
                 this.adaptiveRisk = !!e.target.checked;
             });
         }
-        if (slider) {
-            slider.addEventListener('input', (e) => this.updateRiskDisplay(e.target.value));
+
+        // Omega enabled toggle
+        if (omegaEnabled) {
+            omegaEnabled.addEventListener('change', (e) => {
+                this.omegaEnabled = !!e.target.checked;
+                const controls = document.getElementById('omega-controls');
+                if (controls) {
+                    controls.style.display = this.omegaEnabled ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Omega cap slider (percent)
+        if (omegaSlider) {
+            omegaSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                this.omegaCapPercent = value;
+                const displayEl = document.getElementById('omega-display-value');
+                if (displayEl) {
+                    displayEl.textContent = value.toFixed(1) + '%';
+                }
+            });
+        }
+
+        // Omega strict mode
+        if (omegaStrict) {
+            omegaStrict.addEventListener('change', (e) => {
+                this.omegaStrictMode = !!e.target.checked;
+            });
         }
     }
 
@@ -348,10 +395,20 @@ class MandateWizard {
             // Show loading state
             const riskIndicator = document.getElementById('risk-indicator');
             if (riskIndicator) {
-                riskIndicator.innerHTML = '<div class="loading-spinner">Calculating...</div>';
+                riskIndicator.innerHTML = `
+                    <div class="calculating-state">
+                        <div class="loading-spinner"></div>
+                        <p>Calculating your risk profile...</p>
+                    </div>
+                `;
             }
 
+            // Convert percent to bps for backend (1% = 100 bps)
+            const riskPerSignalBps = Math.round((parseFloat(this.perSignalRiskPercent) || 1.0) * 100);
+            const omegaCapBps = this.omegaEnabled ? Math.round((parseFloat(this.omegaCapPercent) || 5.0) * 100) : null;
+
             // Build config matching backend format
+            // Note: max_positions removed - strategy determines position count internally
             const config = {
                 portfolio: [{
                     strategy_id: this.selectedStrategy,
@@ -361,26 +418,90 @@ class MandateWizard {
                 risk: {
                     per_strategy: {
                         [this.selectedStrategy]: {
-                            // Backend expects bps (basis points). Convert from percent.
-                            risk_per_trade_bps: Math.round((parseFloat(this.perStrategyRiskPercent) || 1.0) * 100),
-                            max_positions: parseInt(this.maxPositions, 10) || 3
+                            risk_per_trade_bps: riskPerSignalBps,
+                            max_positions: 5 // Default for backend compatibility, not user-controlled
                         }
                     },
-                    omega_risk_cap_bps: Math.min(parseInt(this.omegaBps, 10) || 500, 1000)
+                    omega_risk_cap_bps: omegaCapBps
                 },
-                omega_enabled: (parseInt(this.omegaBps, 10) || 0) > 0
+                omega_enabled: this.omegaEnabled
             };
+
+            console.log('📊 Sending risk calculation request:', config);
 
             const result = await window.chillaAPI.calculateRiskImplications(config);
             this.riskImplications = result;
 
-            // Show simple traffic light indicator
+            console.log('📊 Risk calculation result:', result);
+
+            // Update risk preview
+            this.displayRiskPreview(result);
+
+            // Show risk implications indicator
             this.displayRiskIndicator(result);
 
         } catch (error) {
-            console.error('Risk calculation failed:', error);
-            // Continue anyway - don't block user
+            console.error('❌ Risk calculation failed:', error);
+            
+            // Show error but don't block progression
+            const indicator = document.getElementById('risk-indicator');
+            if (indicator) {
+                indicator.innerHTML = `
+                    <div class="risk-card" style="background: #fff3cd; color: #856404;">
+                        <div class="risk-icon">
+                            <i data-lucide="alert-triangle"></i>
+                        </div>
+                        <div class="risk-summary">
+                            Unable to calculate risk preview. You can still proceed.
+                        </div>
+                    </div>
+                `;
+                // Re-initialize Lucide icons
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
         }
+    }
+
+    displayRiskPreview(result) {
+        const preview = document.getElementById('risk-preview');
+        if (!preview) return;
+
+        const summary = result.summary || {};
+        const totalSignals = summary.total_expected_positions || 0;
+        const estimatedRisk = summary.estimated_monthly_risk_range || '$0';
+        const riskLevel = result.risk_level || 'moderate';
+
+        // Map risk level to friendly text with Lucide icon class
+        const riskLevelLabels = {
+            'very_low': 'Very Low',
+            'low': 'Low',
+            'moderate': 'Moderate',
+            'high': 'High',
+            'very_high': 'Very High'
+        };
+
+        const riskLevelColors = {
+            'very_low': '#10b981',
+            'low': '#10b981',
+            'moderate': '#f59e0b',
+            'high': '#ef4444',
+            'very_high': '#dc2626'
+        };
+
+        const riskLevelText = riskLevelLabels[riskLevel] || 'Moderate';
+        const riskLevelColor = riskLevelColors[riskLevel] || '#f59e0b';
+
+        // Show preview
+        preview.classList.remove('hidden');
+        document.getElementById('preview-signals').textContent = totalSignals;
+        document.getElementById('preview-monthly-risk').textContent = estimatedRisk;
+        const levelEl = document.getElementById('preview-risk-level');
+        levelEl.textContent = riskLevelText;
+        levelEl.style.color = riskLevelColor;
+        levelEl.style.fontWeight = '600';
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     displayRiskIndicator(result) {
@@ -388,31 +509,54 @@ class MandateWizard {
         if (!indicator) return;
 
         const level = result.risk_level || 'moderate';
-        const worstCase = result.summary?.worst_case_risk_percent || 0;
-        const totalPositions = result.summary?.total_expected_positions || 0;
+        const summary = result.summary || {};
+        const warnings = result.warnings || [];
+        const recommendations = result.recommendations || [];
 
-        const colors = {
-            low: { bg: '#d4edda', text: '#155724', icon: '✅', label: 'Looking Good!' },
-            moderate: { bg: '#fff3cd', text: '#856404', icon: '⚡', label: 'Balanced Risk' },
-            high: { bg: '#f8d7da', text: '#721c24', icon: '⚠️', label: 'High Exposure' },
-            extreme: { bg: '#f5c6cb', text: '#491217', icon: '🚨', label: 'Very High Risk!' }
+        const configs = {
+            very_low: { bg: '#d4edda', text: '#155724', icon: 'check-circle', label: 'Looking Good!' },
+            low: { bg: '#d4edda', text: '#155724', icon: 'check-circle', label: 'Looking Good!' },
+            moderate: { bg: '#fff3cd', text: '#856404', icon: 'zap', label: 'Balanced' },
+            high: { bg: '#f8d7da', text: '#721c24', icon: 'alert-triangle', label: 'Higher Exposure' },
+            very_high: { bg: '#f5c6cb', text: '#491217', icon: 'alert-octagon', label: 'Very High!' }
         };
 
-        const style = colors[level] || colors.moderate;
+        const config = configs[level] || configs.moderate;
 
-        indicator.innerHTML = `
-            <div class="risk-card" style="background: ${style.bg}; color: ${style.text};">
-                <div class="risk-icon">${style.icon}</div>
-                <div class="risk-label">${style.label}</div>
-                <div class="risk-summary">
-                    Expect ~${totalPositions} positions/month. 
-                    Worst-case: ${worstCase.toFixed(1)}% if all trades fail.
+        let html = `
+            <div class="risk-card" style="background: ${config.bg}; color: ${config.text};">
+                <div class="risk-icon">
+                    <i data-lucide="${config.icon}"></i>
                 </div>
-                ${result.warnings && result.warnings.length > 0 ? `
-                    <div class="risk-warning">${result.warnings[0]}</div>
-                ` : ''}
-            </div>
+                <div class="risk-label">${config.label}</div>
+                <div class="risk-summary">
+                    ${result.overall_assessment || 'Your specified allocation is balanced'}
+                </div>
         `;
+
+        // Show warnings if any
+        if (warnings.length > 0) {
+            html += `
+                <div class="risk-warning-list">
+                    ${warnings.map(w => `<div class="warning-item"><i data-lucide="alert-circle" style="width:16px;height:16px;display:inline-block;margin-right:4px;"></i> ${w}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        // Show first recommendation if any
+        if (recommendations.length > 0) {
+            html += `
+                <div class="risk-recommendation">
+                    <i data-lucide="info" style="width:16px;height:16px;display:inline-block;margin-right:4px;"></i> ${recommendations[0]}
+                </div>
+            `;
+        }
+
+        html += `</div>`;
+        indicator.innerHTML = html;
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     async loadConsent() {
@@ -458,23 +602,37 @@ class MandateWizard {
         // Step 3: Risk
         document.getElementById('step-3-back')?.addEventListener('click', () => this.goToStep(2));
         document.getElementById('step-3-next')?.addEventListener('click', async () => {
-            // Validate per-strategy risk before calculating implications
-            const valid = this.validateRiskInputs();
-            if (!valid.ok) {
-                this.showError(valid.message);
-                return;
+            // Update button state
+            const btn = document.getElementById('step-3-next');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Calculating...';
             }
 
-            // Calculate risk implications before moving to consent
-            await this.calculateRiskImplications();
-            this.goToStep(4);
-        });
+            try {
+                // Validate per-strategy risk before calculating implications
+                const valid = this.validateRiskInputs();
+                if (!valid.ok) {
+                    this.showError(valid.message);
+                    return;
+                }
 
-        // Omega slider
-        const slider = document.getElementById('omega-slider');
-        if (slider) {
-            slider.addEventListener('input', (e) => this.updateRiskDisplay(e.target.value));
-        }
+                // Calculate risk implications on backend before moving to consent
+                await this.calculateRiskImplications();
+                
+                // Move to consent step
+                this.goToStep(4);
+            } catch (error) {
+                console.error('Risk calculation error:', error);
+                this.showError('Could not calculate risk. Please try again.');
+            } finally {
+                // Restore button
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Calculate & Continue';
+                }
+            }
+        });
 
         // Step 4: Consent (moved from step 3)
         document.getElementById('step-4-back')?.addEventListener('click', () => this.goToStep(3));
@@ -506,17 +664,16 @@ class MandateWizard {
         }
 
         // Read the input directly to ensure HTML validity
-
-        const riskEl = document.getElementById('risk-per-trade');
+        const riskEl = document.getElementById('risk-per-signal');
         if (!riskEl) return { ok: false, message: 'Risk input not found' };
 
         const value = parseFloat(riskEl.value);
         if (isNaN(value) || value < 0.01 || value > 5.0) {
-            return { ok: false, message: 'Please enter a per-trade risk between 0.01% and 5.00%.' };
+            return { ok: false, message: 'Please enter a per-signal risk between 0.01% and 5.00%.' };
         }
 
         // Update internal state from validated input
-        this.perStrategyRiskPercent = Math.round(value * 100) / 100;
+        this.perSignalRiskPercent = Math.round(value * 100) / 100;
 
         return { ok: true };
     }
@@ -527,8 +684,6 @@ class MandateWizard {
         // Update step data before transition
         if (stepNumber === 2) {
             this.renderMarkets(); // NEW: Render market selection
-        } else if (stepNumber === 3) {
-            this.updateRiskPreview();
         } else if (stepNumber === 5) {
             this.updateActivationSummary();
         }
@@ -581,53 +736,32 @@ class MandateWizard {
         });
     }
 
-    updateRiskDisplay(bps) {
-        this.omegaBps = parseInt(bps);
 
-        // Update circular progress
-        const percent = (this.omegaBps / 1000) * 100;
-        const fill = document.getElementById('risk-circle-fill');
-        if (fill) {
-            fill.style.background = `conic-gradient(
-                var(--primary-color) ${percent}%, 
-                var(--muted-bg) ${percent}%
-            )`;
-        }
-
-        // Update display value (monthly cap)
-        const displayValue = (this.omegaBps / 100).toFixed(1) + '%';
-        const displayEl = document.getElementById('risk-display-value');
-        if (displayEl) displayEl.textContent = displayValue;
-
-        // Update preview (show percent only, not bps)
-        const previewBps = document.getElementById('preview-bps');
-        if (previewBps) previewBps.textContent = displayValue;
-    }
-
-    updateRiskPreview() {
-        const strategyName = this.getStrategyName(this.selectedStrategy);
-        const previewStrategy = document.getElementById('preview-strategy');
-        if (previewStrategy) previewStrategy.textContent = strategyName;
-        // Show per-trade risk percent in preview (no bps shown to users)
-        const previewBps = document.getElementById('preview-bps');
-        if (previewBps) {
-            const percent = (parseFloat(this.perStrategyRiskPercent) || 1.0).toFixed(2) + '%';
-            previewBps.textContent = `${percent}`;
-        }
-    }
 
     updateActivationSummary() {
         const strategyName = this.getStrategyName(this.selectedStrategy);
-        const riskDisplay = (this.omegaBps / 100).toFixed(1) + '%';
+        
+        // Markets display
         const marketsDisplay = this.selectedMarkets.length > 3 
             ? `${this.selectedMarkets.slice(0, 3).join(', ')} +${this.selectedMarkets.length - 3} more`
             : this.selectedMarkets.join(', ');
 
+        // Per-signal risk display
+        const perSignalRisk = (parseFloat(this.perSignalRiskPercent) || 1.0).toFixed(2) + '%';
+
+        // Monthly cap display
+        const monthlyCap = this.omegaEnabled 
+            ? `${this.omegaCapPercent.toFixed(1)}% ${this.omegaStrictMode ? '(strict)' : '(soft-manage)'}`
+            : 'Not set';
+
+        // Update DOM
         document.getElementById('final-strategy').textContent = strategyName;
         document.getElementById('final-markets').textContent = marketsDisplay;
-        // Show both monthly cap and per-trade baseline (percent only)
-        const perTrade = (parseFloat(this.perStrategyRiskPercent) || 1.0).toFixed(2) + '%';
-        document.getElementById('final-risk').textContent = `${riskDisplay} monthly cap • Per-trade: ${perTrade}`;
+        document.getElementById('final-per-signal-risk').textContent = perSignalRisk;
+        document.getElementById('final-monthly-cap').textContent = monthlyCap;
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     getStrategyName(strategyId) {
@@ -646,10 +780,20 @@ class MandateWizard {
         activateBtn.textContent = 'Activating...';
 
         try {
-            // Build draft matching backend MandateDraft model
-            // Clamp omega to backend limits before sending
-            const clampedOmega = Math.min(Math.max(parseInt(this.omegaBps, 10) || 500, 1), 1000);
+            // Convert percent to bps for backend (1% = 100 bps)
+            const riskPerSignalBps = Math.round((parseFloat(this.perSignalRiskPercent) || 1.0) * 100);
+            const omegaCapBps = this.omegaEnabled 
+                ? Math.round((parseFloat(this.omegaCapPercent) || 5.0) * 100)
+                : 500; // Default 5% if omega disabled
 
+            console.log('📝 Building mandate draft:', {
+                perSignalRiskPercent: this.perSignalRiskPercent,
+                riskPerSignalBps: riskPerSignalBps,
+                omegaCapPercent: this.omegaCapPercent,
+                omegaCapBps: omegaCapBps
+            });
+
+            // Build draft matching backend MandateDraft model
             const draft = {
                 portfolio: [{
                     strategy_id: this.selectedStrategy,
@@ -663,23 +807,26 @@ class MandateWizard {
                 risk: {
                     per_strategy: {
                         [this.selectedStrategy]: {
-                            // Convert the user-facing percent into backend bps for the draft
-                            risk_per_trade_bps: Math.round((parseFloat(this.perStrategyRiskPercent) || 1.0) * 100),
-                            max_positions: parseInt(this.maxPositions, 10) || 3
+                            risk_per_trade_bps: riskPerSignalBps,
+                            max_positions: 5  // Backend default, not user-controlled (belongs to strategy design)
                         }
                     },
-                    omega_risk_cap_bps: clampedOmega
+                    omega_risk_cap_bps: omegaCapBps
                 }
             };
 
+            console.log('📝 Draft payload:', JSON.stringify(draft, null, 2));
+
             // First validate the mandate draft
+            console.log('🔍 Validating draft...');
             const validation = await window.chillaAPI.validateMandate(draft);
+            console.log('🔍 Validation result:', validation);
             
             if (!validation.valid) {
                 // Show validation errors (backend returns warnings/errors array)
                 const errors = validation.errors || validation.warnings || [];
                 const errorMsg = Array.isArray(errors) ? errors.join(', ') : (errors || 'Validation failed');
-                throw new Error(errorMsg || 'Please review the warnings and try again');
+                throw new Error(errorMsg || 'Please review your settings and try again');
             }
 
             // If validation passes, issue the mandate
@@ -691,12 +838,14 @@ class MandateWizard {
                 jurisdiction: this.jurisdiction
             };
 
-            await window.chillaAPI.issueMandate(issuePayload);
+            console.log('🚀 Issuing mandate...');
+            const result = await window.chillaAPI.issueMandate(issuePayload);
+            console.log('✅ Mandate issued:', result);
 
             // Show success screen
             this.showSuccess();
         } catch (error) {
-            console.error('Activation failed:', error);
+            console.error('❌ Activation failed:', error);
             this.showError(error.message || 'Could not activate Chilla — please try again');
 
             // Re-enable button
