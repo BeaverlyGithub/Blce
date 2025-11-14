@@ -11,6 +11,11 @@
     <title>Get Started - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/mandate-wizard.css">
+    <link rel="stylesheet" href="css/strategy-catalog.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for backtest visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -59,16 +64,8 @@
                     <h1>Pick a strategy</h1>
                     <p>Choose a strategy that fits your style. Chilla will execute your instructions accordingly.</p>
                 </div>
-                <div id="strategy-grid" class="strategy-grid">
-                    <!-- Strategies loaded dynamically -->
-                    <div class="strategy-card loading">
-                        <div class="loading-shimmer"></div>
-                        <div class="loading-text">Loading strategies...</div>
-                    </div>
-                </div>
-                <div class="step-actions">
-                    <button id="step-1-next" class="btn-primary" disabled>Continue</button>
-                </div>
+                <!-- Netflix-style Strategy Catalog -->
+                <div id="strategy-catalog"></div>
             </div>
 
             <!-- Step 2: Market Selection (NEW) -->
@@ -92,67 +89,120 @@
             <!-- Step 3: Risk Setup (previously Step 2) -->
             <div id="step-3" class="wizard-step">
                 <div class="step-header">
-                    <h1>Set your limits</h1>
-                    <p>How much risk are you comfortable with? Use the slider to set your max risk boundary (Omega Cap).</p>
+                    <h1>Set your risk</h1>
+                    <p>How much are you willing to put at risk per signal? Set your baseline below.</p>
                 </div>
                 <div class="risk-setup">
-                    <div class="risk-visual">
-                        <div class="risk-circle">
-                            <div class="risk-circle-fill" id="risk-circle-fill"></div>
-                            <div class="risk-circle-label">
-                                <div class="risk-value" id="risk-display-value">5%</div>
-                                <div class="risk-label">Monthly Cap</div>
+                    <!-- Per-Strategy Risk (Primary Section) -->
+                    <div class="risk-section">
+                        <h3>Per-signal risk</h3>
+                        <p class="section-description">How much you're willing to risk on each signal.</p>
+                        
+                        <div class="risk-input-group">
+                            <label for="risk-per-signal">Risk per signal (%)</label>
+                            <input 
+                                id="risk-per-signal" 
+                                type="number" 
+                                min="0.01" 
+                                max="5.00" 
+                                value="1.00" 
+                                step="0.01" 
+                                placeholder="1.00"
+                                required 
+                                aria-required="true">
+                            <span class="input-hint">Enter 0.01 to 5.00 (for example: <strong>1.00</strong> = 1% per signal)</span>
+                        </div>
+
+                        <!-- Risk Preview (shown after calculation) -->
+                        <div id="risk-preview" class="risk-preview hidden">
+                            <div class="preview-icon">
+                                <i data-lucide="bar-chart-2"></i>
+                            </div>
+                            <div class="preview-content">
+                                <div class="preview-item">
+                                    <span class="preview-label">Expected monthly signals:</span>
+                                    <span class="preview-value" id="preview-signals">—</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="preview-label">Estimated monthly risk:</span>
+                                    <span class="preview-value" id="preview-monthly-risk">—</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="preview-label">Risk level:</span>
+                                    <span class="preview-value" id="preview-risk-level">—</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="risk-slider-container">
-                        <input type="range" id="omega-slider" class="risk-slider" min="100" max="1000" value="500" step="50">
-                        <div class="risk-slider-labels">
-                            <span>1%</span>
-                            <span class="slider-label-center">Conservative</span>
-                            <span>10%</span>
+
+                    <!-- Optional Settings (Accordion) -->
+                    <details class="risk-accordion">
+                        <summary>
+                            <span class="accordion-title">Optional: Advanced risk controls</span>
+                            <span class="accordion-icon">▼</span>
+                        </summary>
+                        
+                        <div class="accordion-content">
+                            <!-- Omega Risk Cap -->
+                            <div class="risk-option">
+                                <div class="option-header">
+                                    <h4>Omega Risk Cap</h4>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="omega-enabled" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <p class="option-description">Set a monthly risk budget for tracking. Your per-signal risk stays the same — Omega doesn't reduce it. When the monthly cap is reached, you'll see warnings (soft-cap) or execution will pause (strict mode).</p>
+                                
+                                <div id="omega-controls" class="option-controls">
+                                    <div class="slider-container">
+                                        <input 
+                                            type="range" 
+                                            id="omega-slider" 
+                                            class="risk-slider" 
+                                            min="1" 
+                                            max="10" 
+                                            value="5" 
+                                            step="0.5">
+                                        <div class="slider-value">
+                                            <span id="omega-display-value">5.0%</span>
+                                            <span class="slider-label">monthly cap</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="omega-mode">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="omega-strict-mode">
+                                            <span>Strict mode (pause at cap)</span>
+                                        </label>
+                                        <span class="mode-hint">Default: Soft-manage (shows warnings, signals continue)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Adaptive Risk -->
+                            <div class="risk-option">
+                                <div class="option-header">
+                                    <h4>Adaptive Risk <span class="beta-badge">BETA</span></h4>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="adaptive-risk-toggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <p class="option-description">Adaptive Risk adjusts position size automatically using fixed rules based on market volatility. It is a mechanical setting and does not make personalized recommendations or change risk based on your results.</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="risk-controls">
-                        <h4>Per-Strategy Risk</h4>
-                        <div class="control-row">
-                            <label for="risk-per-trade">Risk per trade (%)</label>
-                            <input id="risk-per-trade" type="number" min="0.01" max="5.00" value="1.00" step="0.01" required aria-required="true">
-                            <span class="control-hint">Enter a percent (for example: <strong>1.00</strong> = 1%). We'll show this in the review below.</span>
-                        </div>
-                        <div class="control-row">
-                            <p class="info">This is the per-trade risk you choose — Chilla uses this as your baseline. If you enable Adaptive Risk, Chilla may adjust this baseline for individual signals only when you explicitly allow it. These are scenario-only figures to help you understand impact; you stay in control.</p>
-                        </div>
-                        <div class="control-row">
-                            <label for="max-positions">Max positions</label>
-                            <input id="max-positions" type="number" min="1" max="10" value="3" step="1">
-                        </div>
-                        <div class="control-row">
-                            <label for="adaptive-risk-toggle">Adaptive risk</label>
-                            <input id="adaptive-risk-toggle" type="checkbox">
-                            <span class="control-hint">Optional: if enabled, Adaptive will adjust your baseline per-trade risk within your mandate limits (educational scenario only).</span>
-                        </div>
-                    </div>
-                    <div class="risk-explanation">
-                        <p>This is your <strong>Omega Cap</strong> — your max risk boundary per month. If this limit is reached, execution pauses until the next month.</p>
-                    </div>
+                    </details>
+
+                    <!-- Risk Implications (calculated on backend) -->
                     <div id="risk-indicator" class="risk-indicator">
-                        <!-- Risk implications shown here after calculation -->
-                    </div>
-                    <div class="risk-preview">
-                        <div class="preview-item">
-                            <span class="preview-label">Monthly Cap:</span>
-                            <span class="preview-value" id="preview-bps">5.0%</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Strategy:</span>
-                            <span class="preview-value" id="preview-strategy">—</span>
-                        </div>
+                        <!-- Populated after backend calculation -->
                     </div>
                 </div>
-                <div class="step-actions">
+
+                <div class="step-actions fixed-bottom">
                     <button id="step-3-back" class="btn-secondary">Back</button>
-                    <button id="step-3-next" class="btn-primary">Continue</button>
+                    <button id="step-3-next" class="btn-primary">Calculate & Continue</button>
                 </div>
             </div>
 
@@ -160,23 +210,26 @@
             <div id="step-4" class="wizard-step">
                 <div class="step-header">
                     <h1>Quick legal summary</h1>
-                    <p>Read and accept the consent to proceed.</p>
+                    <p>Read and accept the disclosures to proceed.</p>
                 </div>
                 <div class="consent-container">
                     <div id="consent-text" class="consent-text">
                         <div class="loading-shimmer"></div>
-                        <p>In plain terms, this page explains what Chilla will do with your instructions, the limits you set, and how to change or revoke those instructions. Read the full terms if you want more detail.</p>
+                        <p>In plain terms, this explains what Chilla will do with your instructions, the limits you set, and how to change or revoke those instructions.</p>
                     </div>
+                </div>
+                
+                <div class="consent-acceptance fixed-consent">
                     <div class="consent-checkbox">
                         <label>
                             <input type="checkbox" id="consent-accept" class="consent-input">
-                            <span>I have read and accept the terms above</span>
+                            <span>I have read, understand, and authorize Chilla to execute strictly within my rules</span>
                         </label>
                     </div>
-                </div>
-                <div class="step-actions">
-                    <button id="step-4-back" class="btn-secondary">Back</button>
-                    <button id="step-4-next" class="btn-primary" disabled>Continue</button>
+                    <div class="step-actions">
+                        <button id="step-4-back" class="btn-secondary">Back</button>
+                        <button id="step-4-next" class="btn-primary" disabled>Continue</button>
+                    </div>
                 </div>
             </div>
 
@@ -184,42 +237,59 @@
             <div id="step-5" class="wizard-step">
                 <div class="step-header">
                     <h1>You're all set!</h1>
-                    <p>Review your choices and activate Chilla. You can change these anytime.</p>
+                    <p>Review your selections and activate Chilla. You can change these anytime.</p>
                 </div>
-                <div class="activation-summary">
-                    <div class="summary-card">
-                        <div class="summary-icon" aria-hidden="true"></div>
-                        <div class="summary-item">
-                            <div class="summary-label">Strategy</div>
-                            <div class="summary-value" id="final-strategy">—</div>
+                <div class="activation-content">
+                    <div class="activation-summary">
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="zap"></i>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Strategy</div>
+                                <div class="summary-value" id="final-strategy">—</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon" aria-hidden="true"></div>
-                        <div class="summary-item">
-                            <div class="summary-label">Markets</div>
-                            <div class="summary-value" id="final-markets">—</div>
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="trending-up"></i>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Markets</div>
+                                <div class="summary-value" id="final-markets">—</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon" aria-hidden="true"></div>
-                        <div class="summary-item">
-                            <div class="summary-label">Risk Cap</div>
-                            <div class="summary-value" id="final-risk">—</div>
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="target"></i>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Per-signal risk</div>
+                                <div class="summary-value" id="final-per-signal-risk">—</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon" aria-hidden="true"></div>
-                        <div class="summary-item">
-                            <div class="summary-label">Consent</div>
-                            <div class="summary-value">Accepted</div>
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="shield"></i>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Monthly cap</div>
+                                <div class="summary-value" id="final-monthly-cap">—</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Disclosures</div>
+                                <div class="summary-value">Accepted</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="activation-cta">
-                    <p>Ready to automate with Chilla?</p>
-                </div>
-                <div class="step-actions">
+                
+                <div class="step-actions fixed-bottom">
                     <button id="step-5-back" class="btn-secondary">Back</button>
                     <button id="step-5-activate" class="btn-activate">Activate Chilla</button>
                 </div>
@@ -251,6 +321,15 @@
 
     <script src="js/config.js"></script>
     <script src="js/api-client.js"></script>
+    <script src="js/strategy-catalog.js"></script>
     <script src="js/mandate-wizard.js"></script>
+    <script>
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -11,6 +11,7 @@
     <title>Dashboard - Chilla by Beaverly</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/mandate-manager.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
@@ -141,55 +142,8 @@
             <!-- Main Content -->
             <main class="main-content">
                 <div id="dashboard" class="dashboard">
-                    <!-- Mandate Status Card (NEW) -->
-                    <div id="mandate-status-card" class="mandate-card">
-                        <div class="mandate-header">
-                            <h2>Execution instructions</h2>
-                            <span id="mandate-status-badge" class="status-badge unauthorized">None</span>
-                        </div>
-                        <div id="mandate-details" class="mandate-details">
-                            <div class="mandate-message" id="mandate-create-target" role="button" tabindex="0" aria-label="Create execution instructions">
-                                <p>No active instructions. <em>[Tap to create]</em></p>
-                            </div>
-                        </div>
-                        <div id="mandate-active-view" class="mandate-active-view hidden">
-                            <div class="mandate-info-grid">
-                                <div class="mandate-info-item">
-                                    <span class="info-label">Strategy</span>
-                                    <span class="info-value" id="mandate-strategy">—</span>
-                                </div>
-                                <div class="mandate-info-item">
-                                    <span class="info-label">Risk Cap</span>
-                                    <span class="info-value" id="mandate-risk-cap">—</span>
-                                </div>
-                            </div>
-                            <div class="omega-usage-container">
-                                <div class="omega-usage-header">
-                                    <span>Omega Cap Usage</span>
-                                    <span id="omega-usage-percent" class="omega-percent">0%</span>
-                                </div>
-                                <div class="omega-progress-ring">
-                                    <svg class="progress-ring" width="120" height="120">
-                                        <defs>
-                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" style="stop-color:#00c853;stop-opacity:1" />
-                                                <stop offset="100%" style="stop-color:#00b0ff;stop-opacity:1" />
-                                            </linearGradient>
-                                        </defs>
-                                        <circle class="progress-ring-circle-bg" cx="60" cy="60" r="54" />
-                                        <circle id="progress-ring-circle" class="progress-ring-circle" cx="60" cy="60" r="54" />
-                                    </svg>
-                                    <div class="progress-ring-center">
-                                        <span id="omega-percent-center" class="percent-value">0%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mandate-actions">
-                                <button id="pause-mandate-btn" class="mandate-action-btn pause-btn">Pause all instructions</button>
-                                <button id="revoke-mandate-btn" class="mandate-action-btn revoke-btn">Cancel all instructions</button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Mandate Manager Component (Netflix-style) -->
+                    <div id="mandate-manager"></div>
 
                     <div id="chilla-activity-status" class="activity-card">
                         <div class="activity-status status-disconnected">
@@ -293,6 +247,7 @@
     <!-- API client provides window.chillaAPI helpers (connectActivityWS, getCurrentMandate, etc.) -->
     <script src="js/api-client.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="js/mandate-manager.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/icons-init.js"></script>
 
