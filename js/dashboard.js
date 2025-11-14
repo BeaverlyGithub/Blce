@@ -1967,4 +1967,10 @@ class ChillaDashboard {
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new ChillaDashboard();
+    
+    // Initialize Mandate Manager
+    if (typeof MandateManager !== 'undefined') {
+        const mandateManager = new MandateManager('mandate-manager');
+        console.log('✅ Mandate Manager initialized');
+    }
 });
