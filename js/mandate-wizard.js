@@ -10,6 +10,8 @@ class MandateWizard {
         
         // Risk parameters (all in user-facing percent, converted to bps for backend)
         this.perSignalRiskPercent = 1.00; // Default 1.00% per signal (universal across all asset classes)
+        this.riskCalculated = false; // flag: has user calculated risk preview for current settings
+        this._riskCalcTimer = null; // debounce timer
         this.adaptiveRisk = false;
         
         // Omega Risk (optional)
@@ -118,6 +120,9 @@ class MandateWizard {
                 // Update display
                 const displayEl = document.getElementById('risk-display-value');
                 if (displayEl) displayEl.textContent = `${this.perSignalRiskPercent.toFixed(2)}%`;
+                // Changing the slider invalidates previously-calculated results
+                this.riskCalculated = false;
+                this.updateFooter();
             });
         }
 
@@ -149,6 +154,17 @@ class MandateWizard {
                 if (displayEl) {
                     displayEl.textContent = value.toFixed(1) + '%';
                 }
+                // Scheduling a recalculation when Omega changes — gives a quick preview
+                if (this._riskCalcTimer) clearTimeout(this._riskCalcTimer);
+                    this._riskCalcTimer = setTimeout(async () => {
+                        try {
+                            await this.calculateRiskImplications();
+                            this.riskCalculated = true;
+                            this.updateFooter();
+                        } catch (err) {
+                            console.error('Omega calculation failed', err);
+                        }
+                    }, 700);
             });
         }
 
@@ -196,9 +212,20 @@ class MandateWizard {
                     this.showError(valid.message);
                     return;
                 }
-                // Save has no backend action yet; just provide quick feedback
-                saveBtn.textContent = 'Saved';
-                setTimeout(() => saveBtn.textContent = 'Save', 1500);
+
+                // Run calculation (Save triggers the calculation) and enable continue after success.
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Calculating...';
+                this.calculateRiskImplications().then(() => {
+                    this.riskCalculated = true;
+                    this.updateFooter();
+                    saveBtn.textContent = 'Saved';
+                    setTimeout(() => saveBtn.textContent = 'Save', 1500);
+                }).catch(() => {
+                    this.showError('Unable to calculate risk. Please try again.');
+                }).finally(() => {
+                    saveBtn.disabled = false;
+                });
             });
         }
     }
@@ -484,6 +511,10 @@ class MandateWizard {
             const result = await window.chillaAPI.calculateRiskImplications(config);
             this.riskImplications = result;
 
+            // After successful calculation, mark as calculated — this allows continue
+            this.riskCalculated = true;
+            this.updateFooter();
+
             console.log('📊 Risk calculation result:', result);
 
             // Update risk preview
@@ -495,6 +526,9 @@ class MandateWizard {
         } catch (error) {
             console.error('❌ Risk calculation failed:', error);
             
+                // Ensure riskCalculated remains false on failure
+                this.riskCalculated = false;
+                this.updateFooter();
             // Show error but don't block progression
             const indicator = document.getElementById('risk-indicator');
             if (indicator) {
@@ -669,24 +703,12 @@ class MandateWizard {
             }
 
             if (this.currentStep === 3) {
-                // Calculate risk 
-                if (wizardAction) {
-                    wizardAction.disabled = true;
-                    wizardAction.textContent = 'Calculating...';
+                // Continue available only after a calculation (Save or Omega set). Do not auto-calculate here.
+                if (!this.riskCalculated) {
+                    this.showError('Please save or set risk to calculate before continuing.');
+                    return;
                 }
-                try {
-                    const valid = this.validateRiskInputs();
-                    if (!valid.ok) return this.showError(valid.message);
-                    await this.calculateRiskImplications();
-                    this.goToStep(4);
-                } catch (err) {
-                    this.showError('Could not calculate risk. Please try again.');
-                } finally {
-                    if (wizardAction) {
-                        wizardAction.disabled = false;
-                        wizardAction.textContent = 'Calculate & Continue';
-                    }
-                }
+                this.goToStep(4);
                 return;
             }
 
@@ -825,8 +847,9 @@ class MandateWizard {
                 wizardAction.disabled = this.selectedMarkets.length === 0;
                 break;
             case 3:
-                wizardAction.textContent = 'Calculate & Continue';
-                wizardAction.disabled = false;
+                // Step 3 requires a save / calculation before continuing.
+                wizardAction.textContent = 'Continue';
+                wizardAction.disabled = !this.riskCalculated;
                 break;
             case 4:
                 wizardAction.textContent = 'Continue';
