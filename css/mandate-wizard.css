@@ -604,6 +604,10 @@
     margin: 0 auto;
 }
 
+/* Reduce large spacing for consent page so content sits higher on the screen */
+#step-4 .step-header { margin-bottom: 1rem; }
+#step-4 .consent-container { margin-top: 0.25rem; }
+
 .consent-text {
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -636,6 +640,15 @@
     height: 20px;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+/* Make the consent checkbox match the app's primary text color (black) */
+.consent-input {
+    accent-color: #000000; /* modern browsers */
+}
+
+.consent-checkbox-wrapper .consent-label span {
+    color: var(--text-color); /* ensure the label text is dark */
 }
 
 /* ==================== Activation Summary ==================== */

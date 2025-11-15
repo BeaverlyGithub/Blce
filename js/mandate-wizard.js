@@ -714,14 +714,10 @@ class MandateWizard {
         // Global footer actions
         const wizardBack = document.getElementById('wizard-back');
         const wizardAction = document.getElementById('wizard-action');
-        const wizardCancel = document.getElementById('wizard-cancel');
-
+        // Global footer actions
+        // Note: cancel removed from the UI as it's redundant
+        // const wizardCancel = document.getElementById('wizard-cancel');
         wizardBack?.addEventListener('click', () => this.goToStep(this.currentStep - 1));
-
-        wizardCancel?.addEventListener('click', () => {
-            // Cancel the wizard and return to dashboard
-            window.location.href = 'dashboard.html';
-        });
 
         wizardAction?.addEventListener('click', async () => {
             if (this.currentStep === 1) {
@@ -864,15 +860,13 @@ class MandateWizard {
     updateFooter() {
         const wizardBack = document.getElementById('wizard-back');
         const wizardAction = document.getElementById('wizard-action');
-        const wizardCancel = document.getElementById('wizard-cancel');
 
         if (!wizardAction) return;
 
         // hide back button on first step
         if (wizardBack) wizardBack.style.display = this.currentStep === 1 ? 'none' : 'inline-flex';
 
-        // Always show cancel (left) button
-        if (wizardCancel) wizardCancel.style.display = 'inline-flex';
+        // The left column previously contained a Cancel button; that was removed from markup.
 
         // Handle state by step
         switch (this.currentStep) {
