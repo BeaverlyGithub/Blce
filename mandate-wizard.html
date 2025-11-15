@@ -25,6 +25,16 @@
                 <div class="loading-spinner"></div>
             </div>
         </div>
+        <!-- Global fixed footer for wizard actions -->
+        <div class="wizard-footer-fixed" id="wizard-footer">
+            <div class="footer-left">
+                <button id="wizard-cancel" class="btn-secondary">Cancel</button>
+            </div>
+            <div class="footer-actions">
+                <button id="wizard-back" class="btn-secondary">Back</button>
+                <button id="wizard-action" class="btn-primary" disabled>Continue</button>
+            </div>
+        </div>
 
         <!-- Wizard Container -->
         <div id="wizard-container" class="wizard-container hidden">
@@ -66,11 +76,7 @@
                 <!-- Netflix-style Strategy Catalog -->
                 <div id="strategy-catalog"></div>
                 
-                <!-- Fixed Footer for Step 1 -->
-                <div class="wizard-footer-fixed">
-                    <!-- Aligned ID with JS handlers (step-1-next) -->
-                    <button id="step-1-next" class="btn-primary" disabled>Continue</button>
-                </div>
+                <!-- Fixed footer for Step 1 removed (global footer used) -->
             </div>
 
             <!-- Step 2: Market Selection (NEW) -->
@@ -86,18 +92,13 @@
                     <span id="selected-markets-count" class="markets-count">0 selected</span>
                 </div>
                 
-                <!-- Fixed Footer for Step 2 -->
-                <div class="wizard-footer-fixed">
-                    <button id="step-2-back" class="btn-secondary">Back</button>
-                    <button id="step-2-next" class="btn-primary" disabled>Continue</button>
-                </div>
+                <!-- Fixed footer for Step 2 removed (global footer used) -->
             </div>
 
             <!-- Step 3: Risk Setup (previously Step 2) -->
             <div id="step-3" class="wizard-step">
                 <div class="step-header">
                     <h1>Set your risk</h1>
-                    <p>How much are you willing to put at risk per signal? Set your baseline below.</p>
                 </div>
                 <div class="risk-setup">
                     <!-- Per-Strategy Risk (Primary Section) -->
@@ -106,18 +107,9 @@
                         <p class="section-description">How much you're willing to risk on each signal.</p>
                         
                         <div class="risk-input-group">
-                            <label for="risk-per-signal">Risk per signal (%)</label>
-                            <input 
-                                id="risk-per-signal" 
-                                type="number" 
-                                min="0.01" 
-                                max="5.00" 
-                                value="1.00" 
-                                step="0.01" 
-                                placeholder="1.00"
-                                required 
-                                aria-required="true">
-                            <span class="input-hint">Enter 0.01 to 5.00 (for example: <strong>1.00</strong> = 1% per signal)</span>
+                            <label for="risk-slider">Risk per signal</label>
+                            <input id="risk-slider" type="range" min="0.01" max="5.00" value="1.00" step="0.01" class="risk-slider">
+                            <div class="slider-value"><span id="risk-display-value">1.00%</span></div>
                         </div>
 
                         <div class="risk-actions" style="display:flex;gap:0.75rem;margin-top:1rem;">
@@ -208,11 +200,7 @@
                 </div>
 
                 
-                <!-- Fixed Footer for Step 3 -->
-                <div class="wizard-footer-fixed">
-                    <button id="step-3-back" class="btn-secondary">Back</button>
-                    <button id="step-3-next" class="btn-primary">Calculate & Continue</button>
-                </div>
+                <!-- Fixed footer for Step 3 removed (global footer used) -->
             </div>
 
             <!-- Step 4: Consent (previously Step 3) -->
@@ -235,11 +223,7 @@
                     </label>
                 </div>
                 
-                <!-- Fixed Footer for Step 4 -->
-                <div class="wizard-footer-fixed">
-                    <button id="step-4-back" class="btn-secondary">Back</button>
-                    <button id="step-4-next" class="btn-primary" disabled>Continue</button>
-                </div>
+                <!-- Fixed footer for Step 4 removed (global footer used) -->
             </div>
 
             <!-- Step 5: Activation (previously Step 4) -->
@@ -298,10 +282,7 @@
                     </div>
                 </div>
                 
-                <!-- Fixed Footer for Step 5 -->\n                <div class="wizard-footer-fixed">
-                    <button id="step-5-back" class="btn-secondary">Back</button>
-                    <button id="step-5-activate" class="btn-activate">Activate Chilla</button>
-                </div>
+                <!-- Fixed footer for Step 5 removed (global footer used) -->
             </div>
 
             <!-- Success Screen -->

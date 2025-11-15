@@ -66,11 +66,9 @@ class MandateWizard {
                 this.selectedStrategy = e.detail.strategy.id || e.detail.strategy.strategy_id;
                 console.log('✅ Strategy selected:', this.selectedStrategy);
                 
-                // Enable continue button
-                const continueBtn = document.getElementById('step-1-next');
-                if (continueBtn) {
-                    continueBtn.disabled = false;
-                }
+                // Enable global continue button
+                const wizardAction = document.getElementById('wizard-action');
+                if (wizardAction && this.currentStep === 1) wizardAction.disabled = false;
             });
             
             // Listen for continue from catalog
@@ -94,6 +92,9 @@ class MandateWizard {
             loading.classList.add('hidden');
             wizard.classList.remove('hidden');
 
+            // Initialize footer state
+            this.updateFooter();
+
             console.log('✅ Mandate wizard initialized successfully');
         } catch (error) {
             console.error('❌ Failed to initialize wizard:', error);
@@ -102,21 +103,21 @@ class MandateWizard {
     }
 
     bindRiskInputs() {
-        const riskInput = document.getElementById('risk-per-signal');
+        const riskSlider = document.getElementById('risk-slider');
         const adaptive = document.getElementById('adaptive-risk-toggle');
         const omegaEnabled = document.getElementById('omega-enabled');
         const omegaSlider = document.getElementById('omega-slider');
         const omegaStrict = document.getElementById('omega-strict-mode');
 
         // Per-signal risk input (percent)
-        if (riskInput) {
-            riskInput.addEventListener('input', (e) => {
+        if (riskSlider) {
+            riskSlider.addEventListener('input', (e) => {
                 const v = parseFloat(e.target.value);
-                // Clamp between 0.01% and 5.00%
                 const clamped = Math.min(Math.max(isNaN(v) ? 1.0 : v, 0.01), 5.0);
                 this.perSignalRiskPercent = Math.round(clamped * 100) / 100;
-                // Keep the field consistent (format to 2 decimals)
-                e.target.value = this.perSignalRiskPercent.toFixed(2);
+                // Update display
+                const displayEl = document.getElementById('risk-display-value');
+                if (displayEl) displayEl.textContent = `${this.perSignalRiskPercent.toFixed(2)}%`;
             });
         }
 
@@ -172,8 +173,10 @@ class MandateWizard {
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
                 // Reset to defaults
-                const riskEl = document.getElementById('risk-per-signal');
-                if (riskEl) riskEl.value = (1.0).toFixed(2);
+                const riskEl = document.getElementById('risk-slider');
+                if (riskEl) riskEl.value = 1.0;
+                const display = document.getElementById('risk-display-value');
+                if (display) display.textContent = '1.00%';
                 this.perSignalRiskPercent = 1.0;
 
                 const omegaEl = document.getElementById('omega-slider');
@@ -310,8 +313,10 @@ class MandateWizard {
         card.classList.add('selected');
         this.selectedStrategy = card.dataset.strategyId;
 
-        // Enable next button
-        document.getElementById('step-1-next').disabled = false;
+        // Enable global continue button when on strategy step
+        const wizardAction = document.getElementById('wizard-action');
+        if (wizardAction && this.currentStep === 1) wizardAction.disabled = false;
+        this.updateFooter();
 
         // Add satisfying click animation
         card.style.transform = 'scale(0.98)';
@@ -403,8 +408,8 @@ class MandateWizard {
             if (defaultMarket) {
                 defaultMarket.checked = true;
                 this.selectedMarkets = [defaultMarket.value];
-                const nextBtn = document.getElementById('step-2-next');
-                if (nextBtn) nextBtn.disabled = false;
+                const wizardAction = document.getElementById('wizard-action');
+                if (wizardAction && this.currentStep === 2) wizardAction.disabled = false;
             }
         } else {
             // Restore checked state from this.selectedMarkets
@@ -424,10 +429,11 @@ class MandateWizard {
         }
 
         // Update button state
-        const nextBtn = document.getElementById('step-2-next');
-        if (nextBtn) {
-            nextBtn.disabled = this.selectedMarkets.length === 0;
+        const wizardAction = document.getElementById('wizard-action');
+        if (wizardAction && this.currentStep === 2) {
+            wizardAction.disabled = this.selectedMarkets.length === 0;
         }
+        this.updateFooter();
 
         // Update counter
         const counter = document.getElementById('selected-markets-count');
@@ -633,66 +639,78 @@ class MandateWizard {
 
     setupEventListeners() {
         // Step 1: Strategy
-        document.getElementById('step-1-next')?.addEventListener('click', () => this.goToStep(2));
+        // Global footer actions
+        const wizardBack = document.getElementById('wizard-back');
+        const wizardAction = document.getElementById('wizard-action');
+        const wizardCancel = document.getElementById('wizard-cancel');
 
-        // Step 2: Markets (NEW)
-        document.getElementById('step-2-back')?.addEventListener('click', () => this.goToStep(1));
-        document.getElementById('step-2-next')?.addEventListener('click', () => {
-            if (this.selectedMarkets.length === 0) {
-                this.showError('Please select at least one market to trade.');
+        wizardBack?.addEventListener('click', () => this.goToStep(this.currentStep - 1));
+
+        wizardCancel?.addEventListener('click', () => {
+            // Cancel the wizard and return to dashboard
+            window.location.href = 'dashboard.html';
+        });
+
+        wizardAction?.addEventListener('click', async () => {
+            if (this.currentStep === 1) {
+                // From strategy to markets
+                this.goToStep(2);
                 return;
             }
-            this.goToStep(3);
-        });
 
-        // Step 3: Risk
-        document.getElementById('step-3-back')?.addEventListener('click', () => this.goToStep(2));
-        document.getElementById('step-3-next')?.addEventListener('click', async () => {
-            // Update button state
-            const btn = document.getElementById('step-3-next');
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = 'Calculating...';
-            }
-
-            try {
-                // Validate per-strategy risk before calculating implications
-                const valid = this.validateRiskInputs();
-                if (!valid.ok) {
-                    this.showError(valid.message);
+            if (this.currentStep === 2) {
+                // Validate markets
+                if (this.selectedMarkets.length === 0) {
+                    this.showError('Please select at least one market to trade.');
                     return;
                 }
+                this.goToStep(3);
+                return;
+            }
 
-                // Calculate risk implications on backend before moving to consent
-                await this.calculateRiskImplications();
-                
-                // Move to consent step
-                this.goToStep(4);
-            } catch (error) {
-                console.error('Risk calculation error:', error);
-                this.showError('Could not calculate risk. Please try again.');
-            } finally {
-                // Restore button
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = 'Calculate & Continue';
+            if (this.currentStep === 3) {
+                // Calculate risk 
+                if (wizardAction) {
+                    wizardAction.disabled = true;
+                    wizardAction.textContent = 'Calculating...';
                 }
+                try {
+                    const valid = this.validateRiskInputs();
+                    if (!valid.ok) return this.showError(valid.message);
+                    await this.calculateRiskImplications();
+                    this.goToStep(4);
+                } catch (err) {
+                    this.showError('Could not calculate risk. Please try again.');
+                } finally {
+                    if (wizardAction) {
+                        wizardAction.disabled = false;
+                        wizardAction.textContent = 'Calculate & Continue';
+                    }
+                }
+                return;
+            }
+
+            if (this.currentStep === 4) {
+                this.goToStep(5);
+                return;
+            }
+
+            if (this.currentStep === 5) {
+                // Activate
+                this.activateMandate();
+                return;
             }
         });
 
-        // Step 4: Consent (moved from step 3)
-        document.getElementById('step-4-back')?.addEventListener('click', () => this.goToStep(3));
-        document.getElementById('step-4-next')?.addEventListener('click', () => this.goToStep(5));
+            // Consent checkbox
+            document.getElementById('consent-accept')?.addEventListener('change', (e) => {
+                this.consentAccepted = e.target.checked;
+                // Disabled state will be handled by the global wizard action button instead
+                const wizardAction = document.getElementById('wizard-action');
+                wizardAction.disabled = !this.consentAccepted; // Enable/disable wizard action based on consent
+            });
 
-        // Consent checkbox
-        document.getElementById('consent-accept')?.addEventListener('change', (e) => {
-            this.consentAccepted = e.target.checked;
-            document.getElementById('step-4-next').disabled = !this.consentAccepted;
-        });
-
-        // Step 5: Activation (moved from step 4)
-        document.getElementById('step-5-back')?.addEventListener('click', () => this.goToStep(4));
-        document.getElementById('step-5-activate')?.addEventListener('click', () => this.activateMandate());
+        // Step 5: Activation handled by global footer; keep existing handlers removed
 
         // Success screen
         document.getElementById('go-to-dashboard')?.addEventListener('click', () => {
@@ -710,7 +728,7 @@ class MandateWizard {
         }
 
         // Read the input directly to ensure HTML validity
-        const riskEl = document.getElementById('risk-per-signal');
+        const riskEl = document.getElementById('risk-slider');
         if (!riskEl) return { ok: false, message: 'Risk input not found' };
 
         const value = parseFloat(riskEl.value);
@@ -761,6 +779,7 @@ class MandateWizard {
         // Update progress
         this.currentStep = stepNumber;
         this.updateProgress();
+        this.updateFooter();
     }
 
     updateProgress() {
@@ -780,6 +799,47 @@ class MandateWizard {
                 step.classList.remove('active', 'completed');
             }
         });
+    }
+
+    updateFooter() {
+        const wizardBack = document.getElementById('wizard-back');
+        const wizardAction = document.getElementById('wizard-action');
+        const wizardCancel = document.getElementById('wizard-cancel');
+
+        if (!wizardAction) return;
+
+        // hide back button on first step
+        if (wizardBack) wizardBack.style.display = this.currentStep === 1 ? 'none' : 'inline-flex';
+
+        // Always show cancel (left) button
+        if (wizardCancel) wizardCancel.style.display = 'inline-flex';
+
+        // Handle state by step
+        switch (this.currentStep) {
+            case 1:
+                wizardAction.textContent = 'Continue';
+                wizardAction.disabled = !this.selectedStrategy;
+                break;
+            case 2:
+                wizardAction.textContent = 'Continue';
+                wizardAction.disabled = this.selectedMarkets.length === 0;
+                break;
+            case 3:
+                wizardAction.textContent = 'Calculate & Continue';
+                wizardAction.disabled = false;
+                break;
+            case 4:
+                wizardAction.textContent = 'Continue';
+                wizardAction.disabled = !this.consentAccepted;
+                break;
+            case 5:
+                wizardAction.textContent = 'Activate Chilla';
+                wizardAction.disabled = false;
+                break;
+            default:
+                wizardAction.textContent = 'Continue';
+                wizardAction.disabled = false;
+        }
     }
 
 
@@ -818,7 +878,8 @@ class MandateWizard {
     }
 
     async activateMandate() {
-        const activateBtn = document.getElementById('step-5-activate');
+        // Use either per-step button (legacy) or the new global wizard action
+        const activateBtn = document.getElementById('step-5-activate') || document.getElementById('wizard-action');
         if (!activateBtn) return;
 
         // Disable button to prevent double-clicks
