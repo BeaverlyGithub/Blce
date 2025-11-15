@@ -15,6 +15,7 @@ class StrategyCatalog {
         this.strategies = [];
         this.categories = [];
         this.selectedStrategy = null;
+        this.hideHeader = false; // Set to true when embedded in other components that already show a header
         this.searchQuery = '';
         this.expandedCard = null;
         
@@ -23,6 +24,14 @@ class StrategyCatalog {
     
     async init() {
         await this.loadStrategies();
+        // If catalog is used inside a wizard step, avoid rendering a redundant header
+        // (the wizard already includes an H1). This prevents "Choose your strategy" from showing twice.
+        if (this.container && this.container.closest('.wizard-step')) {
+            this.hideHeader = true;
+        }
+        // Don't preselect any strategy when this catalog is embedded within the wizard
+        // (we want users to make an active selection).
+        this.selectedStrategy = null;
         this.renderCatalog();
         this.setupEventListeners();
     }
@@ -103,12 +112,16 @@ class StrategyCatalog {
     
     renderCatalog() {
         if (!this.container) return;
-        
-        this.container.innerHTML = `
+        // When embedded in a wizard, the parent already has a page title. Only render the
+        // catalog header if not embedded.
+        const headerHTML = this.hideHeader ? '' : `
             <div class="catalog-header">
                 <h1>Choose your strategy</h1>
             </div>
-            
+        `;
+
+        this.container.innerHTML = `
+            ${headerHTML}
             <div class="catalog-categories">
                 ${this.renderCategories()}
             </div>
