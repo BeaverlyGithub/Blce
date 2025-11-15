@@ -92,7 +92,12 @@ class StrategyCatalog {
                 user_count: counts[s.id || s.strategy_id] || 0
             }));
         } catch (error) {
-            console.warn('Could not load user counts:', error);
+            // Silently handle - user counts are optional enhancement
+            // Default to 0 counts if endpoint not available yet
+            this.strategies = this.strategies.map(s => ({
+                ...s,
+                user_count: 0
+            }));
         }
     }
     
@@ -149,8 +154,10 @@ class StrategyCatalog {
     }
     
     renderStrategyCard(strategy) {
-        const isSelected = this.selectedStrategy?.id === strategy.id;
-        const isExpanded = this.expandedCard === strategy.id;
+        const strategyId = strategy.id || strategy.strategy_id;
+        const selectedId = this.selectedStrategy?.id || this.selectedStrategy?.strategy_id;
+        const isSelected = selectedId === strategyId;
+        const isExpanded = this.expandedCard === strategyId;
         
         return `
             <div 
@@ -272,7 +279,8 @@ class StrategyCatalog {
         // Strategy card clicks
         this.container.addEventListener('click', (e) => {
             const card = e.target.closest('.strategy-card-netflix');
-            const action = e.target.closest('[data-action]')?.dataset.action;
+            const actionBtn = e.target.closest('[data-action]');
+            const action = actionBtn?.dataset.action;
             
             if (card && !action) {
                 this.selectStrategy(card.dataset.strategyId);
@@ -280,7 +288,10 @@ class StrategyCatalog {
             
             if (action === 'expand') {
                 e.stopPropagation();
-                this.toggleExpand(card.dataset.strategyId);
+                const expandCard = actionBtn.closest('.strategy-card-netflix');
+                if (expandCard) {
+                    this.toggleExpand(expandCard.dataset.strategyId);
+                }
             }
             
             if (action === 'collapse') {
