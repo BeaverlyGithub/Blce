@@ -15,7 +15,7 @@ class MandateWizard {
         this.adaptiveRisk = false;
         
         // Omega Risk (optional)
-        this.omegaEnabled = true; // Default: enabled
+        this.omegaEnabled = false; // Default: disabled — user opt-in
         this.omegaCapPercent = 5.0; // Default: 5% monthly cap (user-facing)
         this.omegaStrictMode = false; // Default: soft-manage (show warnings, allow signals)
         
@@ -102,6 +102,7 @@ class MandateWizard {
             console.error('❌ Failed to initialize wizard:', error);
             this.showError('Could not load wizard — please refresh and try again');
         }
+
     }
 
     bindRiskInputs() {
@@ -123,7 +124,16 @@ class MandateWizard {
                 // Changing the slider invalidates previously-calculated results
                 this.riskCalculated = false;
                 this.updateFooter();
+                // ARIA: update slider current value attributes
+                riskSlider.setAttribute('aria-valuenow', String(this.perSignalRiskPercent));
+                riskSlider.setAttribute('aria-valuetext', `${this.perSignalRiskPercent.toFixed(2)}%`);
             });
+            // initialize ARIA attributes
+            riskSlider.setAttribute('aria-label', 'Per-signal risk percentage');
+            riskSlider.setAttribute('aria-valuemin', riskSlider.min || '0.01');
+            riskSlider.setAttribute('aria-valuemax', riskSlider.max || '5');
+            riskSlider.setAttribute('aria-valuenow', String(this.perSignalRiskPercent));
+            riskSlider.setAttribute('aria-valuetext', `${this.perSignalRiskPercent.toFixed(2)}%`);
         }
 
         // Adaptive risk toggle
@@ -132,7 +142,9 @@ class MandateWizard {
                 this.adaptiveRisk = !!e.target.checked;
                 const adaptiveCard = document.getElementById('adaptive-card');
                 if (adaptiveCard) adaptiveCard.open = !!e.target.checked;
+                adaptive.setAttribute('aria-checked', String(!!e.target.checked));
             });
+            adaptive.setAttribute('aria-checked', String(!!adaptive.checked));
         }
 
         // Omega enabled toggle
@@ -142,7 +154,13 @@ class MandateWizard {
                 // Set the open state of the omega card; if no card exists, no-op
                 const omegaCard = document.getElementById('omega-card');
                 if (omegaCard) omegaCard.open = !!e.target.checked;
+                // ARIA: reflect expanded state on the omega card for screen readers
+                const omegaCardEl = document.getElementById('omega-card');
+                if (omegaCardEl) omegaCardEl.setAttribute('aria-expanded', !!e.target.checked);
+                // Reflect native checkbox state in ARIA
+                omegaEnabled.setAttribute('aria-checked', String(!!e.target.checked));
             });
+            omegaEnabled.setAttribute('aria-checked', String(!!omegaEnabled.checked));
         }
 
         // Omega cap slider (percent)
@@ -154,6 +172,9 @@ class MandateWizard {
                 if (displayEl) {
                     displayEl.textContent = value.toFixed(1) + '%';
                 }
+                // Update ARIA values for the omega slider on input
+                omegaSlider.setAttribute('aria-valuenow', String(value));
+                omegaSlider.setAttribute('aria-valuetext', `${value.toFixed(1)}%`);
                 // Scheduling a recalculation when Omega changes — gives a quick preview
                 if (this._riskCalcTimer) clearTimeout(this._riskCalcTimer);
                     this._riskCalcTimer = setTimeout(async () => {
@@ -166,6 +187,12 @@ class MandateWizard {
                         }
                     }, 700);
             });
+                // Accessibility: initialize ARIA values
+                omegaSlider.setAttribute('aria-valuemin', omegaSlider.min || '1');
+                omegaSlider.setAttribute('aria-valuemax', omegaSlider.max || '10');
+                omegaSlider.setAttribute('aria-valuenow', omegaSlider.value);
+                omegaSlider.setAttribute('aria-valuetext', omegaSlider.value + '%');
+                omegaSlider.setAttribute('aria-label', 'Omega monthly cap percent');
         }
 
         // Omega strict mode
@@ -178,9 +205,11 @@ class MandateWizard {
         // Ensure the details boxes match toggle defaults at load
         const omegaCardInit = document.getElementById('omega-card');
         if (omegaCardInit) omegaCardInit.open = !!this.omegaEnabled;
+        if (omegaCardInit) omegaCardInit.setAttribute('aria-expanded', !!this.omegaEnabled);
 
         const adaptiveCardInit = document.getElementById('adaptive-card');
         if (adaptiveCardInit) adaptiveCardInit.open = !!this.adaptiveRisk;
+        if (adaptiveCardInit) adaptiveCardInit.setAttribute('aria-expanded', !!this.adaptiveRisk);
 
         // Reset / Save buttons for risk card
         const resetBtn = document.getElementById('reset-risk-btn');
@@ -413,7 +442,7 @@ class MandateWizard {
                 <div class="market-grid">
                     ${data.symbols.map(symbol => `
                         <label class="market-checkbox">
-                            <input type="checkbox" value="${symbol.id}" data-category="${category}">
+                            <input type="checkbox" value="${symbol.id}" data-category="${category}" aria-label="${symbol.name} (${symbol.id})">
                             <span class="market-name">${symbol.name}</span>
                             <span class="market-id">${symbol.id}</span>
                         </label>
@@ -429,20 +458,26 @@ class MandateWizard {
             });
         });
 
-        // Pre-select first symbol if none selected yet
-        if (!this.selectedMarkets || this.selectedMarkets.length === 0) {
-            const defaultMarket = container.querySelector('input[value="1HZ100V"]') || container.querySelector('input[type="checkbox"]');
-            if (defaultMarket) {
-                defaultMarket.checked = true;
-                this.selectedMarkets = [defaultMarket.value];
-                const wizardAction = document.getElementById('wizard-action');
-                if (wizardAction && this.currentStep === 2) wizardAction.disabled = false;
-            }
-        } else {
+        // If we have previous selections, restore them. Otherwise leave all unchecked (no default selection)
+        if (this.selectedMarkets && this.selectedMarkets.length > 0) {
             // Restore checked state from this.selectedMarkets
-            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                if (this.selectedMarkets.includes(cb.value)) cb.checked = true;
-            });
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    if (this.selectedMarkets.includes(cb.value)) {
+                        cb.checked = true;
+                        cb.setAttribute('aria-checked', 'true');
+                    } else {
+                        cb.setAttribute('aria-checked', 'false');
+                    }
+                });
+        } else {
+            // Ensure none are checked by default — user should actively select markets
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                    cb.setAttribute('aria-checked', 'false');
+                });
+            this.selectedMarkets = [];
+            const wizardAction = document.getElementById('wizard-action');
+            if (wizardAction && this.currentStep === 2) wizardAction.disabled = true;
         }
     }
 
@@ -467,6 +502,9 @@ class MandateWizard {
         if (counter) {
             counter.textContent = `${this.selectedMarkets.length} selected`;
         }
+        // ARIA: update checked state for screen readers on the market checkbox
+        const checkbox = document.querySelector(`input[type="checkbox"][value="${symbolId}"]`);
+        if (checkbox) checkbox.setAttribute('aria-checked', String(!!selected));
     }
 
     async calculateRiskImplications() {
@@ -526,10 +564,10 @@ class MandateWizard {
         } catch (error) {
             console.error('❌ Risk calculation failed:', error);
             
-                // Ensure riskCalculated remains false on failure
+                // Ensure riskCalculated remains false on failure — user may retry
                 this.riskCalculated = false;
                 this.updateFooter();
-            // Show error but don't block progression
+            // Show error but do not suggest continuation — gating prevents moving forward
             const indicator = document.getElementById('risk-indicator');
             if (indicator) {
                 indicator.innerHTML = `
@@ -538,7 +576,7 @@ class MandateWizard {
                             <i data-lucide="alert-triangle"></i>
                         </div>
                         <div class="risk-summary">
-                            Unable to calculate risk preview. You can still proceed.
+                            Unable to calculate risk preview. Please try again — calculation is required to continue.
                         </div>
                     </div>
                 `;
@@ -850,6 +888,7 @@ class MandateWizard {
                 // Step 3 requires a save / calculation before continuing.
                 wizardAction.textContent = 'Continue';
                 wizardAction.disabled = !this.riskCalculated;
+                wizardAction.setAttribute('aria-disabled', String(!this.riskCalculated));
                 break;
             case 4:
                 wizardAction.textContent = 'Continue';
@@ -862,7 +901,14 @@ class MandateWizard {
             default:
                 wizardAction.textContent = 'Continue';
                 wizardAction.disabled = false;
+                wizardAction.setAttribute('aria-disabled', 'false');
         }
+        // Reflect aria-disabled for the main action button
+        wizardAction.setAttribute('aria-disabled', String(wizardAction.disabled));
+        // Keep the aria-label in sync with the button text
+        wizardAction.setAttribute('aria-label', wizardAction.textContent);
+        // Also update the back button aria-disabled
+        if (wizardBack) wizardBack.setAttribute('aria-disabled', String(this.currentStep === 1));
     }
 
 
