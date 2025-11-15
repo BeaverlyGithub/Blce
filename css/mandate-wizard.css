@@ -4,7 +4,8 @@
 .wizard-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    /* Reduce top padding to avoid large empty space above step headers */
+    padding: 1rem 1rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -16,7 +17,8 @@
 
 /* ==================== Progress Bar ==================== */
 .wizard-progress {
-    margin-bottom: 3rem;
+    /* Less vertical space between progress and header */
+    margin-bottom: 1.25rem;
 }
 
 .progress-bar {
@@ -101,9 +103,13 @@
     transform: translateX(0);
 }
 
+/* If wizard is mounted inside a site layout with main-content padding, override top padding to prevent extra gap */
+.main-content .wizard-container { padding-top: 1rem; }
+
 .step-header {
     text-align: center;
-    margin-bottom: 3rem;
+    /* tightening vertical gap */
+    margin-bottom: 1.5rem;
 }
 
 .step-header h1 {
@@ -410,6 +416,7 @@
 .risk-setup {
     max-width: 600px;
     margin: 0 auto;
+    margin-top: 0;
 }
 
 .risk-visual {
@@ -659,6 +666,8 @@
     margin-bottom: 2rem;
 }
 
+.activation-content { margin-top: 0; }
+
 .summary-card {
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.08);
@@ -697,7 +706,7 @@
 /* ==================== Success Screen ==================== */
 .success-content {
     text-align: center;
-    padding: 3rem 1rem;
+    padding: 2rem 1rem;
 }
 
 .success-icon {
