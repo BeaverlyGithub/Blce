@@ -124,6 +124,8 @@ class MandateWizard {
         if (adaptive) {
             adaptive.addEventListener('change', (e) => {
                 this.adaptiveRisk = !!e.target.checked;
+                const adaptiveCard = document.getElementById('adaptive-card');
+                if (adaptiveCard) adaptiveCard.open = !!e.target.checked;
             });
         }
 
@@ -131,10 +133,9 @@ class MandateWizard {
         if (omegaEnabled) {
             omegaEnabled.addEventListener('change', (e) => {
                 this.omegaEnabled = !!e.target.checked;
-                const controls = document.getElementById('omega-controls');
-                if (controls) {
-                    controls.style.display = this.omegaEnabled ? 'block' : 'none';
-                }
+                // Set the open state of the omega card; if no card exists, no-op
+                const omegaCard = document.getElementById('omega-card');
+                if (omegaCard) omegaCard.open = !!e.target.checked;
             });
         }
 
@@ -154,6 +155,47 @@ class MandateWizard {
         if (omegaStrict) {
             omegaStrict.addEventListener('change', (e) => {
                 this.omegaStrictMode = !!e.target.checked;
+            });
+        }
+
+        // Ensure the details boxes match toggle defaults at load
+        const omegaCardInit = document.getElementById('omega-card');
+        if (omegaCardInit) omegaCardInit.open = !!this.omegaEnabled;
+
+        const adaptiveCardInit = document.getElementById('adaptive-card');
+        if (adaptiveCardInit) adaptiveCardInit.open = !!this.adaptiveRisk;
+
+        // Reset / Save buttons for risk card
+        const resetBtn = document.getElementById('reset-risk-btn');
+        const saveBtn = document.getElementById('save-risk-btn');
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                // Reset to defaults
+                const riskEl = document.getElementById('risk-per-signal');
+                if (riskEl) riskEl.value = (1.0).toFixed(2);
+                this.perSignalRiskPercent = 1.0;
+
+                const omegaEl = document.getElementById('omega-slider');
+                if (omegaEl) omegaEl.value = 5;
+                this.omegaCapPercent = 5.0;
+
+                const adaptive = document.getElementById('adaptive-risk-toggle');
+                if (adaptive) adaptive.checked = false;
+                this.adaptiveRisk = false;
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                const valid = this.validateRiskInputs();
+                if (!valid.ok) {
+                    this.showError(valid.message);
+                    return;
+                }
+                // Save has no backend action yet; just provide quick feedback
+                saveBtn.textContent = 'Saved';
+                setTimeout(() => saveBtn.textContent = 'Save', 1500);
             });
         }
     }

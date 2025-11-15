@@ -145,7 +145,7 @@
 }
 
 .strategy-card.selected {
-    border-color: var(--primary-color, #000);
+    border-color: var(--accent-color);
     background: rgba(0, 0, 0, 0.02);
 }
 
@@ -169,7 +169,7 @@
     width: 48px;
     height: 48px;
     margin-bottom: 1rem;
-    color: var(--primary-color, #000);
+    color: var(--accent-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -284,11 +284,98 @@
 
 .market-checkbox input[type="checkbox"]:checked ~ .market-name {
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--accent-color);
 }
 
 .market-checkbox input[type="checkbox"]:checked {
-    accent-color: var(--primary-color);
+    accent-color: var(--accent-color);
+}
+
+/* Modern risk card styles */
+.risk-main-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.option-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.option-card summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    cursor: pointer;
+}
+
+.option-card summary::-webkit-details-marker { display:none; }
+
+.option-card .option-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.option-card .option-body {
+    margin-top: 0.75rem;
+}
+
+.toggle-switch input[type="checkbox"] { accent-color: var(--accent-color); }
+
+/* Toggle switch styling similar to upgrade page */
+.toggle-switch {
+    position: relative;
+    width: 56px;
+    height: 28px;
+    display: inline-block;
+}
+
+.toggle-switch .toggle-input {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.toggle-switch .toggle-label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-tertiary);
+    border-radius: 14px;
+    position: relative;
+    transition: background 0.2s ease;
+    z-index: 1;
+}
+
+.toggle-switch .toggle-input:checked + .toggle-label {
+    background: var(--accent-color);
+}
+
+.toggle-switch .toggle-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+}
+
+.toggle-switch .toggle-input:checked + .toggle-label .toggle-slider {
+    transform: translateX(28px);
 }
 
 .market-name {

@@ -101,7 +101,7 @@
                 </div>
                 <div class="risk-setup">
                     <!-- Per-Strategy Risk (Primary Section) -->
-                    <div class="risk-section">
+                    <div class="risk-main-card">
                         <h3>Per-signal risk</h3>
                         <p class="section-description">How much you're willing to risk on each signal.</p>
                         
@@ -119,6 +119,63 @@
                                 aria-required="true">
                             <span class="input-hint">Enter 0.01 to 5.00 (for example: <strong>1.00</strong> = 1% per signal)</span>
                         </div>
+
+                        <div class="risk-actions" style="display:flex;gap:0.75rem;margin-top:1rem;">
+                            <button id="reset-risk-btn" class="btn-secondary">Reset</button>
+                            <button id="save-risk-btn" class="btn-primary">Save</button>
+                        </div>
+
+                    </div>
+
+                    <!-- Optional Settings (accordion-style modern option cards) -->
+                    <div class="option-card-container">
+                        <details class="option-card" id="omega-card">
+                            <summary>
+                                <div class="option-header">
+                                    <div>
+                                        <h4>Omega Risk Cap</h4>
+                                        <div class="option-description">Set a monthly risk budget and pause behavior.</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input class="toggle-input" type="checkbox" id="omega-enabled" checked>
+                                        <span class="toggle-label"><span class="toggle-slider"></span></span>
+                                    </label>
+                                </div>
+                            </summary>
+                            <div class="option-body">
+                                <div class="slider-container">
+                                    <input type="range" id="omega-slider" class="risk-slider" min="1" max="10" value="5" step="0.5">
+                                    <div class="slider-value">
+                                        <span id="omega-display-value">5.0%</span>
+                                    </div>
+                                </div>
+                                <div class="omega-mode">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="omega-strict-mode">
+                                        <span>Strict mode (pause at cap)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="option-card" id="adaptive-card">
+                            <summary>
+                                <div class="option-header">
+                                    <div>
+                                        <h4>Adaptive Risk</h4>
+                                        <div class="option-description">Auto-adjust your position sizing using volatility rules.</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input class="toggle-input" type="checkbox" id="adaptive-risk-toggle">
+                                        <span class="toggle-label"><span class="toggle-slider"></span></span>
+                                    </label>
+                                </div>
+                            </summary>
+                            <div class="option-body">
+                                <p style="color:var(--muted-color);font-size:0.95rem;margin:0">Adaptive risk tracks real-time market volatility and adjusts risk automatically — no action needed when active.</p>
+                            </div>
+                        </details>
+                    </div>
 
                         <!-- Risk Preview (shown after calculation) -->
                         <div id="risk-preview" class="risk-preview hidden">
@@ -142,64 +199,7 @@
                         </div>
                     </div>
 
-                    <!-- Optional Settings (Accordion) -->
-                    <details class="risk-accordion">
-                        <summary>
-                            <span class="accordion-title">Optional: Advanced risk controls</span>
-                            <span class="accordion-icon">▼</span>
-                        </summary>
-                        
-                        <div class="accordion-content">
-                            <!-- Omega Risk Cap -->
-                            <div class="risk-option">
-                                <div class="option-header">
-                                    <h4>Omega Risk Cap</h4>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="omega-enabled" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <p class="option-description">Set a monthly risk budget for tracking. Your per-signal risk stays the same — Omega doesn't reduce it. When the monthly cap is reached, you'll see warnings (soft-cap) or execution will pause (strict mode).</p>
-                                
-                                <div id="omega-controls" class="option-controls">
-                                    <div class="slider-container">
-                                        <input 
-                                            type="range" 
-                                            id="omega-slider" 
-                                            class="risk-slider" 
-                                            min="1" 
-                                            max="10" 
-                                            value="5" 
-                                            step="0.5">
-                                        <div class="slider-value">
-                                            <span id="omega-display-value">5.0%</span>
-                                            <span class="slider-label">monthly cap</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="omega-mode">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" id="omega-strict-mode">
-                                            <span>Strict mode (pause at cap)</span>
-                                        </label>
-                                        <span class="mode-hint">Default: Soft-manage (shows warnings, signals continue)</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Adaptive Risk -->
-                            <div class="risk-option">
-                                <div class="option-header">
-                                    <h4>Adaptive Risk <span class="beta-badge">BETA</span></h4>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="adaptive-risk-toggle">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                                <p class="option-description">Adaptive Risk adjusts position size automatically using fixed rules based on market volatility. It is a mechanical setting and does not make personalized recommendations or change risk based on your results.</p>
-                            </div>
-                        </div>
-                    </details>
+                    <!-- Optional: See Omega & Adaptive as inline cards above -->
 
                     <!-- Risk Implications (calculated on backend) -->
                     <div id="risk-indicator" class="risk-indicator">
