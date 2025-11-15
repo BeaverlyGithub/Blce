@@ -565,7 +565,14 @@
 
     .balance-card {
         grid-column: 2;
-        margin-bottom: 2rem;
+    }
+
+    .mandate-card {
+        grid-column: 1;
+    }
+
+    .decisions-card {
+        grid-column: 2;
     }
 
     .positions-card {

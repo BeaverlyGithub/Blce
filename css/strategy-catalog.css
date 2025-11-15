@@ -181,7 +181,7 @@
 
 .strategy-card-netflix.selected {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.15), 0 6px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb, 0, 200, 83), 0.15), 0 6px 16px rgba(0, 0, 0, 0.12);
     background: var(--bg-primary);
 }
 
@@ -218,7 +218,7 @@
     align-items: center;
     justify-content: center;
     color: #fff;
-    box-shadow: 0 3px 10px rgba(0, 200, 83, 0.4);
+    box-shadow: 0 3px 10px rgba(var(--accent-color-rgb, 0, 200, 83), 0.4);
     animation: scaleIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 

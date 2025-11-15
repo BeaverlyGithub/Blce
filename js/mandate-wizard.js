@@ -65,6 +65,12 @@ class MandateWizard {
             document.getElementById('strategy-catalog').addEventListener('strategy-selected', (e) => {
                 this.selectedStrategy = e.detail.strategy.id || e.detail.strategy.strategy_id;
                 console.log('✅ Strategy selected:', this.selectedStrategy);
+                
+                // Enable continue button
+                const continueBtn = document.getElementById('step-1-continue');
+                if (continueBtn) {
+                    continueBtn.disabled = false;
+                }
             });
             
             // Listen for continue from catalog
