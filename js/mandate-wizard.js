@@ -67,7 +67,7 @@ class MandateWizard {
                 console.log('✅ Strategy selected:', this.selectedStrategy);
                 
                 // Enable continue button
-                const continueBtn = document.getElementById('step-1-continue');
+                const continueBtn = document.getElementById('step-1-next');
                 if (continueBtn) {
                     continueBtn.disabled = false;
                 }
