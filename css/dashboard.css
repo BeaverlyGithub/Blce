@@ -524,6 +524,27 @@
     margin: 0 auto;
 }
 
+/* Mobile reordering: ensure the list order follows the mobile preference
+   1. instructions (.mandate-card)
+   2. broker status (.activity-card)
+   3. account balance (.balance-card)
+   4. live decisions (.decisions-card)
+   5. open positions (.positions-card)
+*/
+@media (max-width: 767px) {
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .mandate-card { order: 1; }
+    .activity-card { order: 2; }
+    .balance-card { order: 3; }
+    .decisions-card { order: 4; }
+    .positions-card { order: 5; }
+}
+
 /* Loading screen controls */
 .loading-screen {
     position: fixed;
@@ -559,24 +580,35 @@
         gap: 2rem;
     }
 
+    /* Desktop ordering to match requested layout:
+       Row 1: Instructions spanning both columns
+       Row 2: Broker status (left) | Account balance (right)
+       Row 3: Live decisions  (both columns)
+       Row 4: Open positions  (both columns)
+    */
+    .mandate-card {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
     .activity-card {
         grid-column: 1;
+        grid-row: 2;
     }
 
     .balance-card {
         grid-column: 2;
-    }
-
-    .mandate-card {
-        grid-column: 1;
+        grid-row: 2;
     }
 
     .decisions-card {
-        grid-column: 2;
+        grid-column: 1 / -1;
+        grid-row: 3;
     }
 
     .positions-card {
         grid-column: 1 / -1;
+        grid-row: 4;
     }
 }
 
