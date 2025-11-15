@@ -51,5 +51,23 @@
     window.APP_CONFIG.API_BASE = API_BASE;
     window.APP_CONFIG.apiUrl = apiUrl;
     window.APP_CONFIG.wsUrl = wsUrl;
+    
+    // Attach global navigation handlers to avoid inline onclick -> CSP safe
+    document.addEventListener('DOMContentLoaded', () => {
+        // Back to dashboard actions
+        document.querySelectorAll('[data-action="back-to-dashboard"]').forEach(btn => {
+            btn.addEventListener('click', () => window.location.href = 'dashboard.html');
+        });
+
+        // Support links
+        document.querySelectorAll('[data-action="go-to-contact"]').forEach(btn => {
+            btn.addEventListener('click', () => window.location.href = 'contact.html');
+        });
+
+        // Generic reload (used by many components)
+        document.querySelectorAll('[data-action="reload"]').forEach(btn => {
+            btn.addEventListener('click', () => window.location.reload());
+        });
+    });
     // helper for manual overrides during development: localStorage.setItem('APP_API_BASE','http://localhost:8080')
 })();

@@ -431,7 +431,7 @@ class BrokerAccountManager {
                 <i data-lucide="alert-triangle"></i>
                 <h2>Error</h2>
                 <p>${message}</p>
-                <button class="btn-primary" onclick="window.location.reload()">
+                <button class="btn-primary" data-action="reload">
                     Retry
                 </button>
             </div>

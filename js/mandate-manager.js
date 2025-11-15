@@ -104,7 +104,7 @@ class MandateManager {
                 <i data-lucide="alert-circle"></i>
                 <h2>No Active Instructions</h2>
                 <p>You don't have an active instruction.</p>
-                <button class="btn-primary" onclick="window.location.href='mandate-wizard.html'">
+                <button class="btn-primary" data-action="create">
                     Create
                 </button>
             </div>
@@ -341,6 +341,11 @@ class MandateManager {
             
             if (action === 'modify') {
                 this.handleModify();
+            } else if (action === 'create') {
+                // Navigate to the wizard to create a new mandate
+                window.location.href = 'mandate-wizard.html';
+            } else if (action === 'reload') {
+                window.location.reload();
             } else if (action === 'revoke') {
                 this.handleRevoke();
             }
@@ -422,7 +427,7 @@ class MandateManager {
                 <i data-lucide="alert-triangle"></i>
                 <h2>Error</h2>
                 <p>${message}</p>
-                <button class="btn-primary" onclick="window.location.reload()">
+                <button class="btn-primary" data-action="reload">
                     Retry
                 </button>
             </div>
